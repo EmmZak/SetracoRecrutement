@@ -3,6 +3,9 @@
 ```bash
 python3 -v # 3.11
 python3 -m django --version # 4.2.6
+
+vue # 3.4
+vuetify # 3.7
 ```
 
 # Init
