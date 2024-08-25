@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <link href="https://cdn.jsdelivr.net/npm/vuetify@3.7/dist/vuetify.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link href="https://cdn.jsdelivr.net/npm/@mdi/font@4.x/css/materialdesignicons.min.css" rel="stylesheet" />
+
+
+    <title>{% block title %}My Company{% endblock %}</title>
+    <style>
+        .company-info .v-list-item__title {
+            font-size: 1.5rem;
+            /* Increase font size */
+            font-weight: bold;
+            /* Optional: Make it bold */
+        }
+
+        .company-info .v-list-item__subtitle {
+            font-size: 1.2rem;
+            /* Optional: Adjust subtitle font size */
+        }
+    </style>
+</head>
+
+<body class="">
+    <script src="https://cdn.jsdelivr.net/npm/vue@3.4/dist/vue.global.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/vuetify@3.7/dist/vuetify.min.js"></script>
+
+    <div id="app">
+
+        <v-app>
+            <v-navigation-drawer :temporary="false" v-model="drawer" :rail="rail" permanent @click="rail = false">
+                <v-list-item prepend-avatar="https://randomuser.me/api/portraits/men/85.jpg" title="Setraco" nav
+                    class="company-info">
+                    <template v-slot:append>
+                        <v-btn icon="mdi-chevron-left" variant="text" @click.stop="rail = !rail"></v-btn>
+                    </template>
+                </v-list-item>
+                <!-- <div class="bg-red d-flex">
+                        <v-icon name="home" ></v-icon>
+                        <span class="text-xl">Setraco</span>
+                    </div> -->
+
+                <v-divider></v-divider>
+
+                <v-list density="compact" nav>
+                    <v-list-item v-for="route in routes" :key="route.value" :prepend-icon="route.icon"
+                        :title="route.title" :href="route.to" link :active="isActive(route.to)">
+                    </v-list-item>
+                </v-list>
+
+                <template v-slot:append>
+                    <div class="pa-2">
+                        <v-btn block class="bg-red" @click="logout">
+                            <v-icon v-if="rail">mdi-logout</v-icon>
+                            <template v-else>
+                                <v-icon>mdi-logout</v-icon>
+                                Déconnexion
+                            </template>
+                        </v-btn>
+                    </div>
+                </template>
+            </v-navigation-drawer>
+
+            <v-main>
+                <div class="content" style="flex-grow: 1; padding: 20px;">
+                    {% block content %}
+                    {% endblock %}
+                </div>
+            </v-main>
+
+        </v-app>
+    </div>
+    <!-- <div class="bg-green d-flex flex-column justify-space-between ga-2" style="width: 250px; height: 100vw;">
+        <div id="company" class="d-flex flex-row justify-space-around bg-yellow " style="height: 10%;">
+            <div>logo</div>
+            <span>Setraco</span>
+        </div>
+        <div id="routes" class="d-flex flex-column  justify-start ga-2" style="height: 100%;">
+            <a href="{% url 'home' %}" class="route bg-yellow">
+                <i class="fas fa-home {% if request.path == '/home/' %} bg-red {% endif %}"></i>
+                <span>Home</span>
+            </a>
+            <a href="{% url 'home' %}" class="route ">Home</a>
+            <a href="{% url 'profiles' %}" class="{% if request.path == '/profiles/' %} bg-red {% endif %}">Profiles</a>
+            <a href="{% url 'config' %}">Configuration</a>
+            <a href="{% url 'users' %}">Utilisateurs</a>
+        </div>
+        <div id="auth " class="d-flex justify-center  bg-blue" style="height: 10%;">
+            <button class="bg-red w-75 pa-2 rounded-lg	">Déconnexion</button>
+        </div>
+    </div> -->
+
+    <script>
+        const { createApp, ref, watch } = Vue;
+        const { createVuetify } = Vuetify;
+
+        const vuetify = createVuetify();
+
+        const app = createApp({
+            setup() {
+                const drawer = ref(true)
+                const rail = ref(true)
+
+                const routes = [
+                    { to: "/", title: "Home", icon: "mdi-home" },
+                    { to: "/profiles", title: "Profiles", icon: "mdi-database" },
+                    { to: "/users", title: "Utilisateurs", icon: "mdi-account-group" },
+                    { to: "/config", title: "Configuration", icon: "mdi-cog" },
+                ]
+
+                const isActive = (route) => {
+                    // Normalize both paths to remove trailing slash
+                    const currentPath = window.location.pathname.replace(/\/$/, '');
+                    const routePath = route.replace(/\/$/, '');
+                    return currentPath === routePath;
+                };
+
+                const logout = () => {
+
+                }
+
+                return {
+                    drawer, rail, routes, isActive, logout
+                }
+            }
+        }).use(vuetify).mount("#app")
+    </script>
+
+</body>
+
+</html>

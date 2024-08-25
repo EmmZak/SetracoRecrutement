@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <link href="https://cdn.jsdelivr.net/npm/@mdi/font@4.x/css/materialdesignicons.min.css" rel="stylesheet" />
+    <link href="https://cdn.jsdelivr.net/npm/vuetify@3.7.0/dist/vuetify.min.css" rel="stylesheet" />
+</head>
+
+<body>
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/vuetify@3.7.0/dist/vuetify.min.js"></script>
+    <script id="items-data" type="application/json">{{ items_json|safe }}</script>
+
+    <div id="app">
+        <v-app>
+            <v-data-table
+            :items="items"
+            :items-per-page="pagination.itemsPerPage"
+            :page.sync="pagination.page"
+            @update:page="updateURL"
+            @update:items-per-page="updateURL"
+        ></v-data-table>
+        </v-app>
+    </div>
+
+    <script>
+        const { createApp, ref, watch } = Vue;
+        const { createVuetify } = Vuetify;
+
+        const vuetify = createVuetify();
+
+
+        const app = createApp({
+            // template: "#app-template",
+            setup() {
+                const pagination = ref({
+                    page: 1,
+                    itemsPerPage: 10,
+                });
+                const updateURL = () => {
+                    const params = new URLSearchParams(window.location.search);
+                    params.set('page', pagination.value.page);
+                    params.set('itemsPerPage', pagination.value.itemsPerPage);
+                    window.history.pushState(null, '', '?' + params.toString());
+                    window.location.reload(); // Refresh the page
+                };
+                const headers = {
+
+                }
+
+                const items = []
+
+                return {
+                    items,
+                    pagination,
+                    updateURL,
+                };
+            }
+        })
+            .use(vuetify)
+            .mount("#app");
+    </script>
+</body>
+
+</html>
