@@ -1,0 +1,207 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}My Web App{% endblock %}</title>
+    <!-- <link rel="stylesheet" href="{% static 'main/style.css' %}"> -->
+    <!-- MDI Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/@mdi/font/css/materialdesignicons.min.css" rel="stylesheet">
+
+    <style>
+        body,
+        html {
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+            height: 100%;
+        }
+
+        .container {
+            display: flex;
+            height: 100vh;
+        }
+
+        .sidebar {
+            /* width: 20%; */
+            width: 250px;
+            background-color: #2c3e50;
+            color: white;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            padding: 10px;
+        }
+
+        .logo {
+            /* background-color: #2c3e50; */
+            display: flex;
+            align-items: center;
+            height: 12%;
+        }
+
+        .logo img {
+            height: 50px;
+            margin-right: 10px;
+        }
+
+        .logo span {
+            font-size: 24px;
+
+        }
+
+        .menu {
+            flex-grow: 1;
+        }
+
+        .menu a {
+            display: flex;
+            align-items: center;
+            padding: 10px;
+            margin: 5px 0;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            transition: background-color 0.3s;
+        }
+
+        .menu a:hover,
+        .menu a.active {
+            background-color: #34495e;
+        }
+
+        .menu .mdi {
+            font-size: 20px;
+            margin-right: 10px;
+        }
+
+        .logout {
+            text-align: center;
+            width: 100%;
+        }
+
+        .logout button {
+            background-color: red;
+            color: white;
+            padding: 10px;
+            width: 100%;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .logout .mdi {
+            font-size: 20px;
+            margin-right: 5px;
+        }
+
+        .content {
+            width: 80%;
+            padding: 20px;
+            /* background-color: #ecf0f1; */
+        }
+
+        /* config */
+        h1 {
+            margin-bottom: 20px;
+        }
+
+        .add-skill-form {
+            width: 30%;
+            display: flex;
+            margin-bottom: 20px;
+        }
+
+        .add-skill-form input[type="text"] {
+            flex: 1;
+            padding: 8px;
+            margin-right: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+
+        .add-skill-form .btn-primary {
+            padding: 8px 12px;
+            background-color: #007bff;
+            border: none;
+            color: white;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .skills-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+        }
+
+        .skill-card {
+            background-color: #f8f9fa;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .skill-card span {
+            font-size: 16px;
+        }
+
+        .delete-btn {
+            background: none;
+            border: none;
+            color: red;
+            cursor: pointer;
+            font-size: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="sidebar">
+            <div class="logo">
+                <img src="{% static 'images/logoCrop.png' %}" alt="Company Logo">
+                <span>Setraco</span>
+            </div>
+            <nav class="menu">
+                <a href="{% url 'home' %}" class="{% if request.path == '/' %}active{% endif %}">
+                    <span class="mdi mdi-home"></span>
+                    Home
+                </a>
+                <a href="{% url 'profiles' %}" class="{% if request.path == '/profiles/' %}active{% endif %}">
+                    <span class="mdi mdi-database"></span>
+                    Profiles
+                </a>
+                <a href="{% url 'users' %}" class="{% if request.path == '/users/' %}active{% endif %}">
+                    <span class="mdi mdi-account-group"></span>
+                    Utilisateurs
+                </a>
+                <a href="{% url 'config' %}" class="{% if request.path == '/config/' %}active{% endif %}">
+                    <span class="mdi mdi-cog"></span>
+                    Config
+                </a>
+            </nav>
+            <div class="logout">
+                <button><span class="mdi mdi-logout"></span> Logout</button>
+            </div>
+        </div>
+        <div class="content">
+            {% block content %}
+            {% endblock %}
+        </div>
+    </div>
+</body>
+
+</html>

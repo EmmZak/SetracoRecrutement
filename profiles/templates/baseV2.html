@@ -25,18 +25,24 @@
             font-size: 1.2rem;
             /* Optional: Adjust subtitle font size */
         }
-        .v-list-item__avatar {
-        width: 100px; /* Set the desired width */
-        height: 100px; /* Set the desired height to match width */
-        border-radius: 0; /* Remove border radius to make it a square */
-        overflow: hidden; /* Ensure no overflow of the image */
-    }
 
-    .v-list-item__avatar img {
-        width: 100%;
-        height: 100%;
-        object-fit: cover; /* Ensure the image covers the square area */
-    }
+        .v-list-item__avatar {
+            width: 100px;
+            /* Set the desired width */
+            height: 100px;
+            /* Set the desired height to match width */
+            border-radius: 0;
+            /* Remove border radius to make it a square */
+            overflow: hidden;
+            /* Ensure no overflow of the image */
+        }
+
+        .v-list-item__avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            /* Ensure the image covers the square area */
+        }
     </style>
 </head>
 
@@ -49,7 +55,7 @@
         <v-app>
             <v-navigation-drawer :temporary="false" permanent>
                 <v-list-item :prepend-avatar="logoUrl" nav class="company-info pa-5">
-                    <span class=" text-xl-h3 text-lg-h4 text-md-h4 text-sm-h5">Setraco</span>
+                    <span class=" text-xl-h3 text-lg-h4 text-md-h4 text-sm-h5 font-weight-light	">Setraco</span>
                 </v-list-item>
                 <!-- <div class="bg-red d-flex">
                         <v-icon name="home" ></v-icon>
@@ -85,25 +91,6 @@
 
         </v-app>
     </div>
-    <!-- <div class="bg-green d-flex flex-column justify-space-between ga-2" style="width: 250px; height: 100vw;">
-        <div id="company" class="d-flex flex-row justify-space-around bg-yellow " style="height: 10%;">
-            <div>logo</div>
-            <span>Setraco</span>
-        </div>
-        <div id="routes" class="d-flex flex-column  justify-start ga-2" style="height: 100%;">
-            <a href="{% url 'home' %}" class="route bg-yellow">
-                <i class="fas fa-home {% if request.path == '/home/' %} bg-red {% endif %}"></i>
-                <span>Home</span>
-            </a>
-            <a href="{% url 'home' %}" class="route ">Home</a>
-            <a href="{% url 'profiles' %}" class="{% if request.path == '/profiles/' %} bg-red {% endif %}">Profiles</a>
-            <a href="{% url 'config' %}">Configuration</a>
-            <a href="{% url 'users' %}">Utilisateurs</a>
-        </div>
-        <div id="auth " class="d-flex justify-center  bg-blue" style="height: 10%;">
-            <button class="bg-red w-75 pa-2 rounded-lg	">Déconnexion</button>
-        </div>
-    </div> -->
 
     <script>
         const { createApp, ref, watch } = Vue;
@@ -121,22 +108,27 @@
                 ]
 
                 const isActive = (route) => {
-                    // Normalize both paths to remove trailing slash
                     const currentPath = window.location.pathname.replace(/\/$/, '');
                     const routePath = route.replace(/\/$/, '');
                     return currentPath === routePath;
                 };
+
+                const headers = []
+                const profiles = []
+                const dialog = ref(false)
 
                 const logout = () => {
 
                 }
 
                 return {
-                    routes, isActive, logout, logoUrl: "{% static 'images/logoCrop.png' %}"
+                    headers, profiles, dialog, routes, isActive, logout, logoUrl: "{% static 'images/logoCrop.png' %}"
                 }
             }
         }).use(vuetify).mount("#app")
     </script>
+    
+
 
 </body>
 

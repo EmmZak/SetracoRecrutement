@@ -1,0 +1,74 @@
+{% extends 'baseV3.html' %}
+
+{% block title %}Config - Skills{% endblock %}
+
+{% block content %}
+<h1>Compétences</h1>
+
+<!-- Form to add a new skill -->
+<form method="post" action="{% url 'add_skill' %}" class="add-skill-form">
+    {% csrf_token %}
+    <input type="text" name="skill_name" placeholder="Ajouter une compétence" required>
+    <button type="submit" class="btn btn-primary">Ajouter</button>
+</form>
+
+<!-- Grid of skills -->
+<div class="skills-grid">
+    {% for skill in skills %}
+    <div class="skill-card">
+        <span>{{ skill.name }}</span>
+        <form action="{% url 'delete_skill' %}" method="post" style="display:inline;">
+            {% csrf_token %}
+            <input type="hidden" name="id" value="{{ skill.id }}">
+            <button type="submit" class="delete-btn mdi mdi-delete"
+                onclick="return confirm('Are you sure you want to delete this skill?');"></button>
+        </form>
+    </div>
+    {% endfor %}
+</div>
+
+<script>
+    /* Handle delete skill functionality  */
+    const deleteSkill = (id) => {
+        console.log("delete id: ", id)
+        if (confirm('Are you sure you want to delete this skill?')) {
+            fetch(`/config?id=${id}`, {
+                method: 'DELETE',
+                headers: {
+                    'X-CSRFToken': '{{ csrf_token }}',
+                }
+            })
+                .then(response => response.json())
+                .then(data => {
+                    console.log("data: ", data)
+                    if (data.status === 'success') {
+                        console.log("success")
+                        location.reload();
+                    }
+                });
+        }
+    }
+    /*
+    document.querySelectorAll('.delete-btn').forEach(button => {
+        button.addEventListener('click', function () {
+            const skillId = this.getAttribute('data-id');
+            console.log("skillId: ", skillId)
+            if (confirm('Are you sure you want to delete this skill?')) {
+                fetch(`/config?id=${skillId}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'X-CSRFToken': '{{ csrf_token }}',
+                    }
+                })
+                    .then(response => response.json())
+                    .then(data => {
+                        console.log("data: ", data)
+                        if (data.status === 'success') {
+                            location.reload();
+                        }
+                    });
+            }
+        });
+    }); */
+</script>
+{% endblock %}
