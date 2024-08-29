@@ -1,6 +1,7 @@
 from django.http import JsonResponse
 from django.shortcuts import redirect, render
 from django.views.decorators.http import require_POST
+from django.views.decorators.http import require_http_methods
 
 from skills.models import Skill
 
@@ -18,7 +19,7 @@ def add_skill(request):
             Skill.objects.create(name=skill_name)
         return redirect('/config')
 
-@require_POST
+@require_http_methods(["POST"])
 def delete_skill(request):
     skill_id = request.POST.get('id')
     if skill_id:

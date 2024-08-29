@@ -9,9 +9,8 @@
     <title>{% block title %}Gestion des profiles{% endblock %}</title>
     <!-- <link rel="stylesheet" href="{% static 'main/style.css' %}"> -->
     <!-- MDI Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/vuetify@3.7/dist/vuetify.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/@mdi/font/css/materialdesignicons.min.css" rel="stylesheet">
-    <!-- <script src="https://cdn.tailwindcss.com"></script> -->
-
 
     <style>
         body,
@@ -111,11 +110,14 @@
         }
 
         /* config */
-        
     </style>
 </head>
 
 <body>
+    <script src="https://cdn.jsdelivr.net/npm/vue@3.4/dist/vue.global.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/vuetify@3.7/dist/vuetify.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+
     <div class="container">
         <div class="sidebar">
             <div class="logo">

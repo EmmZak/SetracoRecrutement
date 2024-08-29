@@ -1,10 +1,11 @@
 from django.urls import path
-from .views import profiles_view, profiles_data, users_view, home, test, config
+from .views import profiles_view, profiles_data, profiles_create, users_view, home, test, config
 
 urlpatterns = [
     path('', home, name='home'),
     path('profiles/', profiles_view, name='profiles'),
     path('profiles/data', profiles_data, name='profiles_data'),
+    path('profile/create', profiles_create, name="profiles_create"),
 
     path('config/', config, name='config'),  # Placeholder, replace with actual view later
     #path('test/', test, name='test'),

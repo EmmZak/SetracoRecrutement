@@ -15,29 +15,6 @@ def config(request):
         return render(request, 'config.html', {'skills': skills})
 
 
-def test(request):
-    items = [
-        {
-            'name': 'African Elephant',
-            'species': 'Loxodonta africana',
-            'diet': 'Herbivore',
-            'habitat': 'Savanna, Forests',
-        },
-        # ... more items
-    ]
-    context = {
-        'items': items,
-        # 'nb_elements': nb_elements,
-        # 'items_per_page': items_per_page,
-        # 'page': page,
-    }
-    return render(request, 'test.html', context)
-
-
-def home(request):
-    return render(request, 'home.html')
-
-
 def profiles_view(request):
     return render(request, 'profiles.html')
 
@@ -126,6 +103,33 @@ def profiles_data(request):
     return JsonResponse(response)
 
 
+def profiles_create(requset):
+    pass
+
+
 def users_view(request):
     users = User.objects.all()
     return render(request, 'users.html', {'users': users})
+
+
+def test(request):
+    items = [
+        {
+            'name': 'African Elephant',
+            'species': 'Loxodonta africana',
+            'diet': 'Herbivore',
+            'habitat': 'Savanna, Forests',
+        },
+        # ... more items
+    ]
+    context = {
+        'items': items,
+        # 'nb_elements': nb_elements,
+        # 'items_per_page': items_per_page,
+        # 'page': page,
+    }
+    return render(request, 'test.html', context)
+
+
+def home(request):
+    return render(request, 'home.html')
