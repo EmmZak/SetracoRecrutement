@@ -18,10 +18,19 @@ python3 manage.py migrate
 # Create app
 
 ```bash
+django-admin startapp profileFile
+django-admin startapp skills
 django-admin startapp profiles
 ```
 
 # Run
+
+If new model added etc
+
+```bash
+python3 manage.py makemigrations
+python3 manage.py migrate
+```
 
 ```bash
 python3 manage.py runserver

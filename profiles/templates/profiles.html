@@ -1,51 +1,291 @@
 {% extends 'baseV3.html' %}
 
-{% block title %}Profiles{% endblock %}
+{% block title: %}Profiles{% endblock %}
 
 {% block content %}
 
-<div id="profileApp">
-    <v-row>
-        <v-col>
-            <v-data-table :headers="headers" :items="profiles" :items-per-page="5" class="elevation-1">
-                <template v-slot:top>
-                    <v-toolbar flat>
-                        <v-toolbar-title>Profiles</v-toolbar-title>
-                        <v-divider class="mx-4" inset vertical></v-divider>
-                        <v-spacer></v-spacer>
-                        <v-dialog v-model="dialog" max-width="500px">
-                            <template v-slot:activator="{ on, attrs }">
-                                <v-btn color="primary" dark class="mb-2" v-bind="attrs" v-on="on">
-                                    New Profile
-                                </v-btn>
-                            </template>
-                            <v-card>
-                                <v-card-title>
-                                    <span class="headline">New Profile</span>
-                                </v-card-title>
-                                <v-card-text>
-                                    <v-form ref="form">
-                                        <v-text-field v-model="newProfile.name" label="Name"></v-text-field>
-                                        <v-text-field v-model="newProfile.email" label="Email"></v-text-field>
-                                    </v-form>
-                                </v-card-text>
-                                <v-card-actions>
-                                    <v-spacer></v-spacer>
-                                    <v-btn color="blue darken-1" text @click="close">Cancel</v-btn>
-                                    <v-btn color="blue darken-1" text @click="save">Save</v-btn>
-                                </v-card-actions>
-                            </v-card>
-                        </v-dialog>
-                    </v-toolbar>
-                </template>
+<!DOCTYPE html>
+<html lang="en">
 
-                <template v-slot:item.actions="{ item }">
-                    <v-icon small class="mr-2" @click="editItem(item)">mdi-pencil</v-icon>
-                    <v-icon small @click="deleteItem(item)">mdi-delete</v-icon>
-                </template>
-            </v-data-table>
-        </v-col>
-    </v-row>
-</div>
+<head>
+    <link href="https://cdn.jsdelivr.net/npm/vuetify@3.7/dist/vuetify.min.css" rel="stylesheet">
+    <!-- <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"> -->
+    <link href="https://cdn.jsdelivr.net/npm/@mdi/font@4.x/css/materialdesignicons.min.css" rel="stylesheet" />
+    <style>
+        .v-card--reveal {
+            align-items: center;
+            bottom: 0;
+            justify-content: center;
+            opacity: 0.9;
+            position: absolute;
+            width: 100%;
+        }
+    </style>
+
+
+</head>
+
+<body>
+    <script src="https://cdn.jsdelivr.net/npm/vue@3.4/dist/vue.global.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/vuetify@3.7/dist/vuetify.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+
+    <div id="app" style="width: 100%;">
+        <v-app>
+            <v-main>
+                <v-data-table :headers="headers" :items="profiles" :loading="loading" items-per-page-text=""
+                    :items-per-page="options.itemsPerPage" @update:options="fetchProfiles" show-expand
+                    v-model:expanded="expanded">
+                    <template v-slot:top>
+                        <v-toolbar flat>
+                            <v-toolbar-title>Profiles</v-toolbar-title>
+                            <v-spacer></v-spacer>
+                            <v-dialog v-model="dialog">
+                                <template v-slot:activator="{ props }">
+                                    <v-btn class="mb-2" color="primary" dark v-bind="props">
+                                        Créer
+                                    </v-btn>
+                                </template>
+                            </v-dialog>
+                        </v-toolbar>
+                    </template>
+
+                    <!-- skills -->
+                    <template v-slot:item.skills="{ value }">
+                        <div class="ma-1" style="display: flex; flex-direction: column; gap: 4px" bg-red>
+                            <v-chip v-for="(skill, i) in value" :color="getSkillColor(i)"> ${skill.name}
+                            </v-chip>
+                        </div>
+                    </template>
+
+                    <!-- state -->
+                    <template v-slot:item.state="{ value }">
+                        <v-icon size="28" :icon="getStateIcon(value).name" :color="getStateIcon(value).color" />
+                    </template>
+
+                    <template v-slot:expanded-row="{ columns, item }">
+                        <td :colspan="columns.length">
+                            <v-card outlined class="">
+                                <v-card-title>Commentaires</v-card-title>
+                                <v-card-text>
+                                    <pre>{{ item.comment }}</pre>
+                                </v-card-text>
+                            </v-card>
+
+                            <v-card outlined class="">
+                                <v-card-title>Diplômes</v-card-title>
+                                <v-card-text>
+                                    <pre>{{ item.diplomas }}</pre>
+                                </v-card-text>
+                            </v-card>
+
+                            <v-card outlined class="m">
+                                <v-card-title>Fichiers</v-card-title>
+                                <v-card-text>
+                                    <v-row>
+
+                                        <v-col v-for="file in item.files" :key="file.id" cols="2">
+                                            <v-hover v-slot="{ isHovering, props }">
+                                                <v-card class="mx-auto" color="grey-lighten-4" max-width="600"
+                                                    v-bind="props">
+                                                    <div :aspect-ratio="16/9"
+                                                        src="https://cdn.vuetifyjs.com/images/cards/kitchen.png" cover>
+                                                        <v-card-title :class="{ 'opacity-100': isHovering }">
+                                                            cv.pdf
+                                                        </v-card-title>
+                                                        <v-expand-transition>
+                                                            <div v-if="isHovering" class="d-flex justify-space-around align-center transition-fast-in-fast-out bg-blue-lighten-2
+                                                                v-card--reveal " style="height: 100%;">
+                                                                <v-icon color="white"
+                                                                    :class="{ 'show-btns': isHovering }"
+                                                                    @click="viewFile(file)">mdi-eye</v-icon>
+                                                                <v-icon color="white"
+                                                                    :class="{ 'show-btns': isHovering }"
+                                                                    @click="deleteFile(file)"
+                                                                    x-large>mdi-delete</v-icon>
+                                                            </div>
+                                                        </v-expand-transition>
+                                                    </div>
+                                                </v-card>
+                                            </v-hover>
+                                            <!-- <v-hover v-slot="{ isHovering, props }">
+                                                <v-card :class="{ 'on-hover': isHovering }" class="bg-blue"
+                                                    :elevation="isHovering ? 12 : 2" v-bind="props" class="w-25 h-25">
+                                                    <v-card-title class="text-h6 text-white ">
+                                                        cv.pdf
+                                                    </v-card-title>
+
+                                                    <v-expand-transition>
+                                                        <v-row v-show="isHovering"
+                                                            class="d-flex transition-fast-in-fast-out bg-orange-darken-2 v-card--reveal"
+                                                            justify-center align-center>
+                                                            <v-icon :class="{ 'show-btns': isHovering }"
+                                                                @click="viewFile(file)" large>mdi-eye</v-icon>
+                                                            <v-icon :class="{ 'show-btns': isHovering }"
+                                                                @click="deleteFile(file)" large>mdi-delete</v-icon>
+                                                        </v-row>
+                                                    </v-expand-transition>
+                                                </v-card>
+                                            </v-hover> -->
+                                        </v-col>
+                                    </v-row>
+                                </v-card-text>
+                            </v-card>
+                        </td>
+
+
+                    </template>
+
+                    <template v-slot:item.actions=" { item }">
+                        <v-icon size="24" color="grey-darken-3" @click="editItem(item)">
+                            mdi-pencil
+                        </v-icon>
+                        <v-icon size="24" color="grey-darken-3" @click="deleteItem(item)"> mdi-delete </v-icon>
+                    </template>
+                </v-data-table>
+            </v-main>
+        </v-app>
+    </div>
+
+    <script>
+        const { createApp, ref, onMounted } = Vue;
+        const { createVuetify } = Vuetify;
+        const vuetify = createVuetify();
+
+        const app = createApp({
+            setup() {
+                const headers = [
+                    { title: 'Date de création', key: 'creation_date', sortable: true },
+                    { title: 'Modifié', key: 'update_date', sortable: true },
+                    { title: 'Nom', key: 'name', sortable: false },
+                    { title: 'Prénom', key: 'surname', sortable: false },
+                    { title: 'Email', key: 'email', sortable: false },
+                    { title: 'Numéro', key: 'number', sortable: false },
+                    { title: 'Ville', key: 'town', sortable: false },
+                    { title: 'Compétences', key: 'skills', sortable: false },
+                    { title: 'Etat', key: 'state', sortable: true },
+                    // { title: 'Diplômes', key: 'diplomas', sortable: false },
+                    // { title: 'Commentaires', key: 'comment', sortable: false },
+                    { title: 'Actions', key: 'actions', sortable: false },
+                ]
+
+                var message = "manu"
+                var profiles = ref([])
+                var expanded = ref([])
+                var totalProfiles = ref(0)
+                var loading = ref(false)
+                var search = ref("")
+
+                // dialogs
+                var dialog = ref(false)
+
+                var options = ref({
+                    page: 1,
+                    itemsPerPage: 5,
+                })
+
+                const fetchProfiles = async () => {
+                    loading.value = true;
+                    try {
+                        let params = {
+                            search: search,
+                            start: (options.value.page - 1) * options.value.itemsPerPage,
+                            length: options.value.itemsPerPage,
+                        }
+                        console.log("params: ", params)
+                        let res = await axios.get('{% url 'profiles_data' %}', {
+                            params: params
+                        })
+                        console.log("res.data.profiles: ", res.data.profiles)
+                        profiles.value = res.data.profiles
+                        totalProfiles.value = res.data.recordsTotal;
+                        expanded.value = profiles.value
+
+                        console.log("profiles: ", profiles.value)
+                    } catch (err) {
+                        console.log(err)
+                    } finally {
+                        loading.value = false;
+                    }
+                }
+
+                const viewFile = (file) => {
+                    window.open(file.url, '_blank');
+                };
+
+                const deleteFile = async (file) => {
+                    try {
+                        await axios.delete(`/delete-file/${file.id}/`);
+                        fetchProfiles(); // Refresh profiles to update the list of files
+                    } catch (err) {
+                        console.error('Failed to delete the file:', err);
+                    }
+                };
+
+                const getSkillColor = (index) => {
+                    const colors = ['red', 'blue', 'green', 'purple', 'orange'];
+                    return colors[index % colors.length];
+                }
+
+                const getStateIcon = (value) => {
+                    console.log("icon value: ", value)
+                    const icons = {
+                        new:
+                            { name: 'mdi-new-box', color: "blue" },
+                        processing:
+                            { name: 'mdi-progress-clock', color: "blue" },
+                        ok:
+                            { name: 'mdi-check', color: "green" },
+                        ko:
+                            { name: 'mdi-cancel', color: "red" },
+                    };
+                    return icons[value]
+                }
+
+                onMounted(() => {
+                    fetchProfiles();
+                })
+
+                return {
+                    profiles, totalProfiles, headers, loading, options, fetchProfiles, expanded, dialog, viewFile, deleteFile, message, getSkillColor, getStateIcon
+                }
+            }
+        })
+        app.config.compilerOptions.delimiters = ['${', '}']
+        app.use(vuetify).mount("#app")
+
+        // createApp({
+        //     data() {
+        //         return {
+        //             profiles: [],
+        //             totalProfiles: 0,
+        //             loading: false,
+        //             search: '',
+        //             headers: [
+        //                 { title: 'Date de création', key: 'creation_date', sortable: true },
+        //                 { title: 'Modifié', key: 'update_date', sortable: true },
+        //                 { title: 'Name', key: 'name' },
+        //                 { title: 'Surname', key: 'surname' },
+        //                 { title: 'Email', key: 'email' },
+        //                 { title: 'Number', key: 'number' },
+        //                 { title: 'Town', key: 'town' },
+        //                 { title: 'Comment', key: 'comment', sortable: false },
+        //                 { title: 'Diplomas', key: 'diplomas', sortable: false },
+        //                 { title: 'Actions', key: 'actions', sortable: false },
+        //             ],
+        //             options: {
+        //                 page: 1,
+        //                 itemsPerPage: 5,
+        //             },
+        //         };
+        //     },
+        // })
+        //     .use(vuetify)
+        //     .mount('#app');
+    </script>
+</body>
+
+</html>
+
 
 {% endblock %}

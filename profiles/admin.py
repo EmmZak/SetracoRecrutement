@@ -1,10 +1,8 @@
 from django.contrib import admin
-from .models import Profile, Skill, ProfileFile
 
-@admin.register(Skill)
-class SkillAdmin(admin.ModelAdmin):
-    list_display = ('id', 'name')
-    search_fields = ('name',)
+from profileFile.models import ProfileFile
+from .models import Profile
+
 
 class ProfileFileInline(admin.TabularInline):  # or use admin.StackedInline
     model = ProfileFile
@@ -12,9 +10,25 @@ class ProfileFileInline(admin.TabularInline):  # or use admin.StackedInline
     fields = ('file',)
     readonly_fields = ('file',)
 
+@admin.action(description="Mark selected as state=new")
+def action_1(modeladmin, request, queryset):
+    queryset.update(state="new")
+
+@admin.action(description="Mark selected as state=processing")
+def action_2(modeladmin, request, queryset):
+    queryset.update(state="processing")
+
+@admin.action(description="Mark selected as state=ok")
+def action_3(modeladmin, request, queryset):
+    queryset.update(state="ok")
+
+@admin.action(description="Mark selected as state=ko")
+def action_4(modeladmin, request, queryset):
+    queryset.update(state="ko")
+
 @admin.register(Profile)
 class ProfileAdmin(admin.ModelAdmin):
-    list_display = ('id', 'name', 'surname', 'email', 'town', 'state', 'creation_date', 'update_date', 'get_files')
+    list_display = ('id', 'name', 'surname', 'email', 'town', 'state',  'creation_date', 'update_date', 'get_files')
     list_filter = ('state', 'town', 'creation_date', 'update_date')
     search_fields = ('name', 'surname', 'email', 'town')
     ordering = ('-creation_date',)
@@ -28,7 +42,5 @@ class ProfileAdmin(admin.ModelAdmin):
         return "No files"
     get_files.short_description = 'Files'
 
-@admin.register(ProfileFile)
-class ProfileFileAdmin(admin.ModelAdmin):
-    list_display = ('id', 'profile', 'file')
-    search_fields = ('profile__name', 'profile__surname')
+    actions = [action_1, action_2, action_3, action_4]
+

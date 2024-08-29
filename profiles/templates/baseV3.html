@@ -6,10 +6,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}My Web App{% endblock %}</title>
+    <title>{% block title %}Gestion des profiles{% endblock %}</title>
     <!-- <link rel="stylesheet" href="{% static 'main/style.css' %}"> -->
     <!-- MDI Icons -->
     <link href="https://cdn.jsdelivr.net/npm/@mdi/font/css/materialdesignicons.min.css" rel="stylesheet">
+    <!-- <script src="https://cdn.tailwindcss.com"></script> -->
+
 
     <style>
         body,
@@ -23,6 +25,7 @@
         .container {
             display: flex;
             height: 100vh;
+            width: 100%;
         }
 
         .sidebar {
@@ -102,69 +105,13 @@
         }
 
         .content {
-            width: 80%;
-            padding: 20px;
+            width: 90%;
+            /* padding: 20px; */
             /* background-color: #ecf0f1; */
         }
 
         /* config */
-        h1 {
-            margin-bottom: 20px;
-        }
-
-        .add-skill-form {
-            width: 30%;
-            display: flex;
-            margin-bottom: 20px;
-        }
-
-        .add-skill-form input[type="text"] {
-            flex: 1;
-            padding: 8px;
-            margin-right: 10px;
-            border: 1px solid #ccc;
-            border-radius: 4px;
-        }
-
-        .add-skill-form .btn-primary {
-            padding: 8px 12px;
-            background-color: #007bff;
-            border: none;
-            color: white;
-            border-radius: 4px;
-            cursor: pointer;
-        }
-
-        .skills-grid {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 10px;
-        }
-
-        .skill-card {
-            background-color: #f8f9fa;
-            padding: 10px;
-            border: 1px solid #ddd;
-            border-radius: 5px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .skill-card span {
-            font-size: 16px;
-        }
-
-        .delete-btn {
-            background: none;
-            border: none;
-            color: red;
-            cursor: pointer;
-            font-size: 20px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
+        
     </style>
 </head>
 
@@ -178,7 +125,7 @@
             <nav class="menu">
                 <a href="{% url 'home' %}" class="{% if request.path == '/' %}active{% endif %}">
                     <span class="mdi mdi-home"></span>
-                    Home
+                    Accueil
                 </a>
                 <a href="{% url 'profiles' %}" class="{% if request.path == '/profiles/' %}active{% endif %}">
                     <span class="mdi mdi-database"></span>
@@ -194,7 +141,7 @@
                 </a>
             </nav>
             <div class="logout">
-                <button><span class="mdi mdi-logout"></span> Logout</button>
+                <button><span class="mdi mdi-logout"></span> Déconnexion</button>
             </div>
         </div>
         <div class="content">
