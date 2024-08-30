@@ -7,6 +7,7 @@ from .models import Profile
 from django.core.paginator import Paginator
 from django.db.models import Q
 import os
+from django.views.decorators.http import require_http_methods
 
 
 def config(request):
@@ -14,6 +15,12 @@ def config(request):
         skills = Skill.objects.all()
         return render(request, 'config.html', {'skills': skills})
 
+@require_http_methods(["DELETE"])
+def profile_delete(request):
+    profile_id = request.GET.get('id')
+    if profile_id:
+        Profile.objects.filter(id=profile_id).delete()
+    return redirect('/profiles')
 
 def profiles_view(request):
     return render(request, 'profiles.html')

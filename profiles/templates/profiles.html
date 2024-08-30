@@ -68,15 +68,15 @@
                                     <v-card-text>
                                         <v-row cols="12">
                                             <v-col cols="4">
-                                                <v-text-field v-model="defaultItem.surname" label="Nom"
+                                                <v-text-field v-model="editedItem.surname" label="Nom"
                                                     prepend-icon="mdi-account" variant="underlined"></v-text-field>
                                             </v-col>
                                             <v-col cols="4">
-                                                <v-text-field v-model="defaultItem.name" label="Prénom"
+                                                <v-text-field v-model="editedItem.name" label="Prénom"
                                                     variant="underlined"></v-text-field>
                                             </v-col>
                                             <v-col cols="4">
-                                                <v-text-field v-model="defaultItem.town" label="Ville"
+                                                <v-text-field v-model="editedItem.town" label="Ville"
                                                     prepend-icon="mdi-map-marker" variant="underlined"></v-text-field>
                                             </v-col>
                                         </v-row>
@@ -93,7 +93,7 @@
                                         <v-row cols="12">
                                             <v-col cols="12">
                                                 <!-- skills -->
-                                                <v-select v-model="defaultItem.skills" :items="skills"
+                                                <v-select v-model="editedItem.skills" :items="skills"
                                                     prepend-icon="mdi-tools" label="Compétences" chips multiple
                                                     item-title="name" return-object @focus="fetchSkills">
                                                 </v-select>
@@ -105,12 +105,12 @@
                                         <v-row cols="12">
                                             <v-col cols="6">
                                                 <!-- diplomas -->
-                                                <v-textarea v-model="defaultItem.diplomas" label="Diplômes"
+                                                <v-textarea v-model="editedItem.diplomas" label="Diplômes"
                                                     prepend-icon="mdi-certificate" variant="underlined"></v-textarea>
                                             </v-col>
                                             <v-col cols="6">
                                                 <!-- comment -->
-                                                <v-textarea v-model="defaultItem.comment" label="Commentaires"
+                                                <v-textarea v-model="editedItem.comment" label="Commentaires"
                                                     prepend-icon="mdi-comment" variant="underlined"></v-textarea>
                                             </v-col>
                                         </v-row>
@@ -118,7 +118,7 @@
                                             <v-col cols="12">
                                                 <!-- files -->
                                                 <v-file-input label="File input w/ chips" chips multiple
-                                                    v-model="defaultItem.files"></v-file-input>
+                                                    v-model="editedItem.files"></v-file-input>
                                                 <!-- <v-text-field v-model="defaultItem.diplomas" label="Files"
                                                     prepend-icon="mdi-paperclip" variant="underlined"></v-text-field> -->
                                             </v-col>
@@ -126,6 +126,18 @@
                                     </v-card-text>
                                 </v-card>
 
+                            </v-dialog>
+
+                            <v-dialog v-model="dialogDelete" style="width: 50%;">
+                                <v-card>
+                                    <v-card-title class="text-h5">Êtes-vous sûr(e) de vouloir supprimer le profile ?</v-card-title>
+                                    <v-card-actions>
+                                        <v-spacer></v-spacer>
+                                        <v-btn color="blue-darken-1" variant="text" @click="closeDelete">Annuler</v-btn>
+                                        <v-btn color="white" class="bg-red" variant="text" @click="deleteItemConfirm">Supprimer</v-btn>
+                                        <v-spacer></v-spacer>
+                                    </v-card-actions>
+                                </v-card>
                             </v-dialog>
                         </v-toolbar>
                     </template>
@@ -201,7 +213,7 @@
                         <v-icon size="24" color="grey-darken-3" @click="editItem(item)">
                             mdi-pencil
                         </v-icon>
-                        <v-icon size="24" color="grey-darken-3" @click="deleteItem(item)"> mdi-delete </v-icon>
+                        <v-icon size="24" color="grey-darken-3" @click="deleteItem(item.id)"> mdi-delete </v-icon>
                     </template>
                 </v-data-table>
             </v-main>
@@ -209,7 +221,7 @@
     </div>
 
     <script>
-        const { createApp, ref, onMounted, computed } = Vue;
+        const { createApp, ref, onMounted, computed, watch, nextTick } = Vue;
         const { createVuetify } = Vuetify;
         const vuetify = createVuetify();
 
@@ -241,38 +253,12 @@
                 var loading = ref(false)
                 var search = ref("")
 
-                // dialog
-                var dialog = ref(false)
-                var editedIndex = ref(-1)
-
-                var defaultItem = ref({
-                    name: "",
-                    surname: "",
-                    email: "",
-                    number: "",
-                    state: "",
-                    town: "",
-                    skills: [],
-                    diplomas: "",
-                    comment: "",
-                    files: []
-                })
-
-                var formTitle = computed(() => {
-                    return editedIndex.value === -1 ? 'Création' : 'Modification'
-                })
-
-                var options = ref({
-                    page: 1,
-                    itemsPerPage: 20,
-                })
-
                 const fetchProfiles = async () => {
                     console.log("fetcing profiles")
                     loading.value = true;
                     try {
                         let params = {
-                            search: search,
+                            search: search.value,
                             start: (options.value.page - 1) * options.value.itemsPerPage,
                             length: options.value.itemsPerPage,
                         }
@@ -291,6 +277,107 @@
                     } finally {
                         loading.value = false;
                     }
+                }
+
+                var formTitle = computed(() => {
+                    return editedIndex.value === -1 ? 'Création' : 'Modification'
+                })
+
+                var options = ref({
+                    page: 1,
+                    itemsPerPage: 20,
+                })
+
+                // dialog
+                var dialog = ref(false)
+                const close = () => {
+                    dialog.value = false
+                    nextTick(() => {
+                        editedItem.value = Object.assign({}, defaultItem.value)
+                        editedIndex.value = -1
+                    })
+                }
+                watch(dialog, (val) => {
+                    if (!val) close();
+                });
+
+                var defaultItem = ref({
+                    name: "",
+                    surname: "",
+                    email: "",
+                    number: "",
+                    state: "",
+                    town: "",
+                    skills: [],
+                    diplomas: "",
+                    comment: "",
+                    files: []
+                })
+
+
+                // delete dialog
+                const dialogDelete = ref(false);
+                const deleteId = ref(null)
+                const closeDelete = () => {
+                    dialogDelete.value = false
+                    nextTick(() => {
+                        editedItem.value = Object.assign({}, defaultItem.value)
+                        editedIndex.value = -1
+                    })
+                }
+
+                const deleteItem = (id) => {
+                    deleteId.value = id
+                    //editedIndex.value = profiles.value.indexOf(item)
+                    //editedItem.value = Object.assign({}, item)
+                    dialogDelete.value = true
+                }
+
+                const deleteItemConfirm = async () => {
+                    if (deleteId.value != null) {
+                        console.log("delete id ", deleteId.value)
+                        try {
+                            await fetch(`/profiles/delete?id=${deleteId.value}`, {
+                                method: 'DELETE',
+                                headers: {
+                                    'X-CSRFToken': '{{ csrf_token }}',
+                                }
+                            })
+                            fetchProfiles(); // Refresh profiles to update the list of files
+                        } catch (err) {
+                            console.error('Failed to delete the file:', err);
+                        }
+                    }
+                    deleteId.value = null
+                    closeDelete()
+                }
+
+                watch(dialogDelete, (val) => {
+                    if (!val) closeDelete();
+                });
+
+                // update
+                var editedIndex = ref(-1)
+
+                var editedItem = ref({
+                    name: "",
+                    surname: "",
+                    email: "",
+                    number: "",
+                    state: "",
+                    town: "",
+                    skills: [],
+                    diplomas: "",
+                    comment: "",
+                    files: []
+                })
+                
+                const editItem = (item) => {
+                    console.log("edit item item: ", item)
+                    editedIndex.value = profiles.value.indexOf(item)
+                    editedItem.value = Object.assign({}, item)
+                    //editedItem.value.name = item.name
+                    dialog.value = true
                 }
 
                 /* file */
@@ -375,7 +462,7 @@
 
 
                 return {
-                    skills, fetchSkills, skillsLoading, defaultItem, formTitle, profiles, totalProfiles, headers, loading, options, fetchProfiles, expanded, dialog, openFile, printFile, deleteFile, getSkillColor, getStateIcon, getStateTooltipText
+                    editedItem, editItem, deleteItem, dialogDelete, closeDelete, deleteItemConfirm, skills, fetchSkills, skillsLoading, defaultItem, formTitle, profiles, totalProfiles, headers, loading, options, fetchProfiles, expanded, dialog, openFile, printFile, deleteFile, getSkillColor, getStateIcon, getStateTooltipText
                 }
             }
         })
