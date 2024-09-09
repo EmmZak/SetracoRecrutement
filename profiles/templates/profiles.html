@@ -9,6 +9,43 @@
 
 <head>
     <style>
+        /* to remove */
+        .add-skill-form {
+            width: 50%;
+            display: flex;
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .add-skill-form input[type="text"] {
+            /* flex: 1; */
+            flex: 0.6;
+            width: 100%;
+            padding: 8px;
+            margin-right: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+
+        .add-skill-form .btn-primary {
+            /* width: 30%; */
+            flex: 0.4;
+
+            padding: 8px 12px;
+            background-color: #007bff;
+            border: none;
+            color: white;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .add-skill-form .btn-primary:hover {
+            background-color: #005cbf;
+        }
+
+        /* to remove */
+
         .v-card--reveal {
             align-items: center;
             bottom: 0;
@@ -34,6 +71,13 @@
             padding: 10px;
         }
 
+        .personnal-data-container {
+            display: grid;
+            /* padding: 10px; */
+            gap: 10px;
+            /* gap: 10px; */
+        }
+
         .files-grid-item {
             text-align: center;
             border-radius: 5px;
@@ -47,6 +91,12 @@
     <div id="app" style="width: 100%;">
         <v-app>
             <v-main>
+                <form v-if="false" method="post" action="{% url 'add_skill' %}" class="add-skill-form">
+                    {% csrf_token %}
+                    <input type="text" name="skill_name" placeholder="Ajouter une compétence">
+                    <button type="submit" class="btn btn-primary">Ajouter</button>
+                    <v-text-field name="skill_name" prepend-icon="mdi-account" variant="underlined"></v-text-field>
+                </form>
                 <v-data-table :headers="headers" :items="profiles" :loading="loading" items-per-page-text=""
                     :items-per-page="options.itemsPerPage" @update:options="fetchProfiles" show-expand
                     v-model:expanded="expanded">
@@ -66,75 +116,107 @@
                                         <span class="text-h4">${formTitle}</span>
                                     </v-card-title>
                                     <v-card-text>
-                                        <v-row cols="12">
-                                            <v-col cols="4">
-                                                <v-text-field v-model="editedItem.surname" label="Nom"
-                                                    prepend-icon="mdi-account" variant="underlined"></v-text-field>
-                                            </v-col>
-                                            <v-col cols="4">
-                                                <v-text-field v-model="editedItem.name" label="Prénom"
-                                                    variant="underlined"></v-text-field>
-                                            </v-col>
-                                            <v-col cols="4">
-                                                <v-text-field v-model="editedItem.town" label="Ville"
-                                                    prepend-icon="mdi-map-marker" variant="underlined"></v-text-field>
-                                            </v-col>
-                                        </v-row>
-                                        <v-row cols="12">
-                                            <v-col cols="6">
-                                                <v-text-field v-model="defaultItem.email" label="E-mail"
-                                                    prepend-icon="mdi-at" variant="underlined"></v-text-field>
-                                            </v-col>
-                                            <v-col cols="6">
-                                                <v-text-field v-model="defaultItem.number" label="Numéro"
-                                                    prepend-icon="mdi-phone" variant="underlined"></v-text-field>
-                                            </v-col>
-                                        </v-row>
-                                        <v-row cols="12">
-                                            <v-col cols="12">
-                                                <!-- skills -->
-                                                <v-select v-model="editedItem.skills" :items="skills"
-                                                    prepend-icon="mdi-tools" label="Compétences" chips multiple
-                                                    item-title="name" return-object @focus="fetchSkills">
-                                                </v-select>
-                                                <!-- <v-select v-model="defaultItem.skills" :items="items"
-                                                    prepend-icon="mdi-tools" label="Compétences" chips
-                                                    multiple></v-select> -->
-                                            </v-col>
-                                        </v-row>
-                                        <v-row cols="12">
-                                            <v-col cols="6">
-                                                <!-- diplomas -->
-                                                <v-textarea v-model="editedItem.diplomas" label="Diplômes"
-                                                    prepend-icon="mdi-certificate" variant="underlined"></v-textarea>
-                                            </v-col>
-                                            <v-col cols="6">
-                                                <!-- comment -->
-                                                <v-textarea v-model="editedItem.comment" label="Commentaires"
-                                                    prepend-icon="mdi-comment" variant="underlined"></v-textarea>
-                                            </v-col>
-                                        </v-row>
-                                        <v-row cols="12">
-                                            <v-col cols="12">
-                                                <!-- files -->
-                                                <v-file-input label="File input w/ chips" chips multiple
-                                                    v-model="editedItem.files"></v-file-input>
-                                                <!-- <v-text-field v-model="defaultItem.diplomas" label="Files"
+                                        <form method="POST" action="{% url 'profiles_create' %}">
+                                            {% csrf_token %}
+
+                                            <input type="hidden" name="id" id="profile-id" :value="editedItem.id">
+
+                                            <v-row cols="12">
+                                                <v-col cols="4">
+                                                    <v-text-field v-model="editedItem.surname" label="Nom"
+                                                        name="surname" prepend-icon="mdi-account"
+                                                        variant="underlined"></v-text-field>
+                                                </v-col>
+                                                <v-col cols="4">
+                                                    <v-text-field v-model="editedItem.name" label="Prénom"
+                                                        v-model="form.surname" name="name"
+                                                        variant="underlined"></v-text-field>
+                                                </v-col>
+                                                <v-col cols="4">
+                                                    <v-text-field v-model="editedItem.town" label="Localisation"
+                                                        name="town" prepend-icon="mdi-map-marker"
+                                                        variant="underlined"></v-text-field>
+                                                </v-col>
+                                            </v-row>
+                                            <v-row cols="12">
+                                                <v-col cols="4">
+                                                    <v-text-field v-model="editedItem.email" label="E-mail" name="email"
+                                                        prepend-icon="mdi-at" variant="underlined"></v-text-field>
+                                                </v-col>
+                                                <v-col cols="4">
+                                                    <v-text-field v-model="editedItem.number" label="Numéro"
+                                                        name="number" prepend-icon="mdi-phone"
+                                                        variant="underlined"></v-text-field>
+                                                </v-col>
+                                                <v-col cols="4">
+                                                    <v-select v-model="editedItem.state"
+                                                        :items="['ok', 'ko', 'new', 'processing']"
+                                                        label="Statut candidature" name="state" required></v-select>
+                                                </v-col>
+
+                                            </v-row>
+                                            <v-row cols="12">
+                                                <v-col cols="12">
+                                                    <!-- skills -->
+                                                    <v-select v-model="editedItem.skills" :items="skills" name="skills"
+                                                        prepend-icon="mdi-tools" label="Compétences" chips multiple
+                                                        item-title="name" item-text="name" item-value="id"
+                                                        @focus="fetchSkills" style="width: 100%;" dense>
+                                                    </v-select>
+                                                </v-col>
+                                            </v-row>
+                                            <v-row cols="12">
+                                                <v-col cols="6">
+                                                    <!-- diplomas -->
+                                                    <v-textarea v-model="editedItem.diplomas" label="Diplômes"
+                                                        name="diplomas" prepend-icon="mdi-certificate"
+                                                        variant="underlined"></v-textarea>
+                                                </v-col>
+                                                <v-col cols="6">
+                                                    <!-- comment -->
+                                                    <v-textarea v-model="editedItem.comment" label="Commentaires"
+                                                        name="comment" prepend-icon="mdi-comment"
+                                                        variant="underlined"></v-textarea>
+                                                </v-col>
+                                            </v-row>
+
+                                            <v-row cols="12" v-if="false">
+                                                <v-col cols="12">
+                                                    <!-- files -->
+                                                    <v-file-input label="File input w/ chips" chips multiple
+                                                        v-model="editedItem.files"></v-file-input>
+                                                    <!-- <v-text-field v-model="defaultItem.diplomas" label="Files"
                                                     prepend-icon="mdi-paperclip" variant="underlined"></v-text-field> -->
-                                            </v-col>
-                                        </v-row>
+                                                </v-col>
+                                            </v-row>
+
+                                            <v-row>
+                                                <button type="submit" class="btnn btn-primaryy"
+                                                    style="background-color: #4CAF50; border-radius: 12px; font-weight: bold; padding: 10px 20px; box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1); color: white">Sauvegarder</button>
+
+                                            </v-row>
+
+                                        </form>
+
                                     </v-card-text>
+                                    <!-- <v-card-actions>
+                                        <v-btn color="blue-darken-1" variant="text" @click="saveProfile">
+                                            Sauvegarder
+                                        </v-btn>
+                                    </v-card-actions> -->
                                 </v-card>
 
                             </v-dialog>
 
                             <v-dialog v-model="dialogDelete" style="width: 50%;">
                                 <v-card>
-                                    <v-card-title class="text-h5">Êtes-vous sûr(e) de vouloir supprimer le profile ?</v-card-title>
+                                    <v-card-title class="text-h5">Êtes-vous sûr(e) de vouloir supprimer le profile
+                                        ?</v-card-title>
                                     <v-card-actions>
                                         <v-spacer></v-spacer>
                                         <v-btn color="blue-darken-1" variant="text" @click="closeDelete">Annuler</v-btn>
-                                        <v-btn color="white" class="bg-red" variant="text" @click="deleteItemConfirm">Supprimer</v-btn>
+                                        <v-btn color="white" class="bg-red" variant="text"
+                                            @click="deleteItemConfirm">Supprimer</v-btn>
                                         <v-spacer></v-spacer>
                                     </v-card-actions>
                                 </v-card>
@@ -163,22 +245,33 @@
                     <template v-slot:expanded-row="{ columns, item }">
                         <td :colspan="columns.length">
 
-                            <v-card class="bg-redd d-flex flex-1">
-                                <div class="w-50" style="width: 50%;">
-                                    <v-card-title>Commentaires</v-card-title>
-                                    <v-card-text
-                                        style="word-wrap: break-word; word-break: break-all; white-space: normal;">
-                                        <p>${ item.comment } un lon, adgdkgjhgkjhgk g hjg jhh jghg jgjg jj jj j ggj
-                                            jgjhgjhg jhghj hjgasd agda gdgda gdg dsa gdsgd gag dsagadsdgdsagdgdasgdasgda
-                                        </p>
+                            <div v-if="true" id="expand-div" style="display: flex; ">
+                                <div style="flex-basis: 100%" class="bg-greenn">
+                                    <v-card-title>Données personnelles</v-card-title>
+                                    <v-card-text>
+                                        <v-row class="align-center">
+                                            <v-col cols="auto">
+                                                <v-icon large>mdi-email</v-icon>
+                                            </v-col>
+                                            <v-col>
+                                                <p class="text-body-1">${item.email}</p>
+                                            </v-col>
+                                            
+                                        </v-row>
+                                        <v-row class="align-center">
+                                            <v-col cols="auto">
+                                                <v-icon large>mdi-phone</v-icon>
+                                            </v-col>
+                                            <v-col>
+                                                <p class="text-body-1">${item.number}</p>
+                                            </v-col>
+                                        </v-row>
                                     </v-card-text>
-                                </div>
 
-                                <v-divider vertical></v-divider>
 
-                                <div class="w-50" style="width: 50%;">
                                     <v-card-title>Fichier(s)</v-card-title>
-                                    <div class="files-grid-container">
+                                    <v-card-text class="files-grid-container">
+                                        <!-- <div class="files-grid-container"> -->
                                         <div v-for="file in item.files" :key="file.id" class="files-grid-item">
                                             <v-hover v-slot="{ isHovering, props }">
                                                 <v-card class="mx-auto" color="grey-lighten-4" max-width="600"
@@ -190,7 +283,7 @@
                                                         class="d-flex justify-center align-center w-100 h-100"
                                                         scrim="#036358" contained>
                                                         <div class="d-flex justify-space-around align-center transition-fast-in-fast-out bg-blue-lighten-2
-                                                                    v-card--reveal "
+                                                                        v-card--reveal "
                                                             style="height: 100%; width: 100%;">
                                                             <v-icon color="white"
                                                                 @click="openFile(file)">mdi-eye</v-icon>
@@ -203,7 +296,60 @@
                                                 </v-card>
                                             </v-hover>
                                         </div>
-                                    </div>
+                                        <!-- </div> -->
+                                    </v-card-text>
+
+                                </div>
+                                <v-divider vertical></v-divider>
+                                <v-card style="flex-basis: 100%">
+                                    <v-card-title>Commentaires</v-card-title>
+                                    <v-card-text
+                                        style="word-wrap: break-word; word-break: break-all; white-space: normal;">
+                                        <p>${ item.comment }
+                                        </p>
+                                    </v-card-text>
+                                </v-card>
+                            </div>
+
+                            <v-card v-if="false" class="bg-redd d-flex flex-1">
+                                <div class="w-50n" style="width: 50%n; ">
+                                    <v-card-title>Données personnelles</v-card-title>
+                                    <v-card-text class="bg-red">
+                                        <v-row>
+                                            <v-icon>mdi-email</v-icon>
+                                            <p>
+                                                ${ item.email }
+                                            </p>
+                                        </v-row>
+                                        <v-row>
+                                            <v-icon>mdi-phone</v-icon>
+                                            <span>
+                                                ${ item.number }
+                                            </span>
+                                        </v-row>
+                                    </v-card-text>
+                                </div>
+
+                                <v-divider vertical></v-divider>
+
+                                <div class="w-50f">
+                                    <v-card-title>Commentaires</v-card-title>
+                                    <v-card-text
+                                        style="word-wrap: break-word; word-break: break-all; white-space: normal;">
+                                        <p>${ item.comment }
+                                        </p>
+                                    </v-card-text>
+                                </div>
+
+                                <v-divider vertical></v-divider>
+
+                                <div class="w-50f" style="width: 50f%;">
+                                    <v-card-title>Fichier(s)</v-card-title>
+                                    <!-- <v-card-title>
+                                        <v-icon name="file-multiple"></v-icon>
+                                    </v-card-title> -->
+
+
                                 </div>
                             </v-card>
                         </td>
@@ -228,15 +374,16 @@
         const app = createApp({
             setup() {
                 const headers = [
-                    { title: 'Date de création', key: 'creation_date', sortable: true },
+                    // { title: 'Date de création', key: 'creation_date', sortable: true },
                     { title: 'Modifié', key: 'update_date', sortable: true },
-                    // { title: 'Nom', key: 'name', sortable: false },
+                    { title: 'Nom', key: 'name', sortable: false },
                     { title: 'Prénom', key: 'surname', sortable: false },
-                    { title: 'Email', key: 'email', sortable: false },
+                    // { title: 'Email', key: 'email', sortable: false },
                     // { title: 'Numéro', key: 'number', sortable: false },
-                    // { title: 'Ville', key: 'town', sortable: false },
+                    { title: 'Ville', key: 'town', sortable: false },
                     { title: 'Compétences', key: 'skills', sortable: false },
-                    { title: 'Etat', key: 'state', sortable: true },
+                    // { title: 'Etat', key: 'state', sortable: true },
+                    { title: 'Etat candidature', key: 'state', sortable: true },
                     { title: 'Diplômes', key: 'diplomas', sortable: false },
                     // { title: 'Commentaires', key: 'comment', sortable: false },
                     { title: 'Actions', key: 'actions', sortable: false },
@@ -285,7 +432,7 @@
 
                 var options = ref({
                     page: 1,
-                    itemsPerPage: 20,
+                    itemsPerPage: 50,
                 })
 
                 // dialog
@@ -302,6 +449,7 @@
                 });
 
                 var defaultItem = ref({
+                    id: null,
                     name: "",
                     surname: "",
                     email: "",
@@ -313,6 +461,26 @@
                     comment: "",
                     files: []
                 })
+
+                const saveProfile = async () => {
+                    console.log("submitting profile ",)
+                    // profiles_create 
+                    const response = await axios.post(
+                        '{% url 'profiles_create' %}',
+                        editItem.value, {
+                        headers: {
+                            'X-CSRFToken': '{{ csrf_token }}',
+                            'Content-Type': 'application/json',
+                        },
+                    });
+                    /*
+                    await axios.post(
+                        '{% url 'profiles_create' %}',
+                        headers: {
+                            'X-CSRFToken': '{{ csrf_token }}',
+                        }
+                    )*/
+                }
 
 
                 // delete dialog
@@ -360,6 +528,7 @@
                 var editedIndex = ref(-1)
 
                 var editedItem = ref({
+                    id: null,
                     name: "",
                     surname: "",
                     email: "",
@@ -371,7 +540,7 @@
                     comment: "",
                     files: []
                 })
-                
+
                 const editItem = (item) => {
                     console.log("edit item item: ", item)
                     editedIndex.value = profiles.value.indexOf(item)
@@ -455,14 +624,14 @@
                         ok:
                             "Terminé",
                         ko:
-                            "Accepté",
+                            "Rejeté",
                     };
                     return icons[value]
                 }
 
 
                 return {
-                    editedItem, editItem, deleteItem, dialogDelete, closeDelete, deleteItemConfirm, skills, fetchSkills, skillsLoading, defaultItem, formTitle, profiles, totalProfiles, headers, loading, options, fetchProfiles, expanded, dialog, openFile, printFile, deleteFile, getSkillColor, getStateIcon, getStateTooltipText
+                    saveProfile, editedItem, editItem, deleteItem, dialogDelete, closeDelete, deleteItemConfirm, skills, fetchSkills, skillsLoading, defaultItem, formTitle, profiles, totalProfiles, headers, loading, options, fetchProfiles, expanded, dialog, openFile, printFile, deleteFile, getSkillColor, getStateIcon, getStateTooltipText
                 }
             }
         })

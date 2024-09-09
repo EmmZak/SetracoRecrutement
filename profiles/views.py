@@ -8,6 +8,7 @@ from django.core.paginator import Paginator
 from django.db.models import Q
 import os
 from django.views.decorators.http import require_http_methods
+from .models import ProfileForm
 
 
 def config(request):
@@ -15,12 +16,14 @@ def config(request):
         skills = Skill.objects.all()
         return render(request, 'config.html', {'skills': skills})
 
+
 @require_http_methods(["DELETE"])
 def profile_delete(request):
     profile_id = request.GET.get('id')
     if profile_id:
         Profile.objects.filter(id=profile_id).delete()
     return redirect('/profiles')
+
 
 def profiles_view(request):
     return render(request, 'profiles.html')
@@ -110,8 +113,92 @@ def profiles_data(request):
     return JsonResponse(response)
 
 
-def profiles_create(requset):
-    pass
+def profiles_create(request):
+    print("here")
+
+    profile_id = request.POST.get('id')
+    surname = request.POST.get('surname')
+    name = request.POST.get('name')
+    town = request.POST.get('town')
+    email = request.POST.get('email')
+    number = request.POST.get('number')
+    # skills = request.POST.get('skills')
+    # skills = request.POST.getlist('skills')
+    # selected_skill_ids = request.POST.getlist('skills')
+    diplomas = request.POST.get('diplomas')
+    comment = request.POST.get('comment')
+    state = request.POST.get('state')
+
+    # print(surname, name, town, email, number,"skills: ", skills, diplomas, comment, state)
+    # profile = None
+    new_profile = None
+    if profile_id:
+        Profile.objects.filter(id=profile_id).update(
+            surname=surname,
+            name=name,
+            town=town,
+            email=email,
+            number=number,
+            diplomas=diplomas,
+            comment=comment,
+            state=state
+        )
+    else:
+        new_profile = Profile.objects.create(
+            surname=surname,
+            name=name,
+            town=town,
+            email=email,
+            number=number,
+            diplomas=diplomas,
+            comment=comment,
+            state=state
+        )
+    
+    if profile_id:
+        profile = Profile.objects.filter(id=profile_id).first()
+    else:
+        profile = new_profile
+    
+    """
+    profile, created = Profile.objects.update_or_create(
+        id=profile_id,  # Use the profile_id to find the profile if it exists
+        defaults={
+            'surname': surname,
+            'name': name,
+            'town': town,
+            'email': email,
+            'number': number,
+            'diplomas': diplomas,
+            'comment': comment,
+            'state': state
+        }
+    )
+    """
+    skill_ids = request.POST.get('skills', '')
+
+    # Split the comma-separated string into a list and convert to integers
+    if skill_ids:
+        selected_skill_ids = list(map(int, skill_ids.split(',')))
+        selected_skills = Skill.objects.filter(id__in=selected_skill_ids)
+        profile.skills.set(selected_skills)
+    else:
+        profile.skills.clear()
+
+    # profile.skills.set(skills)
+
+    """
+    form = ProfileForm(request.POST)
+    if form.is_valid():
+        print("form", form.__dict__)
+        profile = form.save()
+        #return JsonResponse({'success': True, 'profile': profile})
+    else:
+        print("form not valid")
+    #return JsonResponse({'success': False})
+    """
+
+    return redirect('/profiles')
 
 
 def users_view(request):

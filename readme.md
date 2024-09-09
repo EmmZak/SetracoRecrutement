@@ -1,3 +1,13 @@
+## files
+
+store all files woth profile, 
+
+update => 
+
+1 list for files view, and another section for the input for what i upload, 
+
+every upload => append
+
 # Versions
 
 ```bash
