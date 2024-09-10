@@ -127,7 +127,9 @@ def profiles_create(request):
     # selected_skill_ids = request.POST.getlist('skills')
     diplomas = request.POST.get('diplomas')
     comment = request.POST.get('comment')
-    state = request.POST.get('state')
+    state = request.POST.get('state', None)
+    if state == None or state == "":
+        state = 'new'
 
     # print(surname, name, town, email, number,"skills: ", skills, diplomas, comment, state)
     # profile = None
@@ -154,49 +156,20 @@ def profiles_create(request):
             comment=comment,
             state=state
         )
-    
+
     if profile_id:
         profile = Profile.objects.filter(id=profile_id).first()
     else:
         profile = new_profile
-    
-    """
-    profile, created = Profile.objects.update_or_create(
-        id=profile_id,  # Use the profile_id to find the profile if it exists
-        defaults={
-            'surname': surname,
-            'name': name,
-            'town': town,
-            'email': email,
-            'number': number,
-            'diplomas': diplomas,
-            'comment': comment,
-            'state': state
-        }
-    )
-    """
+
     skill_ids = request.POST.get('skills', '')
 
-    # Split the comma-separated string into a list and convert to integers
     if skill_ids:
         selected_skill_ids = list(map(int, skill_ids.split(',')))
         selected_skills = Skill.objects.filter(id__in=selected_skill_ids)
         profile.skills.set(selected_skills)
     else:
         profile.skills.clear()
-
-    # profile.skills.set(skills)
-
-    """
-    form = ProfileForm(request.POST)
-    if form.is_valid():
-        print("form", form.__dict__)
-        profile = form.save()
-        #return JsonResponse({'success': True, 'profile': profile})
-    else:
-        print("form not valid")
-    #return JsonResponse({'success': False})
-    """
 
     return redirect('/profiles')
 

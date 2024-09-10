@@ -91,12 +91,6 @@
     <div id="app" style="width: 100%;">
         <v-app>
             <v-main>
-                <form v-if="false" method="post" action="{% url 'add_skill' %}" class="add-skill-form">
-                    {% csrf_token %}
-                    <input type="text" name="skill_name" placeholder="Ajouter une compétence">
-                    <button type="submit" class="btn btn-primary">Ajouter</button>
-                    <v-text-field name="skill_name" prepend-icon="mdi-account" variant="underlined"></v-text-field>
-                </form>
                 <v-data-table :headers="headers" :items="profiles" :loading="loading" items-per-page-text=""
                     :items-per-page="options.itemsPerPage" @update:options="fetchProfiles" show-expand
                     v-model:expanded="expanded">
@@ -106,7 +100,7 @@
                             <v-spacer></v-spacer>
                             <v-dialog v-model="dialog" style="height: 100%; width: 60%;">
                                 <template v-slot:activator="{ props }">
-                                    <v-btn class="mb-2" color="primary" dark v-bind="props">
+                                    <v-btn class="mb-2" color="primary" dark v-bind="props" @click="editItem({})">
                                         Créer
                                     </v-btn>
                                 </template>
@@ -149,20 +143,32 @@
                                                         variant="underlined"></v-text-field>
                                                 </v-col>
                                                 <v-col cols="4">
-                                                    <v-select v-model="editedItem.state"
+                                                    <v-select v-if="editedIndex != -1" v-model="editedItem.state"
                                                         :items="['ok', 'ko', 'new', 'processing']"
-                                                        label="Statut candidature" name="state" required></v-select>
+                                                        label="Statut candidature" variant="underlined" name="state"
+                                                        required></v-select>
                                                 </v-col>
 
                                             </v-row>
                                             <v-row cols="12">
                                                 <v-col cols="12">
-                                                    <!-- skills -->
+                                                    editedItem.skills: ${editedItem.skills} <br>
+                                                    skills: ${skills}
+                                                    <v-chip-group v-if="true" v-model="editedItem.skills" column
+                                                        selected-class="text-primary" multiple>
+                                                        <v-chip v-for="(skill, i) in skills" :key="skill" :value="skill"
+                                                            name="skills" text variant="outlined" filter>
+                                                            ${ skill.name }
+                                                        </v-chip>
+                                                    </v-chip-group>
+                                                    <input type="hidden" name="skills"
+                                                        :value="editedItem.skills.map(s => s.id)">
+                                                    <!-- skills
                                                     <v-select v-model="editedItem.skills" :items="skills" name="skills"
                                                         prepend-icon="mdi-tools" label="Compétences" chips multiple
                                                         item-title="name" item-text="name" item-value="id"
                                                         @focus="fetchSkills" style="width: 100%;" dense>
-                                                    </v-select>
+                                                    </v-select>  -->
                                                 </v-col>
                                             </v-row>
                                             <v-row cols="12">
@@ -256,7 +262,7 @@
                                             <v-col>
                                                 <p class="text-body-1">${item.email}</p>
                                             </v-col>
-                                            
+
                                         </v-row>
                                         <v-row class="align-center">
                                             <v-col cols="auto">
@@ -541,8 +547,9 @@
                     files: []
                 })
 
-                const editItem = (item) => {
+                const editItem = async (item) => {
                     console.log("edit item item: ", item)
+                    await fetchSkills()
                     editedIndex.value = profiles.value.indexOf(item)
                     editedItem.value = Object.assign({}, item)
                     //editedItem.value.name = item.name
@@ -631,7 +638,7 @@
 
 
                 return {
-                    saveProfile, editedItem, editItem, deleteItem, dialogDelete, closeDelete, deleteItemConfirm, skills, fetchSkills, skillsLoading, defaultItem, formTitle, profiles, totalProfiles, headers, loading, options, fetchProfiles, expanded, dialog, openFile, printFile, deleteFile, getSkillColor, getStateIcon, getStateTooltipText
+                    editedIndex, saveProfile, editedItem, editItem, deleteItem, dialogDelete, closeDelete, deleteItemConfirm, skills, fetchSkills, skillsLoading, defaultItem, formTitle, profiles, totalProfiles, headers, loading, options, fetchProfiles, expanded, dialog, openFile, printFile, deleteFile, getSkillColor, getStateIcon, getStateTooltipText
                 }
             }
         })

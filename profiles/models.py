@@ -31,4 +31,6 @@ class ProfileForm(forms.ModelForm):
     class Meta:
         model = Profile
         # fields = ['name', 'surname', 'email', 'number','town', 'skills', 'comment', 'diplomas', 'state']
-        fields = ['name', 'surname', 'email', 'number','town', 'comment', 'diplomas', 'state']
+        # fields = ['name', 'surname', 'email', 'number','town', 'comment', 'diplomas', 'state']
+        fields = ['name', 'surname', 'email']
+

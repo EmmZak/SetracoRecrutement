@@ -1,35 +1,564 @@
 {% extends 'baseV3.html' %}
 
 {% block content %}
-<h1>Manage Users</h1>
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+</head>
 
 <body>
-    <table id="usersTable">
-        <thead>
-            <tr>
-                <th>Username</th>
-                <th>Email</th>
-                <th>First Name</th>
-                <th>Last Name</th>
-                <th>Actions</th>
-            </tr>
-        </thead>
-        <tbody>
-            <!-- {% for user in users %} -->
-            <tr>
-                <td>{{ user.username }}</td>
-                <td>{{ user.email }}</td>
-                <td>{{ user.first_name }}</td>
-                <td>{{ user.last_name }}</td>
-                <td>
-                </td>
-            </tr>
-            <!-- {% endfor %} -->
-        </tbody>
-    </table>
+    <div id="app" style="width: 100%;">
+        <v-app>
+            <v-main>
+                <form v-if="false" method="post" action="{% url 'add_skill' %}" class="add-skill-form">
+                    {% csrf_token %}
+                    <input type="text" name="skill_name" placeholder="Ajouter une compétence">
+                    <button type="submit" class="btn btn-primary">Ajouter</button>
+                    <v-text-field name="skill_name" prepend-icon="mdi-account" variant="underlined"></v-text-field>
+                </form>
+                <v-data-table :headers="headers" :items="profiles" :loading="loading" items-per-page-text=""
+                    :items-per-page="options.itemsPerPage" @update:options="fetchProfiles" show-expand
+                    v-model:expanded="expanded">
+                    <template v-slot:top>
+                        <v-toolbar flat>
+                            <v-toolbar-title>Profiles</v-toolbar-title>
+                            <v-spacer></v-spacer>
+                            <v-dialog v-model="dialog" style="height: 100%; width: 60%;">
+                                <template v-slot:activator="{ props }">
+                                    <v-btn class="mb-2" color="primary" dark v-bind="props">
+                                        Créer
+                                    </v-btn>
+                                </template>
+
+                                <v-card>
+                                    <v-card-title>
+                                        <span class="text-h4">${formTitle}</span>
+                                    </v-card-title>
+                                    <v-card-text>
+                                        <form method="POST" action="{% url 'profiles_create' %}">
+                                            {% csrf_token %}
+
+                                            <input type="hidden" name="id" id="profile-id" :value="editedItem.id">
+
+                                            <v-row cols="12">
+                                                <v-col cols="4">
+                                                    <v-text-field v-model="editedItem.surname" label="Nom"
+                                                        name="surname" prepend-icon="mdi-account"
+                                                        variant="underlined"></v-text-field>
+                                                </v-col>
+                                                <v-col cols="4">
+                                                    <v-text-field v-model="editedItem.name" label="Prénom"
+                                                        v-model="form.surname" name="name"
+                                                        variant="underlined"></v-text-field>
+                                                </v-col>
+                                                <v-col cols="4">
+                                                    <v-text-field v-model="editedItem.town" label="Localisation"
+                                                        name="town" prepend-icon="mdi-map-marker"
+                                                        variant="underlined"></v-text-field>
+                                                </v-col>
+                                            </v-row>
+                                            <v-row cols="12">
+                                                <v-col cols="4">
+                                                    <v-text-field v-model="editedItem.email" label="E-mail" name="email"
+                                                        prepend-icon="mdi-at" variant="underlined"></v-text-field>
+                                                </v-col>
+                                                <v-col cols="4">
+                                                    <v-text-field v-model="editedItem.number" label="Numéro"
+                                                        name="number" prepend-icon="mdi-phone"
+                                                        variant="underlined"></v-text-field>
+                                                </v-col>
+                                                <v-col cols="4">
+                                                    <v-select v-model="editedItem.state"
+                                                        :items="['ok', 'ko', 'new', 'processing']"
+                                                        label="Statut candidature" name="state" required></v-select>
+                                                </v-col>
+
+                                            </v-row>
+                                            <v-row cols="12">
+                                                <v-col cols="12">
+                                                    <!-- skills -->
+                                                    <v-select v-model="editedItem.skills" :items="skills" name="skills"
+                                                        prepend-icon="mdi-tools" label="Compétences" chips multiple
+                                                        item-title="name" item-text="name" item-value="id"
+                                                        @focus="fetchSkills" style="width: 100%;" dense>
+                                                    </v-select>
+                                                </v-col>
+                                            </v-row>
+                                            <v-row cols="12">
+                                                <v-col cols="6">
+                                                    <!-- diplomas -->
+                                                    <v-textarea v-model="editedItem.diplomas" label="Diplômes"
+                                                        name="diplomas" prepend-icon="mdi-certificate"
+                                                        variant="underlined"></v-textarea>
+                                                </v-col>
+                                                <v-col cols="6">
+                                                    <!-- comment -->
+                                                    <v-textarea v-model="editedItem.comment" label="Commentaires"
+                                                        name="comment" prepend-icon="mdi-comment"
+                                                        variant="underlined"></v-textarea>
+                                                </v-col>
+                                            </v-row>
+
+                                            <v-row cols="12" v-if="false">
+                                                <v-col cols="12">
+                                                    <!-- files -->
+                                                    <v-file-input label="File input w/ chips" chips multiple
+                                                        v-model="editedItem.files"></v-file-input>
+                                                    <!-- <v-text-field v-model="defaultItem.diplomas" label="Files"
+                                                    prepend-icon="mdi-paperclip" variant="underlined"></v-text-field> -->
+                                                </v-col>
+                                            </v-row>
+
+                                            <v-row>
+                                                <button type="submit" class="btnn btn-primaryy"
+                                                    style="background-color: #4CAF50; border-radius: 12px; font-weight: bold; padding: 10px 20px; box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1); color: white">Sauvegarder</button>
+
+                                            </v-row>
+
+                                        </form>
+
+                                    </v-card-text>
+                                    <!-- <v-card-actions>
+                                        <v-btn color="blue-darken-1" variant="text" @click="saveProfile">
+                                            Sauvegarder
+                                        </v-btn>
+                                    </v-card-actions> -->
+                                </v-card>
+
+                            </v-dialog>
+
+                            <v-dialog v-model="dialogDelete" style="width: 50%;">
+                                <v-card>
+                                    <v-card-title class="text-h5">Êtes-vous sûr(e) de vouloir supprimer le profile
+                                        ?</v-card-title>
+                                    <v-card-actions>
+                                        <v-spacer></v-spacer>
+                                        <v-btn color="blue-darken-1" variant="text" @click="closeDelete">Annuler</v-btn>
+                                        <v-btn color="white" class="bg-red" variant="text"
+                                            @click="deleteItemConfirm">Supprimer</v-btn>
+                                        <v-spacer></v-spacer>
+                                    </v-card-actions>
+                                </v-card>
+                            </v-dialog>
+                        </v-toolbar>
+                    </template>
+
+                    <!-- skills -->
+                    <template v-slot:item.skills="{ value }">
+                        <div class="ma-1" style="display: flex; flex-direction: column; gap: 4px" bg-red>
+                            <v-chip v-for="(skill, i) in value" :color="getSkillColor(i)"> ${skill.name}
+                            </v-chip>
+                        </div>
+                    </template>
+
+                    <!-- state -->
+                    <template v-slot:item.state="{ value }">
+                        <v-tooltip :text="getStateTooltipText(value)">
+                            <template v-slot:activator="{ props }">
+                                <v-icon v-bind="props" size="28" :icon="getStateIcon(value).name"
+                                    :color="getStateIcon(value).color" />
+                            </template>
+                        </v-tooltip>
+                    </template>
+
+                    <template v-slot:expanded-row="{ columns, item }">
+                        <td :colspan="columns.length">
+
+                            <div v-if="true" id="expand-div" style="display: flex; ">
+                                <div style="flex-basis: 100%" class="bg-greenn">
+                                    <v-card-title>Données personnelles</v-card-title>
+                                    <v-card-text>
+                                        <v-row class="align-center">
+                                            <v-col cols="auto">
+                                                <v-icon large>mdi-email</v-icon>
+                                            </v-col>
+                                            <v-col>
+                                                <p class="text-body-1">${item.email}</p>
+                                            </v-col>
+
+                                        </v-row>
+                                        <v-row class="align-center">
+                                            <v-col cols="auto">
+                                                <v-icon large>mdi-phone</v-icon>
+                                            </v-col>
+                                            <v-col>
+                                                <p class="text-body-1">${item.number}</p>
+                                            </v-col>
+                                        </v-row>
+                                    </v-card-text>
+
+
+                                    <v-card-title>Fichier(s)</v-card-title>
+                                    <v-card-text class="files-grid-container">
+                                        <!-- <div class="files-grid-container"> -->
+                                        <div v-for="file in item.files" :key="file.id" class="files-grid-item">
+                                            <v-hover v-slot="{ isHovering, props }">
+                                                <v-card class="mx-auto" color="grey-lighten-4" max-width="600"
+                                                    v-bind="props">
+                                                    <v-card-title :class="{ 'opacity-100': isHovering }">
+                                                        ${file.file_name}
+                                                    </v-card-title>
+                                                    <v-overlay id="overlay" :model-value="!!isHovering"
+                                                        class="d-flex justify-center align-center w-100 h-100"
+                                                        scrim="#036358" contained>
+                                                        <div class="d-flex justify-space-around align-center transition-fast-in-fast-out bg-blue-lighten-2
+                                                                        v-card--reveal "
+                                                            style="height: 100%; width: 100%;">
+                                                            <v-icon color="white"
+                                                                @click="openFile(file)">mdi-eye</v-icon>
+                                                            <v-icon color="white"
+                                                                @click="printFile(file)">mdi-printer</v-icon>
+                                                            <v-icon color="white"
+                                                                @click="deleteFile(file)">mdi-delete</v-icon>
+                                                        </div>
+                                                    </v-overlay>
+                                                </v-card>
+                                            </v-hover>
+                                        </div>
+                                        <!-- </div> -->
+                                    </v-card-text>
+
+                                </div>
+                                <v-divider vertical></v-divider>
+                                <v-card style="flex-basis: 100%">
+                                    <v-card-title>Commentaires</v-card-title>
+                                    <v-card-text
+                                        style="word-wrap: break-word; word-break: break-all; white-space: normal;">
+                                        <p>${ item.comment }
+                                        </p>
+                                    </v-card-text>
+                                </v-card>
+                            </div>
+
+                            <v-card v-if="false" class="bg-redd d-flex flex-1">
+                                <div class="w-50n" style="width: 50%n; ">
+                                    <v-card-title>Données personnelles</v-card-title>
+                                    <v-card-text class="bg-red">
+                                        <v-row>
+                                            <v-icon>mdi-email</v-icon>
+                                            <p>
+                                                ${ item.email }
+                                            </p>
+                                        </v-row>
+                                        <v-row>
+                                            <v-icon>mdi-phone</v-icon>
+                                            <span>
+                                                ${ item.number }
+                                            </span>
+                                        </v-row>
+                                    </v-card-text>
+                                </div>
+
+                                <v-divider vertical></v-divider>
+
+                                <div class="w-50f">
+                                    <v-card-title>Commentaires</v-card-title>
+                                    <v-card-text
+                                        style="word-wrap: break-word; word-break: break-all; white-space: normal;">
+                                        <p>${ item.comment }
+                                        </p>
+                                    </v-card-text>
+                                </div>
+
+                                <v-divider vertical></v-divider>
+
+                                <div class="w-50f" style="width: 50f%;">
+                                    <v-card-title>Fichier(s)</v-card-title>
+                                    <!-- <v-card-title>
+                                        <v-icon name="file-multiple"></v-icon>
+                                    </v-card-title> -->
+
+
+                                </div>
+                            </v-card>
+                        </td>
+                    </template>
+
+                    <template v-slot:item.actions=" { item }">
+                        <v-icon size="24" color="grey-darken-3" @click="editItem(item)">
+                            mdi-pencil
+                        </v-icon>
+                        <v-icon size="24" color="grey-darken-3" @click="deleteItem(item.id)"> mdi-delete </v-icon>
+                    </template>
+                </v-data-table>
+            </v-main>
+        </v-app>
+    </div>
 
     <script>
-        console.log("ok")
+        const { createApp, ref, onMounted, computed, watch, nextTick } = Vue;
+        const { createVuetify } = Vuetify;
+        const vuetify = createVuetify();
+
+        const app = createApp({
+            setup() {
+                const headers = [
+                    // { title: 'Date de création', key: 'creation_date', sortable: true },
+                    { title: 'Modifié', key: 'update_date', sortable: true },
+                    { title: 'Nom', key: 'name', sortable: false },
+                    { title: 'Prénom', key: 'surname', sortable: false },
+                    // { title: 'Email', key: 'email', sortable: false },
+                    // { title: 'Numéro', key: 'number', sortable: false },
+                    { title: 'Ville', key: 'town', sortable: false },
+                    { title: 'Compétences', key: 'skills', sortable: false },
+                    // { title: 'Etat', key: 'state', sortable: true },
+                    { title: 'Etat candidature', key: 'state', sortable: true },
+                    { title: 'Diplômes', key: 'diplomas', sortable: false },
+                    // { title: 'Commentaires', key: 'comment', sortable: false },
+                    { title: 'Actions', key: 'actions', sortable: false },
+                ]
+
+                /* pagination */
+                onMounted(() => {
+                    fetchProfiles();
+                })
+
+                var profiles = ref([])
+                var expanded = ref([])
+                var totalProfiles = ref(0)
+                var loading = ref(false)
+                var search = ref("")
+
+                const fetchProfiles = async () => {
+                    console.log("fetcing profiles")
+                    loading.value = true;
+                    try {
+                        let params = {
+                            search: search.value,
+                            start: (options.value.page - 1) * options.value.itemsPerPage,
+                            length: options.value.itemsPerPage,
+                        }
+                        //console.log("params: ", params)
+                        let res = await axios.get('{% url 'profiles_data' %}', {
+                            params: params
+                        })
+                        console.log("res.data.profiles: ", res.data.profiles)
+                        profiles.value = res.data.profiles
+                        totalProfiles.value = res.data.recordsTotal;
+                        expanded.value = profiles.value
+
+                        //console.log("profiles: ", profiles.value)
+                    } catch (err) {
+                        console.log(err)
+                    } finally {
+                        loading.value = false;
+                    }
+                }
+
+                var formTitle = computed(() => {
+                    return editedIndex.value === -1 ? 'Création' : 'Modification'
+                })
+
+                var options = ref({
+                    page: 1,
+                    itemsPerPage: 50,
+                })
+
+                // dialog
+                var dialog = ref(false)
+                const close = () => {
+                    dialog.value = false
+                    nextTick(() => {
+                        editedItem.value = Object.assign({}, defaultItem.value)
+                        editedIndex.value = -1
+                    })
+                }
+                watch(dialog, (val) => {
+                    if (!val) close();
+                });
+
+                var defaultItem = ref({
+                    id: null,
+                    name: "",
+                    surname: "",
+                    email: "",
+                    number: "",
+                    state: "",
+                    town: "",
+                    skills: [],
+                    diplomas: "",
+                    comment: "",
+                    files: []
+                })
+
+                const saveProfile = async () => {
+                    console.log("submitting profile ",)
+                    // profiles_create 
+                    const response = await axios.post(
+                        '{% url 'profiles_create' %}',
+                        editItem.value, {
+                        headers: {
+                            'X-CSRFToken': '{{ csrf_token }}',
+                            'Content-Type': 'application/json',
+                        },
+                    });
+                    /*
+                    await axios.post(
+                        '{% url 'profiles_create' %}',
+                        headers: {
+                            'X-CSRFToken': '{{ csrf_token }}',
+                        }
+                    )*/
+                }
+
+
+                // delete dialog
+                const dialogDelete = ref(false);
+                const deleteId = ref(null)
+                const closeDelete = () => {
+                    dialogDelete.value = false
+                    nextTick(() => {
+                        editedItem.value = Object.assign({}, defaultItem.value)
+                        editedIndex.value = -1
+                    })
+                }
+
+                const deleteItem = (id) => {
+                    deleteId.value = id
+                    //editedIndex.value = profiles.value.indexOf(item)
+                    //editedItem.value = Object.assign({}, item)
+                    dialogDelete.value = true
+                }
+
+                const deleteItemConfirm = async () => {
+                    if (deleteId.value != null) {
+                        console.log("delete id ", deleteId.value)
+                        try {
+                            await fetch(`/profiles/delete?id=${deleteId.value}`, {
+                                method: 'DELETE',
+                                headers: {
+                                    'X-CSRFToken': '{{ csrf_token }}',
+                                }
+                            })
+                            fetchProfiles(); // Refresh profiles to update the list of files
+                        } catch (err) {
+                            console.error('Failed to delete the file:', err);
+                        }
+                    }
+                    deleteId.value = null
+                    closeDelete()
+                }
+
+                watch(dialogDelete, (val) => {
+                    if (!val) closeDelete();
+                });
+
+                // update
+                var editedIndex = ref(-1)
+
+                var editedItem = ref({
+                    id: null,
+                    name: "",
+                    surname: "",
+                    email: "",
+                    number: "",
+                    state: "",
+                    town: "",
+                    skills: [],
+                    diplomas: "",
+                    comment: "",
+                    files: []
+                })
+
+                const editItem = (item) => {
+                    console.log("edit item item: ", item)
+                    editedIndex.value = profiles.value.indexOf(item)
+                    editedItem.value = Object.assign({}, item)
+                    //editedItem.value.name = item.name
+                    dialog.value = true
+                }
+
+                /* file */
+                const openFile = (file) => {
+                    window.open(file.url, '_blank');
+                };
+
+                const printFile = (file) => {
+                    const printWindow = window.open(file.url, '_blank', 'width=800,height=600');
+
+                    printWindow.onload = () => {
+                        printWindow.focus(); // Focus on the new window
+                        printWindow.print(); // Trigger the print dialog
+                        // printWindow.close(); // Close the window after printing
+                    };
+                }
+
+                const deleteFile = async (file) => {
+                    try {
+                        await fetch(`/delete-file?id=${file.id}`, {
+                            method: 'DELETE',
+                            headers: {
+                                'X-CSRFToken': '{{ csrf_token }}',
+                            }
+                        })
+                        // await axios.post(`/delete-file?id=${file.id}`);
+                        //fetchProfiles(); // Refresh profiles to update the list of files
+                    } catch (err) {
+                        console.error('Failed to delete the file:', err);
+                    }
+                };
+
+                /* skill */
+                const getSkillColor = (index) => {
+                    const colors = ['red', 'blue', 'green', 'purple', 'orange'];
+                    return colors[index % colors.length];
+                }
+                var skillsLoading = ref(false)
+                var skills = ref([])
+
+                const fetchSkills = async () => {
+                    skillsLoading.value = true
+                    try {
+                        let res = await axios.get('{% url 'skill_list' %}')
+                        console.log("skills: ", res.data)
+                        skills.value = res.data
+                    } catch (err) {
+                        console.log("err: ", err)
+                    } finally {
+                        skillsLoading.value = false
+                    }
+                }
+
+                /* state */
+                const getStateIcon = (value) => {
+                    const icons = {
+                        new:
+                            { name: 'mdi-new-box', color: "blue" },
+                        processing:
+                            { name: 'mdi-progress-clock', color: "blue" },
+                        ok:
+                            { name: 'mdi-check', color: "green" },
+                        ko:
+                            { name: 'mdi-cancel', color: "red" },
+                    };
+                    return icons[value]
+                }
+
+                const getStateTooltipText = (value) => {
+                    const icons = {
+                        new:
+                            "Nouveau",
+                        processing:
+                            "En cours",
+                        ok:
+                            "Terminé",
+                        ko:
+                            "Rejeté",
+                    };
+                    return icons[value]
+                }
+
+
+                return {
+                    saveProfile, editedItem, editItem, deleteItem, dialogDelete, closeDelete, deleteItemConfirm, skills, fetchSkills, skillsLoading, defaultItem, formTitle, profiles, totalProfiles, headers, loading, options, fetchProfiles, expanded, dialog, openFile, printFile, deleteFile, getSkillColor, getStateIcon, getStateTooltipText
+                }
+            }
+        })
+        app.config.compilerOptions.delimiters = ['${', '}']
+        app.use(vuetify).mount("#app")
     </script>
 </body>
 
