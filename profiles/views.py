@@ -35,7 +35,14 @@ def profiles_data(request):
     # draw = int(request.GET.get('draw', 1))
     start = int(request.GET.get('start', 0))
     length = int(request.GET.get('length', 10))
-    search_value = request.GET.get('search[value]', '')
+    search_value = request.GET.get('search', '')
+    # Filter by skills (assuming the skill filter is a comma-separated list of skill IDs)
+    skill_filter = request.GET.get('skills', '')
+
+    print("start: ", start)
+    print("search_value: ", search_value)
+    print("skill_filter: ", skill_filter)
+
     # order_column = request.GET.get('order[0][column]', '0')
     # order_direction = request.GET.get('order[0][dir]', 'asc')
 
@@ -63,8 +70,6 @@ def profiles_data(request):
             Q(email__icontains=search_value)
         )
 
-    # Filter by skills (assuming the skill filter is a comma-separated list of skill IDs)
-    skill_filter = request.GET.get('skills', '')
     if skill_filter:
         skill_ids = skill_filter.split(',')
         profiles = profiles.filter(skills__id__in=skill_ids).distinct()
@@ -174,13 +179,13 @@ def profiles_create(request):
         profile.skills.clear()
 
     # Handle file uploads
-    #print("request.FILES: ", request.FILES)
+    # print("request.FILES: ", request.FILES)
     if 'files' in request.FILES:
         uploaded_files = request.FILES.getlist('files')
-        #print("uploaded_files: ", uploaded_files)
+        # print("uploaded_files: ", uploaded_files)
         for file in uploaded_files:
             print("file: ", file, type(file))
-            document = ProfileFile.objects.create(profile = profile, file=file)
+            document = ProfileFile.objects.create(profile=profile, file=file)
             profile.files.add(document)
 
     return redirect('/profiles')

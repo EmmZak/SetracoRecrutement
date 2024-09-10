@@ -96,12 +96,26 @@
     <div id="app" style="width: 100%;">
         <v-app>
             <v-main>
+
                 <v-data-table :headers="headers" :items="profiles" :loading="loading" items-per-page-text=""
                     :items-per-page="options.itemsPerPage" @update:options="fetchProfiles" show-expand
-                    v-model:expanded="expanded">
+                    v-model:expanded="expanded" hide-default-headerr>
+
+                    <!-- <template v-slot:headers="{ props }">
+                        <tr>
+                            <th v-for="header in headers" :key="header.key" :id="header.key">
+                                ${header.title}
+                                <v-select v-if="header.key === 'skills'" :items="skills"
+                                    v-model="paginationFilters.skills" label="Compétences" item-title="name" chips multiple
+                                    item-text="name" item-value="id" hide-details dense></v-select>
+                            </th>
+                        </tr>
+                    </template> -->
+
                     <template v-slot:top>
                         <v-toolbar flat>
-                            <v-toolbar-title>Profiles</v-toolbar-title>
+                            <!-- <v-select :items="['manu', 'kiki' ]" label="Standard"></v-select> -->
+                            <v-toolbar-title>Profils</v-toolbar-title>
                             <v-spacer></v-spacer>
                             <v-dialog v-model="dialog" style="height: 100%; width: 60%;">
                                 <template v-slot:activator="{ props }">
@@ -257,6 +271,20 @@
                                 </v-card>
                             </v-dialog>
                         </v-toolbar>
+                        <v-toolbar flat>
+                            <!-- ${paginationFilters} -->
+                            <v-select :items="skills" v-model="paginationFilters.skills" label="Compétences"
+                                item-title="name" chips multiple item-text="name" item-value="id" hide-details
+                                variant="underlined" prepend-inner-icon="mdi-tools" dense></v-select>
+                            <v-spacer></v-spacer>
+                            <v-text-field v-model="paginationFilters.search" label="Recherche"
+                                prepend-inner-icon="mdi-magnify" variant="underlined" hide-details
+                                single-line></v-text-field>
+
+                        </v-toolbar>
+                        <!-- <v-card>
+                            here
+                        </v-card> -->
                     </template>
 
                     <!-- skills -->
@@ -426,7 +454,8 @@
                 ]
 
                 /* pagination */
-                onMounted(() => {
+                onMounted(async () => {
+                    await fetchSkills()
                     fetchProfiles();
                 })
 
@@ -434,14 +463,26 @@
                 var expanded = ref([])
                 var totalProfiles = ref(0)
                 var loading = ref(false)
-                var search = ref("")
+                // var search = ref("")
+
+                var paginationFilters = ref({
+                    skills: [],
+                    state: null,
+                    search: ""
+                })
+                watch(paginationFilters, (val) => {
+                    console.log("fileters hcabged", paginationFilters.value)
+                    fetchProfiles()
+                }, { deep: true });
+
 
                 const fetchProfiles = async () => {
                     console.log("fetcing profiles")
                     loading.value = true;
                     try {
                         let params = {
-                            search: search.value,
+                            search: paginationFilters.value.search,
+                            skills: paginationFilters.value.skills.join(','),
                             start: (options.value.page - 1) * options.value.itemsPerPage,
                             length: options.value.itemsPerPage,
                         }
@@ -518,13 +559,6 @@
                             'Content-Type': 'application/json',
                         },
                     });
-                    /*
-                    await axios.post(
-                        '{% url 'profiles_create' %}',
-                        headers: {
-                            'X-CSRFToken': '{{ csrf_token }}',
-                        }
-                    )*/
                 }
 
 
@@ -678,7 +712,7 @@
 
 
                 return {
-                    profileStates, editedIndex, saveProfile, editedItem, editItem, deleteItem, dialogDelete, closeDelete, deleteItemConfirm, skills, fetchSkills, skillsLoading, defaultItem, formTitle, profiles, totalProfiles, headers, loading, options, fetchProfiles, expanded, dialog, openFile, printFile, deleteFile, getSkillColor, getStateIcon, getStateTooltipText
+                    paginationFilters, profileStates, editedIndex, saveProfile, editedItem, editItem, deleteItem, dialogDelete, closeDelete, deleteItemConfirm, skills, fetchSkills, skillsLoading, defaultItem, formTitle, profiles, totalProfiles, headers, loading, options, fetchProfiles, expanded, dialog, openFile, printFile, deleteFile, getSkillColor, getStateIcon, getStateTooltipText
                 }
             }
         })
