@@ -4,11 +4,18 @@ from django import forms
 
 
 class Profile(models.Model):
+    STATE_TO_VERIFY = "STATE_TO_VERIFY"
+    STATE_VERIFIED = "STATE_VERIFIED"
+    STATE_CONSULTED = "STATE_CONSULTED"
+    STATE_HIRED = "STATE_HIRED"
+    STATE_REJECTED = "STATE_REJECTED"
+
     STATE_CHOICES = [
-        ('new', 'New'),
-        ('processing', 'Processing'),
-        ('ok', 'OK'),
-        ('ko', 'KO'),
+        (STATE_TO_VERIFY, STATE_TO_VERIFY),
+        (STATE_VERIFIED, STATE_VERIFIED),
+        (STATE_CONSULTED, STATE_CONSULTED),
+        (STATE_HIRED, STATE_HIRED),
+        (STATE_REJECTED, STATE_REJECTED),
     ]
     name = models.CharField(max_length=100)
     surname = models.CharField(max_length=100)
@@ -21,7 +28,7 @@ class Profile(models.Model):
     creation_date = models.DateTimeField(auto_now_add=True)
     update_date = models.DateTimeField(auto_now=True)
     state = models.CharField(
-        max_length=20, choices=STATE_CHOICES, default='new')
+        max_length=20, choices=STATE_CHOICES, default=STATE_TO_VERIFY)
 
     def __str__(self):
         return f"{self.name} {self.surname}"
@@ -33,4 +40,3 @@ class ProfileForm(forms.ModelForm):
         # fields = ['name', 'surname', 'email', 'number','town', 'skills', 'comment', 'diplomas', 'state']
         # fields = ['name', 'surname', 'email', 'number','town', 'comment', 'diplomas', 'state']
         fields = ['name', 'surname', 'email']
-

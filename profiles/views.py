@@ -2,6 +2,7 @@ from django.http import JsonResponse
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.models import User
 from django.views.decorators.http import require_POST
+from profileFile.models import ProfileFile
 from skills.models import Skill
 from .models import Profile
 from django.core.paginator import Paginator
@@ -128,8 +129,9 @@ def profiles_create(request):
     diplomas = request.POST.get('diplomas')
     comment = request.POST.get('comment')
     state = request.POST.get('state', None)
+    print("state:  ", state)
     if state == None or state == "":
-        state = 'new'
+        state = Profile.STATE_TO_VERIFY
 
     # print(surname, name, town, email, number,"skills: ", skills, diplomas, comment, state)
     # profile = None
@@ -170,6 +172,16 @@ def profiles_create(request):
         profile.skills.set(selected_skills)
     else:
         profile.skills.clear()
+
+    # Handle file uploads
+    #print("request.FILES: ", request.FILES)
+    if 'files' in request.FILES:
+        uploaded_files = request.FILES.getlist('files')
+        #print("uploaded_files: ", uploaded_files)
+        for file in uploaded_files:
+            print("file: ", file, type(file))
+            document = ProfileFile.objects.create(profile = profile, file=file)
+            profile.files.add(document)
 
     return redirect('/profiles')
 

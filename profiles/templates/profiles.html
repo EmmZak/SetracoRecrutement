@@ -84,6 +84,11 @@
             width: 100%;
             box-sizing: border-box;
         }
+
+        .v-overlay__content {
+            width: 100%;
+            height: 100%;
+        }
     </style>
 </head>
 
@@ -105,12 +110,13 @@
                                     </v-btn>
                                 </template>
 
-                                <v-card>
+                                <v-card style="height: 100vw;">
                                     <v-card-title>
                                         <span class="text-h4">${formTitle}</span>
                                     </v-card-title>
                                     <v-card-text>
-                                        <form method="POST" action="{% url 'profiles_create' %}">
+                                        <form method="POST" action="{% url 'profiles_create' %}"
+                                            enctype="multipart/form-data">
                                             {% csrf_token %}
 
                                             <input type="hidden" name="id" id="profile-id" :value="editedItem.id">
@@ -118,7 +124,7 @@
                                             <v-row cols="12">
                                                 <v-col cols="4">
                                                     <v-text-field v-model="editedItem.surname" label="Nom"
-                                                        name="surname" prepend-icon="mdi-account"
+                                                        name="surname" prepend-inner-icon="mdi-account"
                                                         variant="underlined"></v-text-field>
                                                 </v-col>
                                                 <v-col cols="4">
@@ -128,41 +134,54 @@
                                                 </v-col>
                                                 <v-col cols="4">
                                                     <v-text-field v-model="editedItem.town" label="Localisation"
-                                                        name="town" prepend-icon="mdi-map-marker"
+                                                        name="town" prepend-inner-icon="mdi-map-marker"
                                                         variant="underlined"></v-text-field>
                                                 </v-col>
                                             </v-row>
                                             <v-row cols="12">
                                                 <v-col cols="4">
                                                     <v-text-field v-model="editedItem.email" label="E-mail" name="email"
-                                                        prepend-icon="mdi-at" variant="underlined"></v-text-field>
+                                                        prepend-inner-icon="mdi-at" variant="underlined"></v-text-field>
                                                 </v-col>
                                                 <v-col cols="4">
                                                     <v-text-field v-model="editedItem.number" label="Numéro"
-                                                        name="number" prepend-icon="mdi-phone"
+                                                        name="number" prepend-inner-icon="mdi-phone"
                                                         variant="underlined"></v-text-field>
                                                 </v-col>
-                                                <v-col cols="4">
+                                                <v-col v-if="false" cols="4">
                                                     <v-select v-if="editedIndex != -1" v-model="editedItem.state"
-                                                        :items="['ok', 'ko', 'new', 'processing']"
-                                                        label="Statut candidature" variant="underlined" name="state"
-                                                        required></v-select>
+                                                        :items="Object.values(profileStates)" label="Statut candidature"
+                                                        variant="underlined" name="state" required></v-select>
                                                 </v-col>
-
+                                            </v-row>
+                                            <v-row>
+                                                <v-col cols="12">
+                                                    <span class="text-h5">Statut du candidat</span>
+                                                    <v-chip-group v-if="true" v-model="editedItem.state" column
+                                                        selected-class="text-blue">
+                                                        <v-chip
+                                                            v-for="([state, name], i) in Object.entries(profileStates)"
+                                                            :key="state" :value="state" text variant="outlined" filter>
+                                                            ${ name }
+                                                        </v-chip>
+                                                    </v-chip-group>
+                                                    <input type="hidden" name="state" :value="editedItem.state">
+                                                </v-col>
                                             </v-row>
                                             <v-row cols="12">
                                                 <v-col cols="12">
-                                                    editedItem.skills: ${editedItem.skills} <br>
-                                                    skills: ${skills}
+                                                    <span class="text-h5">Compétences</span>
+                                                    <!-- editedItem.skills: ${editedItem.skills} <br>
+                                                    skills: ${skills} -->
                                                     <v-chip-group v-if="true" v-model="editedItem.skills" column
-                                                        selected-class="text-primary" multiple>
+                                                        selected-class="text-green" multiple>
                                                         <v-chip v-for="(skill, i) in skills" :key="skill" :value="skill"
                                                             name="skills" text variant="outlined" filter>
                                                             ${ skill.name }
                                                         </v-chip>
                                                     </v-chip-group>
                                                     <input type="hidden" name="skills"
-                                                        :value="editedItem.skills.map(s => s.id)">
+                                                        :value="editedItem.skills?.map(s => s.id) || []">
                                                     <!-- skills
                                                     <v-select v-model="editedItem.skills" :items="skills" name="skills"
                                                         prepend-icon="mdi-tools" label="Compétences" chips multiple
@@ -185,21 +204,31 @@
                                                         variant="underlined"></v-textarea>
                                                 </v-col>
                                             </v-row>
-
-                                            <v-row cols="12" v-if="false">
+                                            <!-- files -->
+                                            <v-row cols="12" v-if="true">
                                                 <v-col cols="12">
-                                                    <!-- files -->
-                                                    <v-file-input label="File input w/ chips" chips multiple
-                                                        v-model="editedItem.files"></v-file-input>
+                                                    <label for="files">Upload Files:</label>
+                                                    <input type="file" name="files" id="files" multiple>
+                                                    <!-- <v-file-input prepend-icon="" prepend-inner-icon="mdi-paperclip"
+                                                        label="Fichier(s) du candidat" chipss multiple
+                                                        v-model="editedItem.files" variant="underlined"></v-file-input>
+                                                    <input type="hidden" name="files" :value="editedItem.files"> -->
+
+                                                    <div v-for="(f, i) in editedItem.files" :key="f">
+                                                        ${f}: ${JSON.stringify(f)}
+                                                    </div>
                                                     <!-- <v-text-field v-model="defaultItem.diplomas" label="Files"
                                                     prepend-icon="mdi-paperclip" variant="underlined"></v-text-field> -->
                                                 </v-col>
                                             </v-row>
 
-                                            <v-row>
-                                                <button type="submit" class="btnn btn-primaryy"
-                                                    style="background-color: #4CAF50; border-radius: 12px; font-weight: bold; padding: 10px 20px; box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1); color: white">Sauvegarder</button>
-
+                                            <v-row justify="end">
+                                                <v-col cols="4">
+                                                    <v-btn :loading="loading" class="text-none mb-4 right" color="green"
+                                                        type="submit" size="x-large" variant="flat" block>
+                                                        Enregistrer
+                                                    </v-btn>
+                                                </v-col>
                                             </v-row>
 
                                         </form>
@@ -240,12 +269,13 @@
 
                     <!-- state -->
                     <template v-slot:item.state="{ value }">
-                        <v-tooltip :text="getStateTooltipText(value)">
+                        ${profileStates[value]}
+                        <!-- <v-tooltip :text="getStateTooltipText(value)">
                             <template v-slot:activator="{ props }">
                                 <v-icon v-bind="props" size="28" :icon="getStateIcon(value).name"
                                     :color="getStateIcon(value).color" />
                             </template>
-                        </v-tooltip>
+                        </v-tooltip> -->
                     </template>
 
                     <template v-slot:expanded-row="{ columns, item }">
@@ -468,6 +498,15 @@
                     files: []
                 })
 
+                const profileStates = {
+                    STATE_TO_VERIFY: "À vérifier",
+                    STATE_VERIFIED: "Vérifié",
+                    STATE_CONSULTED: "Consulté",
+                    STATE_HIRED: "Embauché",
+                    STATE_REJECTED: "Rejeté"
+                };
+                // const profileStates = ["STATE_TO_VERIFY", "STATE_VERIFIED", "STATE_CONSULTED", "STATE_HIRED", "STATE_REJECTED"]
+
                 const saveProfile = async () => {
                     console.log("submitting profile ",)
                     // profiles_create 
@@ -572,6 +611,7 @@
                 }
 
                 const deleteFile = async (file) => {
+                    console.log("deletegin")
                     try {
                         await fetch(`/delete-file?id=${file.id}`, {
                             method: 'DELETE',
@@ -580,7 +620,7 @@
                             }
                         })
                         // await axios.post(`/delete-file?id=${file.id}`);
-                        //fetchProfiles(); // Refresh profiles to update the list of files
+                        fetchProfiles(); // Refresh profiles to update the list of files
                     } catch (err) {
                         console.error('Failed to delete the file:', err);
                     }
@@ -638,7 +678,7 @@
 
 
                 return {
-                    editedIndex, saveProfile, editedItem, editItem, deleteItem, dialogDelete, closeDelete, deleteItemConfirm, skills, fetchSkills, skillsLoading, defaultItem, formTitle, profiles, totalProfiles, headers, loading, options, fetchProfiles, expanded, dialog, openFile, printFile, deleteFile, getSkillColor, getStateIcon, getStateTooltipText
+                    profileStates, editedIndex, saveProfile, editedItem, editItem, deleteItem, dialogDelete, closeDelete, deleteItemConfirm, skills, fetchSkills, skillsLoading, defaultItem, formTitle, profiles, totalProfiles, headers, loading, options, fetchProfiles, expanded, dialog, openFile, printFile, deleteFile, getSkillColor, getStateIcon, getStateTooltipText
                 }
             }
         })
