@@ -4,26 +4,18 @@ from django.contrib.auth.models import User
 from django.views.decorators.http import require_POST
 from profileFile.models import ProfileFile
 from skills.models import Skill
-from .models import Profile
+from .models import Profile, Comment
 from django.core.paginator import Paginator
 from django.db.models import Q
-import os
 from django.views.decorators.http import require_http_methods
 from .models import ProfileForm
-
+from django.contrib.auth.decorators import login_required, user_passes_test
+import os
 
 def config(request):
     if request.method == 'GET':
         skills = Skill.objects.all()
         return render(request, 'config.html', {'skills': skills})
-
-
-@require_http_methods(["DELETE"])
-def profile_delete(request):
-    profile_id = request.GET.get('id')
-    if profile_id:
-        Profile.objects.filter(id=profile_id).delete()
-    return redirect('/profiles')
 
 
 def profiles_view(request):
@@ -91,7 +83,13 @@ def profiles_data(request):
         'creation_date': profile.creation_date.strftime('%d/%m/%Y'),
         # 'creation_date': profile.creation_date.strftime('%Y-%m-%d %H:%M:%S'),
         'update_date': profile.update_date.strftime('%d/%m/%Y %H:%M:%S'),
-        'comment': profile.comment,
+        'comments': [
+            {
+                "text": com.text,
+                "username": com.user.username,
+                "creation_date": com.creation_date.strftime('%d/%m/%Y'),
+            } for com in profile.comments.all()
+        ],
         'state': profile.state,
         'diplomas': profile.diplomas,
         'skills': [
@@ -118,7 +116,7 @@ def profiles_data(request):
 
     return JsonResponse(response)
 
-
+@login_required
 def profiles_create(request):
     print("here")
 
@@ -149,7 +147,7 @@ def profiles_create(request):
             email=email,
             number=number,
             diplomas=diplomas,
-            comment=comment,
+            # comment=comment,
             state=state
         )
     else:
@@ -160,7 +158,7 @@ def profiles_create(request):
             email=email,
             number=number,
             diplomas=diplomas,
-            comment=comment,
+            # comment=comment,
             state=state
         )
 
@@ -168,6 +166,14 @@ def profiles_create(request):
         profile = Profile.objects.filter(id=profile_id).first()
     else:
         profile = new_profile
+
+    # comment
+    if comment:
+        Comment.objects.create(
+            profile=profile,
+            user=request.user,
+            text=comment
+        )
 
     skill_ids = request.POST.get('skills', '')
 
@@ -191,29 +197,14 @@ def profiles_create(request):
     return redirect('/profiles')
 
 
-def users_view(request):
-    users = User.objects.all()
-    return render(request, 'users.html', {'users': users})
+@require_http_methods(["DELETE"])
+def profile_delete(request):
+    profile_id = request.GET.get('id')
+    if profile_id:
+        Profile.objects.filter(id=profile_id).delete()
+    return redirect('/profiles')
 
 
-def test(request):
-    items = [
-        {
-            'name': 'African Elephant',
-            'species': 'Loxodonta africana',
-            'diet': 'Herbivore',
-            'habitat': 'Savanna, Forests',
-        },
-        # ... more items
-    ]
-    context = {
-        'items': items,
-        # 'nb_elements': nb_elements,
-        # 'items_per_page': items_per_page,
-        # 'page': page,
-    }
-    return render(request, 'test.html', context)
-
-
+@login_required
 def home(request):
     return render(request, 'home.html')

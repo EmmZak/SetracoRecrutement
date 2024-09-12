@@ -1,4 +1,5 @@
 {% load static %}
+{% load auth_extras %}
 
 <!DOCTYPE html>
 <html lang="en">
@@ -81,26 +82,39 @@
         }
 
         .logout {
-            text-align: center;
+            /* text-align: center; */
             width: 100%;
+            /* background-color: blue; */
+            /* flex-grow: 1; */
+
         }
 
-        .logout button {
-            background-color: red;
-            color: white;
-            padding: 10px;
-            width: 100%;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
+        .logout a {
             display: flex;
             align-items: center;
-            justify-content: center;
+            /* justify-content: space-around; */
+            /* gap: 5px; */
+            padding: 10px;
+            margin: 5px 0;
+            background-color: rgb(214, 45, 45);
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            transition: background-color 0.3s;
         }
 
         .logout .mdi {
             font-size: 20px;
-            margin-right: 5px;
+            margin-right: 10px;
+        }
+
+        .logout a:hover {
+            background-color: #a51e1e;
+        }
+
+        .logout #username {
+            /* background-color: #34495e; */
+            font-size: 20px;
         }
 
         .content {
@@ -133,17 +147,39 @@
                     <span class="mdi mdi-database"></span>
                     Profiles
                 </a>
+                {% if user|has_group:"admin" or user.is_superuser %}
                 <a href="{% url 'users' %}" class="{% if request.path == '/users/' %}active{% endif %}">
                     <span class="mdi mdi-account-group"></span>
                     Utilisateurs
                 </a>
+                {% endif %}
                 <a href="{% url 'config' %}" class="{% if request.path == '/config/' %}active{% endif %}">
                     <span class="mdi mdi-cog"></span>
                     Config
                 </a>
             </nav>
+            <!-- <div class="menu">
+                <span>
+                    {{ user.username }}
+                </span>
+
+                <a href="{% url 'logout' %}">
+                    <span class="mdi mdi-logout"></span>
+                    Déconnexion
+                </a>
+            </div> -->
             <div class="logout">
-                <button><span class="mdi mdi-logout"></span> Déconnexion</button>
+                <span id="username">
+                    {{ user.username }}
+                    {% if user.groups.all %}
+                    ({{ user.groups.all.0.name }}) <!-- Display the first group -->
+                    {% endif %}
+                </span>
+
+                <a href="{% url 'logout' %}">
+                    <span class="mdi mdi-logout"></span>
+                    Déconnexion
+                </a>
             </div>
         </div>
         <div class="content">

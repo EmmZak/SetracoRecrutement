@@ -31,6 +31,7 @@ python3 manage.py migrate
 django-admin startapp profileFile
 django-admin startapp skills
 django-admin startapp profiles
+django-admin startapp accounts
 ```
 
 # Run

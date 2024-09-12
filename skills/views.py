@@ -24,4 +24,5 @@ def delete_skill(request):
     skill_id = request.POST.get('id')
     if skill_id:
         Skill.objects.filter(id=skill_id).delete()
+
     return redirect('/config')

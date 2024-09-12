@@ -1,6 +1,7 @@
 from django.db import models
 from skills.models import Skill
 from django import forms
+from django.contrib.auth.models import User
 
 
 class Profile(models.Model):
@@ -23,7 +24,7 @@ class Profile(models.Model):
     number = models.CharField(max_length=20)
     town = models.CharField(max_length=100)
     skills = models.ManyToManyField(Skill, related_name='profiles')
-    comment = models.TextField(blank=True)
+    # comment = models.TextField(blank=True)
     diplomas = models.TextField(blank=True)  # Multiline string, use TextField
     creation_date = models.DateTimeField(auto_now_add=True)
     update_date = models.DateTimeField(auto_now=True)
@@ -33,6 +34,14 @@ class Profile(models.Model):
     def __str__(self):
         return f"{self.name} {self.surname}"
 
+class Comment(models.Model):
+    profile = models.ForeignKey(Profile, related_name='comments', on_delete=models.CASCADE)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    text = models.TextField()
+    creation_date = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"Comment by {self.user.username} on {self.creation_date}"
 
 class ProfileForm(forms.ModelForm):
     class Meta:
