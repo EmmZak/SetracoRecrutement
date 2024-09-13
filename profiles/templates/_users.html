@@ -512,7 +512,7 @@
                 const fetchSkills = async () => {
                     skillsLoading.value = true
                     try {
-                        let res = await axios.get('{% url 'skill_list' %}')
+                        let res = await axios.get('{% url 'skill_data' %}')
                         console.log("skills: ", res.data)
                         skills.value = res.data
                     } catch (err) {

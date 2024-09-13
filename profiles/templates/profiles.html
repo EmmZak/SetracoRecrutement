@@ -83,22 +83,22 @@
                             <v-spacer></v-spacer>
                             <v-dialog v-model="dialog" style="height: 100%; width: 60%;">
                                 <template v-slot:activator="{ props }">
-                                    <v-btn class="mb-2 text-h5" color="primary" dark v-bind="props"
-                                        @click="editItem({})">
+                                    <v-btn class="mb-2 text-h6" color="blue-darken-4 " rounded="45" variant="flat" dark
+                                        v-bind="props" @click="editItem({})">
                                         Créer
                                     </v-btn>
                                 </template>
 
-                                <v-card style="height: 100vw;">
-                                    <v-card-title>
-                                        <span class="text-h4">${formTitle}</span>
-                                    </v-card-title>
-                                    <v-card-text>
-                                        <form method="POST" action="{% url 'profiles_create' %}"
-                                            enctype="multipart/form-data">
-                                            {% csrf_token %}
+                                <v-form v-model="form" method="POST" action="{% url 'profiles_create' %}"
+                                    enctype="multipart/form-data">
+                                    {% csrf_token %}
 
-                                            <input type="hidden" name="id" id="profile-id" :value="editedItem.id">
+                                    <input type="hidden" name="id" id="profile-id" :value="editedItem.id">
+                                    <v-card>
+                                        <v-card-title>
+                                            <span class="text-h4">${formTitle}</span>
+                                        </v-card-title>
+                                        <v-card-text class="p-2">
 
                                             <v-row cols="12">
                                                 <v-col cols="4">
@@ -180,8 +180,17 @@
                                             <!-- files -->
                                             <v-row cols="12" v-if="true">
                                                 <v-col cols="12">
+                                                    <div class="image-upload">
+                                                        <label for="files">
+                                                            <v-icon color="grey" x-large>mdi-file-upload</v-icon>
+                                                        </label>
+
+                                                        <input name="files" id="files" type="file" multiple
+                                                            style="display: none;" />
+                                                    </div>
                                                     <!-- <label for="files">Upload Files:</label> -->
-                                                    <input type="file" name="files" id="files" multiple>
+
+                                                    <!-- <input type="file" name="files" id="files" multiple> -->
                                                     <!-- <v-file-input prepend-icon="" prepend-inner-icon="mdi-paperclip"
                                                         label="Fichier(s) du candidat" chipss multiple
                                                         v-model="editedItem.files" variant="underlined"></v-file-input>
@@ -191,30 +200,26 @@
                                                 </v-col>
                                             </v-row>
 
-                                            <v-row justify="end">
-                                                <v-col cols="4">
-                                                    <v-btn :loading="loading" class="text-none mb-4 right" color="green"
-                                                        type="submit" size="x-large" variant="flat" block>
-                                                        Enregistrer
-                                                    </v-btn>
-                                                </v-col>
-                                            </v-row>
-
-                                        </form>
-
-                                    </v-card-text>
+                                        </v-card-text>
+                                        <v-card-actions>
+                                            <v-btn :loading="loading" class="text-none mb-4 right" color="green"
+                                                type="submit" size="x-large" variant="flat" block>
+                                                Enregistrer
+                                            </v-btn>
+                                        </v-card-actions>
+                                    </v-card>
+                                    </form>
                                     <!-- <v-card-actions>
                                         <v-btn color="blue-darken-1" variant="text" @click="saveProfile">
                                             Sauvegarder
                                         </v-btn>
                                     </v-card-actions> -->
-                                </v-card>
 
                             </v-dialog>
 
                             <v-dialog v-model="dialogDelete" style="width: 50%;">
                                 <v-card>
-                                    <v-card-title class="text-h5">Êtes-vous sûr(e) de vouloir supprimer le profile
+                                    <v-card-title class="text-h6">Êtes-vous sûr(e) de vouloir supprimer le profile
                                         ?</v-card-title>
                                     <v-card-actions>
                                         <v-spacer></v-spacer>
@@ -264,17 +269,10 @@
                     <!-- state -->
                     <template v-slot:item.state="{ value }">
                         ${profileStates[value]}
-                        <!-- <v-tooltip :text="getStateTooltipText(value)">
-                            <template v-slot:activator="{ props }">
-                                <v-icon v-bind="props" size="28" :icon="getStateIcon(value).name"
-                                    :color="getStateIcon(value).color" />
-                            </template>
-                        </v-tooltip> -->
                     </template>
 
                     <template v-slot:expanded-row="{ columns, item }">
                         <td :colspan="columns.length">
-
                             <v-card v-if="true" id="expand-div" style="display: flex; ">
                                 <div style="flex-basis: 100%" class="bg-greenn">
                                     <v-card-title>Données personnelles</v-card-title>
@@ -297,7 +295,6 @@
                                             </v-col>
                                         </v-row>
                                     </v-card-text>
-
 
                                     <v-card-title>Fichier(s)</v-card-title>
                                     <v-card-text v-if="true" class="files-grid-container">
@@ -327,7 +324,6 @@
                                                 </v-card>
                                             </v-hover>
                                         </div>
-                                        <!-- </div> -->
                                     </v-card-text>
 
                                 </div>
@@ -422,9 +418,10 @@
         </v-app>
     </div>
 
-    <script>
+    <script type="module">
         const { createApp, ref, onMounted, computed, watch, nextTick } = Vue;
         const { createVuetify } = Vuetify;
+
         const vuetify = createVuetify();
 
         const app = createApp({
@@ -445,34 +442,65 @@
                     { title: 'Actions', key: 'actions', sortable: false },
                 ]
 
-                /* pagination */
-                onMounted(async () => {
-                    await fetchSkills()
-                    await fetchProfiles();
-                })
-
+                var skillsLoading = ref(false)
+                var skills = ref([])
                 var profiles = ref([])
                 var expanded = ref([])
                 var expandedRows = ref([])
                 var expandedRowKey = ref(null)
                 var totalProfiles = ref(0)
                 var loading = ref(false)
-                // var search = ref("")
-
-                const onRowClick = (item) => {
-                    expandedRowKey.value = item.id
-                }
-
+                var dialog = ref(false)
+                var editedIndex = ref(-1)
+                const dialogDelete = ref(false);
+                const deleteId = ref(null)
+                var form = ref(false)
+                var defaultItem = ref({
+                    id: null,
+                    name: "",
+                    surname: "",
+                    email: "",
+                    number: "",
+                    state: "",
+                    town: "",
+                    skills: [],
+                    diplomas: "",
+                    comment: "",
+                    files: []
+                })
+                var editedItem = ref({
+                    id: null,
+                    name: "",
+                    surname: "",
+                    email: "",
+                    number: "",
+                    state: "",
+                    town: "",
+                    skills: [],
+                    diplomas: "",
+                    comment: "",
+                    files: []
+                })
+                var options = ref({
+                    page: 1,
+                    itemsPerPage: 50,
+                })
                 var paginationFilters = ref({
                     skills: [],
                     state: null,
                     search: ""
                 })
-                watch(paginationFilters, (val) => {
-                    console.log("fileters hcabged", paginationFilters.value)
-                    fetchProfiles()
-                }, { deep: true });
+                const profileStates = {
+                    STATE_TO_VERIFY: "À vérifier",
+                    STATE_VERIFIED: "Vérifié",
+                    STATE_CONSULTED: "Consulté",
+                    STATE_HIRED: "Embauché",
+                    STATE_REJECTED: "Rejeté"
+                };
 
+                const onRowClick = (item) => {
+                    expandedRowKey.value = item.id
+                }
 
                 const fetchProfiles = async () => {
                     console.log("fetcing profiles")
@@ -504,17 +532,7 @@
                     }
                 }
 
-                var formTitle = computed(() => {
-                    return editedIndex.value === -1 ? 'Création' : 'Modification'
-                })
-
-                var options = ref({
-                    page: 1,
-                    itemsPerPage: 50,
-                })
-
                 // dialog
-                var dialog = ref(false)
                 const close = () => {
                     dialog.value = false
                     nextTick(() => {
@@ -522,32 +540,6 @@
                         editedIndex.value = -1
                     })
                 }
-                watch(dialog, (val) => {
-                    if (!val) close();
-                });
-
-                var defaultItem = ref({
-                    id: null,
-                    name: "",
-                    surname: "",
-                    email: "",
-                    number: "",
-                    state: "",
-                    town: "",
-                    skills: [],
-                    diplomas: "",
-                    comment: "",
-                    files: []
-                })
-
-                const profileStates = {
-                    STATE_TO_VERIFY: "À vérifier",
-                    STATE_VERIFIED: "Vérifié",
-                    STATE_CONSULTED: "Consulté",
-                    STATE_HIRED: "Embauché",
-                    STATE_REJECTED: "Rejeté"
-                };
-                // const profileStates = ["STATE_TO_VERIFY", "STATE_VERIFIED", "STATE_CONSULTED", "STATE_HIRED", "STATE_REJECTED"]
 
                 const saveProfile = async () => {
                     console.log("submitting profile ",)
@@ -562,10 +554,6 @@
                     });
                 }
 
-
-                // delete dialog
-                const dialogDelete = ref(false);
-                const deleteId = ref(null)
                 const closeDelete = () => {
                     dialogDelete.value = false
                     nextTick(() => {
@@ -593,33 +581,12 @@
                             })
                             fetchProfiles(); // Refresh profiles to update the list of files
                         } catch (err) {
-                            console.error('Failed to delete the file:', err);
+                            console.error('Failed to delete the profile:', err);
                         }
                     }
                     deleteId.value = null
                     closeDelete()
                 }
-
-                watch(dialogDelete, (val) => {
-                    if (!val) closeDelete();
-                });
-
-                // update
-                var editedIndex = ref(-1)
-
-                var editedItem = ref({
-                    id: null,
-                    name: "",
-                    surname: "",
-                    email: "",
-                    number: "",
-                    state: "",
-                    town: "",
-                    skills: [],
-                    diplomas: "",
-                    comment: "",
-                    files: []
-                })
 
                 const editItem = async (item) => {
                     console.log("edit item item: ", item)
@@ -628,6 +595,11 @@
                     editedItem.value = Object.assign({}, item)
                     //editedItem.value.name = item.name
                     dialog.value = true
+                }
+
+                /* export */
+                const exportData = () => {
+                    console.log("export")
                 }
 
                 /* file */
@@ -682,13 +654,11 @@
                     const colors = ['red', 'blue', 'green', 'purple', 'orange'];
                     return colors[index % colors.length];
                 }
-                var skillsLoading = ref(false)
-                var skills = ref([])
 
                 const fetchSkills = async () => {
                     skillsLoading.value = true
                     try {
-                        let res = await axios.get('{% url 'skill_list' %}')
+                        let res = await axios.get('{% url 'skills_data' %}')
                         console.log("skills: ", res.data)
                         skills.value = res.data
                     } catch (err) {
@@ -698,38 +668,30 @@
                     }
                 }
 
-                /* state */
-                const getStateIcon = (value) => {
-                    const icons = {
-                        new:
-                            { name: 'mdi-new-box', color: "blue" },
-                        processing:
-                            { name: 'mdi-progress-clock', color: "blue" },
-                        ok:
-                            { name: 'mdi-check', color: "green" },
-                        ko:
-                            { name: 'mdi-cancel', color: "red" },
-                    };
-                    return icons[value]
-                }
+                onMounted(async () => {
+                    await fetchSkills()
+                    await fetchProfiles();
+                })
 
-                const getStateTooltipText = (value) => {
-                    const icons = {
-                        new:
-                            "Nouveau",
-                        processing:
-                            "En cours",
-                        ok:
-                            "Terminé",
-                        ko:
-                            "Rejeté",
-                    };
-                    return icons[value]
-                }
+                watch(dialogDelete, (val) => {
+                    if (!val) closeDelete();
+                });
 
+                watch(paginationFilters, (val) => {
+                    console.log("fileters hcabged", paginationFilters.value)
+                    fetchProfiles()
+                }, { deep: true });
+
+                watch(dialog, (val) => {
+                    if (!val) close();
+                });
+
+                var formTitle = computed(() => {
+                    return editedIndex.value === -1 ? 'Création' : 'Modification'
+                })
 
                 return {
-                    expandedRowKey, expandedRows, onRowClick, deleteComment, paginationFilters, profileStates, editedIndex, saveProfile, editedItem, editItem, deleteItem, dialogDelete, closeDelete, deleteItemConfirm, skills, fetchSkills, skillsLoading, defaultItem, formTitle, profiles, totalProfiles, headers, loading, options, fetchProfiles, expanded, dialog, openFile, printFile, deleteFile, getSkillColor, getStateIcon, getStateTooltipText
+                    form, exportData, expandedRowKey, expandedRows, onRowClick, deleteComment, paginationFilters, profileStates, editedIndex, saveProfile, editedItem, editItem, deleteItem, dialogDelete, closeDelete, deleteItemConfirm, skills, fetchSkills, skillsLoading, defaultItem, formTitle, profiles, totalProfiles, headers, loading, options, fetchProfiles, expanded, dialog, openFile, printFile, deleteFile, getSkillColor
                 }
             }
         })

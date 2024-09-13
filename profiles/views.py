@@ -36,17 +36,11 @@ def delete_comment(request):
 
 
 def profiles_data(request):
-    # return render(request, 'profiles.html')
-    # draw = int(request.GET.get('draw', 1))
     start = int(request.GET.get('start', 0))
     length = int(request.GET.get('length', 10))
     search_value = request.GET.get('search', '')
     # Filter by skills (assuming the skill filter is a comma-separated list of skill IDs)
     skill_filter = request.GET.get('skills', '')
-
-    print("start: ", start)
-    print("search_value: ", search_value)
-    print("skill_filter: ", skill_filter)
 
     # order_column = request.GET.get('order[0][column]', '0')
     # order_direction = request.GET.get('order[0][dir]', 'asc')
@@ -106,12 +100,7 @@ def profiles_data(request):
         ],
         'state': profile.state,
         'diplomas': profile.diplomas,
-        'skills': [
-            {
-                "id": skill.id,
-                "name": skill.name
-            } for skill in profile.skills.all()
-        ],
+        'skills': list(profile.skills.all().values('id', 'name')),
         'files': [
             {
                 'id': f.id,

@@ -41,6 +41,9 @@ If new model added etc
 ```bash
 python3 manage.py makemigrations
 python3 manage.py migrate
+
+python3 manage.py migrate accounts 0001_initial --fake
+python3 manage.py makemigrations accounts --empty 
 ```
 
 ```bash

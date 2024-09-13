@@ -1,22 +1,325 @@
 {% extends 'baseV3.html' %}
+{% load auth_extras %}
 
-{% block title: %}Profiles{% endblock %}
+{% block title: %}Utilisateurs{% endblock %}
 
 {% block content %}
 
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+</head>
+
+<body>
+    <div id="app" style="width: 100%;">
+        <v-app>
+            <v-main>
+                <div v-if="false" v-for="(user, i) in users">
+                    ${user}
+                </div>
+                <v-data-table :headers="headers" :items="users" :loading="loading" items-per-page-text=""
+                    @update:options="fetchUsers" no-data-text="Pas d'utilisateurs" hide-default-headerr>
+                    <template #bottom></template>
+
+                    <template v-slot:top>
+                        <v-toolbar flat>
+                            <v-toolbar-title class="text-h4">Utilisateurs</v-toolbar-title>
+                            <v-dialog v-model="dialog" style="height: 100%; width: 60%;">
+                                <template v-slot:activator="{ props }">
+                                    <v-btn class="mb-2 text-h6" color="blue-darken-4 " rounded="45" variant="flat" dark
+                                        v-bind="props" @click="editItem({})">
+                                        Créer
+                                    </v-btn>
+                                </template>
+
+                                <v-form v-model="form" method="POST" action="{% url 'users_create' %}">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="id" id="user-id" :value="editedItem.id">
+
+                                    <v-card>
+                                        <v-card-title>
+                                            <span class="text-h4">${formTitle}</span>
+                                        </v-card-title>
+                                        <v-card-text class="p-2">
+                                            <v-row>
+                                                <v-text-field v-model="editedItem.username" label="Nom d'utilisateur"
+                                                    name="username" prepend-inner-icon="mdi-account"
+                                                    :rules="rules.username" variant="underlined"
+                                                    :readonly="editedItem.id != null"></v-text-field>
+                                            </v-row>
+                                            <v-row>
+                                                <v-text-field v-model="editedItem.password1"
+                                                    :append-icon="show1 ? 'mdi-eye' : 'mdi-eye-off'"
+                                                    variant="underlined" :type="show1 ? 'text' : 'password'"
+                                                    label="Mot de passe" prepend-inner-icon="mdi-lock" name="password1"
+                                                    counter :rules="rules.password1"
+                                                    @click:append="show1 = !show1"></v-text-field>
+                                            </v-row>
+                                            <v-row>
+                                                <v-text-field v-model="editedItem.password2"
+                                                    :append-icon="show1 ? 'mdi-eye' : 'mdi-eye-off'"
+                                                    variant="underlined" :type="show1 ? 'text' : 'password'"
+                                                    label="Confirmer le mot de passe" prepend-inner-icon="mdi-lock"
+                                                    name="password2" counter :rules="rules.password2"
+                                                    @click:append="show1 = !show1"></v-text-field>
+                                            </v-row>
+                                            <v-row>
+                                                <v-col>
+                                                    <span class="text-h5">Rôle</span>
+                                                    <v-chip-group v-if="true" v-model="editedItem.groups" column
+                                                        selected-class="text-green" multiplee>
+                                                        <v-chip v-for="(group, i) in groups" :key="group" :value="group"
+                                                            name="groups" text variant="outlined" filter>
+                                                            ${ group.name }
+                                                        </v-chip>
+                                                    </v-chip-group>
+                                                    groups: ${editedItem.groups}
+                                                    <input type="hidden" name="groups" :value="editedItem.groups?.id">
+                                                </v-col>
+
+                                            </v-row>
+                                        </v-card-text>
+                                        <v-card-actions>
+                                            <v-btn :disabled="!form" :loading="loading"
+                                                color="success" size="large" type="submit" variant="elevated" block>
+                                                Créer
+                                            </v-btn>
+                                        </v-card-actions>
+
+                                    </v-card>
+                                </v-form>
+
+                            </v-dialog>
+
+                            <v-dialog v-model="dialogDelete" style="width: 50%;">
+                                <v-card>
+                                    <v-card-title class="text-h6">Êtes-vous sûr(e) de vouloir supprimer l'utilisateur
+                                        ?</v-card-title>
+                                    <v-card-actions>
+                                        <v-spacer></v-spacer>
+                                        <v-btn color="blue-darken-1" variant="text" @click="closeDelete">Annuler</v-btn>
+                                        <v-btn color="white" class="bg-red" variant="text"
+                                            @click="deleteItemConfirm">Supprimer</v-btn>
+                                        <v-spacer></v-spacer>
+                                    </v-card-actions>
+                                </v-card>
+                            </v-dialog>
+                        </v-toolbar>
+                    </template>
+
+                    <template v-slot:item.groups="{ value }">
+                        <div class="ma-1" style="display: flexx; flex-direction: column; gap: 4px" bg-red>
+                            <v-chip v-for="(group, i) in value"> ${group.name}
+                            </v-chip>
+                        </div>
+                    </template>
+
+                    {% if user|has_groups:"admin" %}
+                    <template v-slot:item.actions=" { item }">
+                        <v-icon v-if="true" size="24" color="grey-darken-3" @click="editItem(item)">
+                            mdi-pencil
+                        </v-icon>
+                        {% if user|has_groups:"admin,editor" %}
+                        <v-icon size="24" color="grey-darken-3" @click="deleteItem(item.id)"> mdi-delete </v-icon>
+                        {% endif %}
+                    </template>
+                    {% endif %}
+
+                </v-data-table>
+            </v-main>
+        </v-app>
+    </div>
+
+    <script type="module">
+        const { createApp, ref, onMounted, computed, watch, nextTick } = Vue;
+        const { createVuetify } = Vuetify;
+
+        const vuetify = createVuetify();
+
+        const app = createApp({
+            setup() {
+                const headers = [
+                    { title: 'Création', key: 'date_joined', sortable: true },
+                    { title: "Nom d'utilisateur", key: 'username', sortable: false },
+                    // { title: 'Prénom', key: 'surname', sortable: false },
+                    // { title: 'Email', key: 'email', sortable: false },
+                    { title: 'Groupe', key: 'groups', sortable: true },
+                    { title: 'Actions', key: 'actions', sortable: false },
+                ]
+                var form = ref(false)
+                var users = ref([])
+                var loading = ref(false)
+                var dialog = ref(false)
+                var groups = ref([])
+                var defaultItem = ref({
+                    id: null,
+                    username: "",
+                    group: [],
+                    password1: "",
+                    password2: "",
+                })
+                var editedItem = ref({
+                    id: null,
+                    username: "",
+                    group: [],
+                    password1: "",
+                    password2: ""
+                })
+                const deleteId = ref(null)
+                const dialogDelete = ref(false);
+                var editedIndex = ref(-1)
+                var show1 = ref(false)
+                var show2 = ref(false)
+                var rules = {
+                    username: [
+                        value => !!value || 'Champ obligatoire',
+                        //value => value.length >= 6 || 'Minimum 6 caractères'
+                    ],
+                    password1: [
+                        value => !!value || 'Field is required',
+                        //value => value.length >= 8 || 'Minimum 8 caractères, 1 chiffre et 1 lettre majuscule',
+                        //value => /[A-Z]/.test(value) || 'Minimum 8 caractères, 1 chiffre et 1 lettre majuscule',
+                        //value => /\d/.test(value) || 'Minimum 8 caractères, 1 chiffre et 1 lettre majuscule'
+                    ],
+                    password2: [
+                        value => !!value || 'Champ obligatoire',
+                        value => value === editedItem.value.password1 || 'Les mots de passe ne sont pas identiques'
+                    ]
+                }
+                /*
+                const groups = [
+                    { title: "Editeur", value: "editor" },
+                    { title: "Consultant", value: "consultant" },
+                    { title: "Admin", value: "admin" }
+                ] */
+
+                const fetchUsers = async () => {
+                    console.log("fetching users")
+                    loading.value = true;
+                    try {
+                        let params = {}
+                        //console.log("params: ", params)
+                        let res = await axios.get('{% url 'users_data' %}', {
+                            params: params
+                        })
+                        console.log("res.data.users: ", res.data.users, typeof res.data.users)
+                        users.value = res.data.users
+                        //totalProfiles.value = res.data.recordsTotal;
+                    } catch (err) {
+                        console.log(err)
+                    } finally {
+                        loading.value = false;
+                    }
+                }
+
+                const close = () => {
+                    dialog.value = false
+                    nextTick(() => {
+                        editedItem.value = Object.assign({}, defaultItem.value)
+                        editedIndex.value = -1
+                    })
+                }
+
+                const fetchGroups = async () => {
+                    //skillsLoading.value = true
+                    try {
+                        let res = await axios.get('{% url 'groups_data' %}')
+                        console.log("groups: ", res.data.groups)
+                        groups.value = res.data.groups
+                    } catch (err) {
+                        console.log("err: ", err)
+                    } finally {
+                        //skillsLoading.value = false
+                    }
+                }
+
+                const editItem = async (item) => {
+                    console.log("edit item: ", item)
+                    await fetchGroups()
+                    editedIndex.value = users.value.indexOf(item)
+                    editedItem.value = Object.assign({}, item)
+                    //editedItem.value.name = item.name
+                    dialog.value = true
+                }
+
+                const closeDelete = () => {
+                    dialogDelete.value = false
+                    nextTick(() => {
+                        editedItem.value = Object.assign({}, defaultItem.value)
+                        editedIndex.value = -1
+                    })
+                }
+
+                const deleteItem = (id) => {
+                    deleteId.value = id
+                    //editedIndex.value = profiles.value.indexOf(item)
+                    //editedItem.value = Object.assign({}, item)
+                    dialogDelete.value = true
+                }
+
+                const deleteItemConfirm = async () => {
+                    if (deleteId.value != null) {
+                        console.log("delete user ", deleteId.value)
+                        try {
+                            await fetch(`{% url 'users_delete' %}?id=${deleteId.value}`, {
+                                method: 'DELETE',
+                                headers: {
+                                    'X-CSRFToken': '{{ csrf_token }}',
+                                }
+                            })
+                            fetchUsers();
+                        } catch (err) {
+                            console.error('Failed to delete the user:', err);
+                        }
+                    }
+                    deleteId.value = null
+                    closeDelete()
+                }
+
+                // hooks
+                onMounted(async () => {
+                    await fetchUsers();
+                })
+
+                watch(dialogDelete, (val) => {
+                    if (!val) closeDelete();
+                });
+
+                watch(dialog, (val) => {
+                    if (!val) close();
+                });
+
+                var formTitle = computed(() => {
+                    return editedIndex.value === -1 ? 'Création' : 'Modification'
+                })
+
+                var isFormValid = computed(() => {
+                    return false
+                })
+
+                return {
+                    groups, dialogDelete, closeDelete, deleteItem, deleteItemConfirm, form, headers, users, loading, fetchUsers, dialog, close, editItem, editedItem, formTitle, show1, show2, isFormValid, rules
+                }
+            }
+        })
+        app.config.compilerOptions.delimiters = ['${', '}']
+        app.use(vuetify).mount("#app")
+    </script>
+</body>
+
+<!-- 
 <h2>Comptes</h2>
-<!-- <a href="{% url 'user_create' %}">Create New User</a> -->
 <table>
     <tr>
         <th>Nom d'utilisateur</th>
-        <!-- <th>Email</th> -->
         <th>Group</th>
         <th>Actions</th>
     </tr>
     {% for user in users %}
     <tr>
         <td>{{ user.username }}</td>
-        <!-- <td>{{ user.email }}</td> -->
         <td>
             {% if user.groups.all %}
             {% for group in user.groups.all %}
@@ -27,8 +330,7 @@
             {% endif %}
         </td>
         <td>
-            <!-- <a href="{% url 'user_update' user.pk %}">Edit</a> | -->
-            <form action="{% url 'delete_user' %}" method="post" id="deleteSkillForm">
+            <form action="{% url 'users_delete' %}" method="post" id="deleteSkillForm">
                 {% csrf_token %}
                 <input type="hidden" value="{{ user.pk }}" name="id" id="user-id">
                 <div class="bg-red pa-2 rounded">
@@ -38,6 +340,6 @@
         </td>
     </tr>
     {% endfor %}
-</table>
+</table> -->
 
 {% endblock %}

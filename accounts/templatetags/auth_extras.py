@@ -10,7 +10,7 @@ def has_group(user, group_name):
 
 @register.filter(name='has_groups')
 def has_groups(user, group_names):
-    print("group_names: ", group_names)
+    #print("group_names: ", group_names)
     if isinstance(group_names, str):
         group_names = group_names.split(',')
     return user.groups.filter(name__in=group_names).exists() or user.is_superuser
