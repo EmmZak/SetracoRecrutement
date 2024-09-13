@@ -1,3 +1,135 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login Page</title>
+    <!-- <link rel="stylesheet" href="styles.css"> -->
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #f5f5f5;
+        }
+
+        .container {
+            display: flex;
+            width: 60%;
+            max-width: 900px;
+            height: 500px;
+            box-shadow: 0px 0px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .left-section {
+            background-color: #34495e;
+            width: 50%;
+            color: white;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .left-section .logo img {
+            width: 150px;
+            height: auto;
+        }
+
+        .left-section h1 {
+            margin-top: 20px;
+            font-size: 24px;
+        }
+
+        .right-section {
+            width: 50%;
+            background-color: white;
+            padding: 40px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        .input-group input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+
+        button {
+            padding: 10px 15px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            width: 100%;
+            font-size: 16px;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <!-- Left Section -->
+        <div class="left-section">
+            <div class="logo">
+                <img src="{% static 'images/logoCrop.png' %}" alt="Company Logo">
+            </div>
+            <h1>Setraco</h1>
+        </div>
+
+        <!-- Right Section (Login Form) -->
+        <div class="right-section">
+            <form method="post" action="{% url 'login' %}">
+                {% csrf_token %}
+                <div class="input-group">
+                    <!-- <label for="id_username">Username:</label> -->
+                    <!-- <input type="text" placeholder="Adresse e-mail" name="username" id="id_username" required> -->
+                    <input type="text" placeholder="Nom d'utilisateur" name="username" id="id_username" required>
+                </div>
+                <div class="input-group">
+                    <!-- <label for="id_password">Password:</label> -->
+                    <input type="password" placeholder="Mot de passe" name="password" id="id_password" required>
+                </div>
+                <button type="submit">Se connecter</button>
+            </form>
+            {% if form.errors %}
+            <p>Invalid username or password. Please try again.</p>
+            {% endif %}
+        </div>
+    </div>
+</body>
+
+</html>
+
+<!-- 
 <h2>Login</h2>
 <form method="post" action="{% url 'login' %}">
     {% csrf_token %}
@@ -10,8 +142,4 @@
         <input type="password" name="password" id="id_password" required>
     </div>
     <button type="submit">Login</button>
-</form>
-
-{% if form.errors %}
-<p>Invalid username or password. Please try again.</p>
-{% endif %}
+</form> -->

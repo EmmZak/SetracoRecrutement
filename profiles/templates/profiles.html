@@ -25,7 +25,7 @@
         }
 
         tbody tr:nth-of-type(odd) {
-            background-color: rgba(116, 116, 116, 0.05);
+            background-color: rgba(160, 160, 160, 0.05);
         }
 
         .files-grid-container {
@@ -62,7 +62,8 @@
             <v-main>
                 <v-data-table :headers="headers" :items="profiles" :loading="loading" items-per-page-text=""
                     :items-per-page="options.itemsPerPage" @update:options="fetchProfiles" show-expand
-                    v-model:expanded="expanded" hide-default-headerr>
+                    :expanded.sync="expandedRows" @click:row="onRowClick" no-data-text="Pas de profils"
+                    hide-default-headerr>
 
                     <!-- <template v-slot:headers="{ props }">
                         <tr>
@@ -78,11 +79,12 @@
                     <template v-slot:top>
                         <v-toolbar flat>
                             <!-- <v-select :items="['manu', 'kiki' ]" label="Standard"></v-select> -->
-                            <v-toolbar-title>Profils</v-toolbar-title>
+                            <v-toolbar-title class="text-h4">Profils</v-toolbar-title>
                             <v-spacer></v-spacer>
                             <v-dialog v-model="dialog" style="height: 100%; width: 60%;">
                                 <template v-slot:activator="{ props }">
-                                    <v-btn class="mb-2" color="primary" dark v-bind="props" @click="editItem({})">
+                                    <v-btn class="mb-2 text-h5" color="primary" dark v-bind="props"
+                                        @click="editItem({})">
                                         Créer
                                     </v-btn>
                                 </template>
@@ -178,16 +180,12 @@
                                             <!-- files -->
                                             <v-row cols="12" v-if="true">
                                                 <v-col cols="12">
-                                                    <label for="files">Upload Files:</label>
+                                                    <!-- <label for="files">Upload Files:</label> -->
                                                     <input type="file" name="files" id="files" multiple>
                                                     <!-- <v-file-input prepend-icon="" prepend-inner-icon="mdi-paperclip"
                                                         label="Fichier(s) du candidat" chipss multiple
                                                         v-model="editedItem.files" variant="underlined"></v-file-input>
                                                     <input type="hidden" name="files" :value="editedItem.files"> -->
-
-                                                    <div v-for="(f, i) in editedItem.files" :key="f">
-                                                        ${f}: ${JSON.stringify(f)}
-                                                    </div>
                                                     <!-- <v-text-field v-model="defaultItem.diplomas" label="Files"
                                                     prepend-icon="mdi-paperclip" variant="underlined"></v-text-field> -->
                                                 </v-col>
@@ -228,17 +226,28 @@
                                 </v-card>
                             </v-dialog>
                         </v-toolbar>
-                        <v-toolbar flat>
+                        <v-container flat class="px-5">
+                            <v-row>
+                                <v-select :items="skills" v-model="paginationFilters.skills" label="Compétences"
+                                    item-title="name" chips multiple item-text="name" item-value="id" hide-details
+                                    variant="underlined" prepend-inner-icon="mdi-tools" dense></v-select>
+                            </v-row>
                             <!-- ${paginationFilters} -->
-                            <v-select :items="skills" v-model="paginationFilters.skills" label="Compétences"
-                                item-title="name" chips multiple item-text="name" item-value="id" hide-details
-                                variant="underlined" prepend-inner-icon="mdi-tools" dense></v-select>
-                            <v-spacer></v-spacer>
-                            <v-text-field v-model="paginationFilters.search" label="Recherche"
-                                prepend-inner-icon="mdi-magnify" variant="underlined" hide-details
-                                single-line></v-text-field>
-
-                        </v-toolbar>
+                            <v-row cols="12" align="center" justify="space-around">
+                                <v-col cols="3">
+                                    <v-text-field v-model="paginationFilters.search" label="Recherche"
+                                        prepend-inner-icon="mdi-magnify" variant="underlined" hide-details
+                                        single-line></v-text-field>
+                                </v-col>
+                                <v-col cols="3">
+                                    <v-btn class="text-none ms-4 text-white" color="blue-darken-4 " rounded="0"
+                                        variant="flat" @click="exportData">
+                                        <v-icon left>mdi-file-export</v-icon>
+                                        Exporter
+                                    </v-btn>
+                                </v-col>
+                            </v-row>
+                        </v-container>
                         <!-- <v-card>
                             here
                         </v-card> -->
@@ -309,7 +318,7 @@
                                                                 @click="openFile(file)">mdi-eye</v-icon>
                                                             <v-icon color="white"
                                                                 @click="printFile(file)">mdi-printer</v-icon>
-                                                            {% if user|has_group:"admin" or user.is_superuser %}
+                                                            {% if user|has_groups:"admin" %}
                                                             <v-icon color="white"
                                                                 @click="deleteFile(file)">mdi-delete</v-icon>
                                                             {% endif %}
@@ -329,18 +338,18 @@
                                         <v-timeline align="start" side="end">
                                             <v-timeline-item v-for="(com, i) in item.comments" :key="i">
                                                 <v-card>
-                                                    <v-card-title :class="['text-h6', `bg-${item.color}`]">
+                                                    <v-card-title :class="['text-subtitle-1', `bg-${item.color}`]">
                                                         ${com.username} - ${com.creation_date}
                                                     </v-card-title>
                                                     <v-card-text class="bg-white text--primary">
                                                         <v-row>
                                                             <v-col cols="10">
-                                                                <p>${com.text} asfadfasdfdsfad fdasfd fafdf as fads</p>
+                                                                <p>${com.text}</p>
                                                             </v-col>
                                                             <v-col cols="2" class="d-flex justify-center align-center">
-                                                                {% if user|has_group:"admin,editor" or user.is_superuser %}
+                                                                {% if user|has_groups:"admin,editor" %}
                                                                 <v-icon size="36" color="grey-darken-3"
-                                                                    @click="deleteComment(item.id)"> mdi-delete
+                                                                    @click="deleteComment(com)"> mdi-delete
                                                                 </v-icon>
                                                                 {% endif %}
                                                             </v-col>
@@ -397,12 +406,12 @@
                         </td>
                     </template>
 
-                    {% if user|has_groups:"admin,editor,consultant" or user.is_superuser %}
+                    {% if user|has_groups:"admin,editor,consultant" %}
                     <template v-slot:item.actions=" { item }">
                         <v-icon size="24" color="grey-darken-3" @click="editItem(item)">
                             mdi-pencil
                         </v-icon>
-                        {% if user|has_group:"admin" or user|has_group:"editor" or user.is_superuser %}
+                        {% if user|has_groups:"admin,editor" %}
                         <v-icon size="24" color="grey-darken-3" @click="deleteItem(item.id)"> mdi-delete </v-icon>
                         {% endif %}
                     </template>
@@ -444,9 +453,15 @@
 
                 var profiles = ref([])
                 var expanded = ref([])
+                var expandedRows = ref([])
+                var expandedRowKey = ref(null)
                 var totalProfiles = ref(0)
                 var loading = ref(false)
                 // var search = ref("")
+
+                const onRowClick = (item) => {
+                    expandedRowKey.value = item.id
+                }
 
                 var paginationFilters = ref({
                     skills: [],
@@ -478,6 +493,9 @@
                         totalProfiles.value = res.data.recordsTotal;
                         expanded.value = profiles.value
 
+                        if (expandedRowKey.value) {
+                            expandedRows.value = [profiles.value.find(item => item.id === expandedRowKey.value)];
+                        }
                         //console.log("profiles: ", profiles.value)
                     } catch (err) {
                         console.log(err)
@@ -643,6 +661,22 @@
                     }
                 };
 
+                /* delete comment */
+                const deleteComment = async (comment) => {
+                    console.log("deleting comment", comment)
+                    try {
+                        await fetch(`/delete-comment?id=${comment.id}`, {
+                            method: 'DELETE',
+                            headers: {
+                                'X-CSRFToken': '{{ csrf_token }}',
+                            }
+                        })
+                        fetchProfiles();
+                    } catch (err) {
+                        console.error('Failed to delete the comment:', err);
+                    }
+                }
+
                 /* skill */
                 const getSkillColor = (index) => {
                     const colors = ['red', 'blue', 'green', 'purple', 'orange'];
@@ -695,7 +729,7 @@
 
 
                 return {
-                    paginationFilters, profileStates, editedIndex, saveProfile, editedItem, editItem, deleteItem, dialogDelete, closeDelete, deleteItemConfirm, skills, fetchSkills, skillsLoading, defaultItem, formTitle, profiles, totalProfiles, headers, loading, options, fetchProfiles, expanded, dialog, openFile, printFile, deleteFile, getSkillColor, getStateIcon, getStateTooltipText
+                    expandedRowKey, expandedRows, onRowClick, deleteComment, paginationFilters, profileStates, editedIndex, saveProfile, editedItem, editItem, deleteItem, dialogDelete, closeDelete, deleteItemConfirm, skills, fetchSkills, skillsLoading, defaultItem, formTitle, profiles, totalProfiles, headers, loading, options, fetchProfiles, expanded, dialog, openFile, printFile, deleteFile, getSkillColor, getStateIcon, getStateTooltipText
                 }
             }
         })

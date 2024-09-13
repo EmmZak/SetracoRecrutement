@@ -59,6 +59,6 @@ class ProfileAdmin(admin.ModelAdmin):
 
 @admin.register(Comment)
 class CommentAdmin(admin.ModelAdmin):
-    list_display = ('profile', 'user', 'text', 'creation_date')
+    list_display = ('id', 'profile', 'user', 'text', 'creation_date')
     list_filter = ('profile', 'user')
     search_fields = ('text', 'profile__name', 'user__username')

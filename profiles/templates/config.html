@@ -178,7 +178,7 @@
     {% for skill in skills %}
     <div class="skill-card">
         <span>{{ skill.name }}</span>
-        {% if user|has_group:"admin" or user|has_group:"editor" %}
+        {% if user|has_groups:"admin,editor" %}
 
         <button type="button" class="delete-btn-icon mdi mdi-delete" data-toggle="modal" data-target="#deleteSkillModal"
             data-id="{{ skill.id }}" data-name="{{ skill.name }}"

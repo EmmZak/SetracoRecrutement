@@ -112,6 +112,18 @@
             background-color: #a51e1e;
         }
 
+        .logout #account-details {
+            /* background-color: blue; */
+            display: flex;
+            align-items: center;
+            gap: 5px
+        }
+
+        .logout #account-details .mdi {
+            font-size: 36px;
+            /* margin-right: 10px; */
+        }
+
         .logout #username {
             /* background-color: #34495e; */
             font-size: 20px;
@@ -147,7 +159,7 @@
                     <span class="mdi mdi-database"></span>
                     Profiles
                 </a>
-                {% if user|has_group:"admin" or user.is_superuser %}
+                {% if user|has_groups:"admin" %}
                 <a href="{% url 'users' %}" class="{% if request.path == '/users/' %}active{% endif %}">
                     <span class="mdi mdi-account-group"></span>
                     Utilisateurs
@@ -169,12 +181,17 @@
                 </a>
             </div> -->
             <div class="logout">
-                <span id="username">
-                    {{ user.username }}
-                    {% if user.groups.all %}
-                    ({{ user.groups.all.0.name }}) <!-- Display the first group -->
-                    {% endif %}
-                </span>
+                <div id="account-details">
+                    <span class="mdi mdi-account"></span>
+                    <span id="username">
+                        {{ user.username }}
+                        {% if user.groups.all %}
+                        ({{ user.groups.all.0.name }}) <!-- Display the first group -->
+                        {% endif %}
+                    </span>
+                </div>
+
+
 
                 <a href="{% url 'logout' %}">
                     <span class="mdi mdi-logout"></span>

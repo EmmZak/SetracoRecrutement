@@ -1,5 +1,5 @@
 from django.urls import path
-from .views import profile_delete, profiles_view, profiles_data, profiles_create, home, config
+from .views import profile_delete, profiles_view, profiles_data, profiles_create, home, config, delete_comment
 
 urlpatterns = [
     path('', home, name='home'),
@@ -13,4 +13,5 @@ urlpatterns = [
     # path('test/', test, name='test'),
     # path('users/', home, name='users'),    # Placeholder, replace with actual view later,
     # path('users/', users_view, name='users'),
+    path('delete-comment/', delete_comment, name="delete_comment")
 ]

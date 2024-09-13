@@ -12,6 +12,7 @@ from .models import ProfileForm
 from django.contrib.auth.decorators import login_required, user_passes_test
 import os
 
+
 def config(request):
     if request.method == 'GET':
         skills = Skill.objects.all()
@@ -20,6 +21,18 @@ def config(request):
 
 def profiles_view(request):
     return render(request, 'profiles.html')
+
+
+@require_http_methods(["DELETE"])
+def delete_comment(request):
+    com_id = request.GET.get('id')
+    print("deleting comment: ", com_id)
+    if com_id:
+        Comment.objects.filter(id=com_id).delete()
+        print("returning success")
+        return JsonResponse({'success': True})
+
+    return JsonResponse({'success': False})
 
 
 def profiles_data(request):
@@ -85,6 +98,7 @@ def profiles_data(request):
         'update_date': profile.update_date.strftime('%d/%m/%Y %H:%M:%S'),
         'comments': [
             {
+                "id": com.id,
                 "text": com.text,
                 "username": com.user.username,
                 "creation_date": com.creation_date.strftime('%d/%m/%Y'),
@@ -115,6 +129,7 @@ def profiles_data(request):
     }
 
     return JsonResponse(response)
+
 
 @login_required
 def profiles_create(request):
