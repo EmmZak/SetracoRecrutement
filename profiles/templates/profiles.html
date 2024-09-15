@@ -61,9 +61,9 @@
         <v-app>
             <v-main>
                 <v-data-table :headers="headers" :items="profiles" :loading="loading" items-per-page-text=""
-                    :items-per-page="options.itemsPerPage" @update:options="fetchProfiles" show-expand
-                    :expanded.sync="expandedRows" @click:row="onRowClick" no-data-text="Pas de profils"
-                    hide-default-headerr>
+                    :items-per-page="paginationFilters.itemsPerPage" @update:options="fetchProfiles" show-expand
+                    :options.sync="paginationFilters" :expanded.sync="expandedRows" @click:row="onRowClick"
+                    no-data-text="Pas de profils" hide-default-headerr>
 
                     <!-- <template v-slot:headers="{ props }">
                         <tr>
@@ -99,7 +99,7 @@
                                             <span class="text-h4">${formTitle}</span>
                                         </v-card-title>
                                         <v-card-text class="p-2">
-
+                                            <span class="text-red">${similarityMessage}</span>
                                             <v-row cols="12">
                                                 <v-col cols="4">
                                                     <v-text-field v-model="editedItem.surname" label="Nom"
@@ -126,21 +126,21 @@
                                                         name="number" prepend-inner-icon="mdi-phone"
                                                         variant="underlined"></v-text-field>
                                                 </v-col>
-                                                <v-col v-if="false" cols="4">
-                                                    <v-select v-if="editedIndex != -1" v-model="editedItem.state"
-                                                        :items="Object.values(profileStates)" label="Statut candidature"
-                                                        variant="underlined" name="state" required></v-select>
+                                                <v-col cols="4">
+                                                    <!-- diplomas -->
+                                                    <v-textarea v-model="editedItem.diplomas" label="Diplômes"
+                                                        name="diplomas" prepend-icon="mdi-certificate" rows="2"
+                                                        auto-grow variant="underlined"></v-textarea>
                                                 </v-col>
                                             </v-row>
-                                            <v-row>
+                                            <v-row v-if="false">
                                                 <v-col cols="12">
                                                     <span class="text-h5">Statut du candidat</span>
                                                     <v-chip-group v-if="true" v-model="editedItem.state" column
                                                         selected-class="text-blue">
-                                                        <v-chip
-                                                            v-for="([state, name], i) in Object.entries(profileStates)"
-                                                            :key="state" :value="state" text variant="outlined" filter>
-                                                            ${ name }
+                                                        <v-chip v-for="(state, i) in profileStates" :key="state"
+                                                            :value="state.value" text variant="outlined" filter>
+                                                            ${ state.title }
                                                         </v-chip>
                                                     </v-chip-group>
                                                     <input type="hidden" name="state" :value="editedItem.state">
@@ -164,17 +164,27 @@
                                                 </v-col>
                                             </v-row>
                                             <v-row cols="12">
-                                                <v-col cols="6">
-                                                    <!-- diplomas -->
+                                                <!-- <v-col cols="6">
                                                     <v-textarea v-model="editedItem.diplomas" label="Diplômes"
-                                                        name="diplomas" prepend-icon="mdi-certificate"
+                                                        name="diplomas" prepend-icon="mdi-certificate" rows="2"
                                                         variant="underlined"></v-textarea>
-                                                </v-col>
+                                                </v-col> -->
                                                 <v-col cols="6">
                                                     <!-- comment -->
                                                     <v-textarea v-model="editedItem.comment" label="Commentaires"
                                                         name="comment" prepend-icon="mdi-comment"
                                                         variant="underlined"></v-textarea>
+                                                </v-col>
+                                                <v-col cols="6">
+                                                    <span class="text-h5">Statut du candidat</span>
+                                                    <v-chip-group v-if="true" v-model="editedItem.state" column
+                                                        selected-class="text-blue">
+                                                        <v-chip v-for="(state, i) in profileStates" :key="state"
+                                                            :value="state.value" text variant="outlined" filter>
+                                                            ${ state.title }
+                                                        </v-chip>
+                                                    </v-chip-group>
+                                                    <input type="hidden" name="state" :value="editedItem.state">
                                                 </v-col>
                                             </v-row>
                                             <!-- files -->
@@ -232,19 +242,28 @@
                             </v-dialog>
                         </v-toolbar>
                         <v-container flat class="px-5">
-                            <v-row>
-                                <v-select :items="skills" v-model="paginationFilters.skills" label="Compétences"
-                                    item-title="name" chips multiple item-text="name" item-value="id" hide-details
-                                    variant="underlined" prepend-inner-icon="mdi-tools" dense></v-select>
-                            </v-row>
                             <!-- ${paginationFilters} -->
+                            <v-row>
+                                <v-col cols="7">
+                                    <v-select :items="skills" v-model="paginationFilters.skills" label="Compétences"
+                                        item-title="name" chips multiple item-text="name" item-value="id" hide-details
+                                        variant="underlined" prepend-inner-icon="mdi-tools" dense></v-select>
+                                </v-col>
+                                <v-col cols="5">
+                                    <v-select :items="profileStates" v-model="paginationFilters.states"
+                                        label="Etat candidature" item-title="title" chips multiple item-text="title"
+                                        item-value="value" hide-details variant="underlined"
+                                        prepend-inner-icon="mdi-account-alert" dense></v-select>
+                                </v-col>
+                            </v-row>
                             <v-row cols="12" align="center" justify="space-around">
+
                                 <v-col cols="3">
                                     <v-text-field v-model="paginationFilters.search" label="Recherche"
                                         prepend-inner-icon="mdi-magnify" variant="underlined" hide-details
                                         single-line></v-text-field>
                                 </v-col>
-                                <v-col cols="3">
+                                <v-col cols="2">
                                     <v-btn class="text-none ms-4 text-white" color="blue-darken-4 " rounded="0"
                                         variant="flat" @click="exportData">
                                         <v-icon left>mdi-file-export</v-icon>
@@ -268,7 +287,7 @@
 
                     <!-- state -->
                     <template v-slot:item.state="{ value }">
-                        ${profileStates[value]}
+                        ${getStateTitle(value)}
                     </template>
 
                     <template v-slot:expanded-row="{ columns, item }">
@@ -315,10 +334,8 @@
                                                                 @click="openFile(file)">mdi-eye</v-icon>
                                                             <v-icon color="white"
                                                                 @click="printFile(file)">mdi-printer</v-icon>
-                                                            {% if user|has_groups:"admin" %}
                                                             <v-icon color="white"
                                                                 @click="deleteFile(file)">mdi-delete</v-icon>
-                                                            {% endif %}
                                                         </div>
                                                     </v-overlay>
                                                 </v-card>
@@ -343,11 +360,9 @@
                                                                 <p>${com.text}</p>
                                                             </v-col>
                                                             <v-col cols="2" class="d-flex justify-center align-center">
-                                                                {% if user|has_groups:"admin,editor" %}
                                                                 <v-icon size="36" color="grey-darken-3"
                                                                     @click="deleteComment(com)"> mdi-delete
                                                                 </v-icon>
-                                                                {% endif %}
                                                             </v-col>
                                                         </v-row>
                                                     </v-card-text>
@@ -402,16 +417,14 @@
                         </td>
                     </template>
 
-                    {% if user|has_groups:"admin,editor,consultant" %}
                     <template v-slot:item.actions=" { item }">
                         <v-icon size="24" color="grey-darken-3" @click="editItem(item)">
                             mdi-pencil
                         </v-icon>
-                        {% if user|has_groups:"admin,editor" %}
                         <v-icon size="24" color="grey-darken-3" @click="deleteItem(item.id)"> mdi-delete </v-icon>
-                        {% endif %}
+                        <v-icon size="24" color="grey-darken-3" @click="exportProfile(item.id)"> mdi-file-export
+                        </v-icon>
                     </template>
-                    {% endif %}
 
                 </v-data-table>
             </v-main>
@@ -428,15 +441,15 @@
             setup() {
                 const headers = [
                     // { title: 'Date de création', key: 'creation_date', sortable: true },
-                    { title: 'Modifié', key: 'update_date', sortable: true },
-                    { title: 'Nom', key: 'name', sortable: false },
-                    { title: 'Prénom', key: 'surname', sortable: false },
+                    { title: 'Modifié', key: 'update_date', sortable: false },
+                    { title: 'Nom', key: 'surname', sortable: false },
+                    { title: 'Prénom', key: 'name', sortable: false },
                     // { title: 'Email', key: 'email', sortable: false },
                     // { title: 'Numéro', key: 'number', sortable: false },
                     { title: 'Ville', key: 'town', sortable: false },
                     { title: 'Compétences', key: 'skills', sortable: false },
                     // { title: 'Etat', key: 'state', sortable: true },
-                    { title: 'Etat candidature', key: 'state', sortable: true },
+                    { title: 'Etat candidature', key: 'state', sortable: false },
                     { title: 'Diplômes', key: 'diplomas', sortable: false },
                     // { title: 'Commentaires', key: 'comment', sortable: false },
                     { title: 'Actions', key: 'actions', sortable: false },
@@ -455,6 +468,7 @@
                 const dialogDelete = ref(false);
                 const deleteId = ref(null)
                 var form = ref(false)
+                var similarityMessage = ref("OK")
                 var defaultItem = ref({
                     id: null,
                     name: "",
@@ -481,36 +495,107 @@
                     comment: "",
                     files: []
                 })
-                var options = ref({
+                var paginationFilters = ref({
                     page: 1,
                     itemsPerPage: 50,
-                })
-                var paginationFilters = ref({
                     skills: [],
+                    states: [],
                     state: null,
-                    search: ""
+                    search: "",
+                    sortBy: "",    // Holds the column by which to sort
+                    sortDesc: false
                 })
-                const profileStates = {
-                    STATE_TO_VERIFY: "À vérifier",
-                    STATE_VERIFIED: "Vérifié",
-                    STATE_CONSULTED: "Consulté",
-                    STATE_HIRED: "Embauché",
-                    STATE_REJECTED: "Rejeté"
+
+                const profileStates = [
+                    { value: "STATE_TO_VERIFY", title: "À vérifier" },
+                    { value: "STATE_VERIFIED", title: "Vérifié" },
+                    { value: "STATE_CONSULTED", title: "Consulté" },
+                    { value: "STATE_HIRED", title: "Embauché" },
+                    { value: "STATE_REJECTED", title: "Rejeté" }
+                ];
+                const getStateTitle = (value) => {
+                    const state = profileStates.find(state => state.value === value);
+                    return state ? state.title : "Inconnu"; // Return the title if found, otherwise return the original value
                 };
+                // const profileStates = {
+                //     STATE_TO_VERIFY: "À vérifier",
+                //     STATE_VERIFIED: "Vérifié",
+                //     STATE_CONSULTED: "Consulté",
+                //     STATE_HIRED: "Embauché",
+                //     STATE_REJECTED: "Rejeté"
+                // };
 
                 const onRowClick = (item) => {
                     expandedRowKey.value = item.id
                 }
 
-                const fetchProfiles = async () => {
-                    console.log("fetcing profiles")
+                const profileSimilarityCheck = async () => {
+                    console.log("checking if similar profile exists")
+                    try {
+                        const res = await axios.get('{% url 'check_profile' %}', { params: editedItem.value }, {
+                            headers: {
+                                'X-CSRFToken': '{{ csrf_token }}',
+                                'Content-Type': 'application/json',
+                            }
+                        });
+                        /*
+                        let res = await axios.post(
+                            '{% url 'check_profile' %}',
+                            {
+                                name: editedItem.value.name,
+                                surname: editedItem.value.surname,
+                                email: editedItem.value.email,
+                                number: editedItem.value.number
+                            },
+                            {
+                                headers: {
+                                    'X-CSRFToken': '{{ csrf_token }}',
+                                    'Content-Type': 'application/json',
+                                }
+                            }
+                        ); */
+                        // let res = await axios.post(
+                        //     '{% url 'check_profile' %}', {
+                        //     headers: {
+                        //         'X-CSRFToken': '{{ csrf_token }}',
+                        //         'Content-Type': 'application/json',
+                        //     }
+                        // }
+                        // )
+                        console.log("profile similarity: ", res.data)
+                        const existingAttrs = res.data;
+                        let errorMessage = "Un profil avec le(s) même(s) "
+                        if (Object.keys(existingAttrs).length === 0) {
+                            similarityMessage.value = "";
+                        } else {
+                            if (existingAttrs.email && existingAttrs.number) {
+                                errorMessage = "Un profil avec le même email/numéro existe déjà";
+                            } else if (existingAttrs.number) {
+                                errorMessage = "Un profil avec le même numéro existe déjà";
+                            } else {
+                                errorMessage = "Un profil avec le même email existe déjà";
+                            }
+                            similarityMessage.value = errorMessage;
+                        }
+
+                        // skills.value = res.data
+                    } catch (err) {
+                        console.log("err: ", err)
+                    } finally {
+                        // similarityMessage.value = ""
+                    }
+                }
+
+                const fetchProfiles = async (options) => {
+                    console.log("fetcing profiles with options", options)
                     loading.value = true;
                     try {
                         let params = {
                             search: paginationFilters.value.search,
                             skills: paginationFilters.value.skills.join(','),
-                            start: (options.value.page - 1) * options.value.itemsPerPage,
-                            length: options.value.itemsPerPage,
+                            states: paginationFilters.value.states.join(','),
+                            start: (paginationFilters.value.page - 1) * paginationFilters.value.itemsPerPage,
+                            length: paginationFilters.value.itemsPerPage,
                         }
                         //console.log("params: ", params)
                         let res = await axios.get('{% url 'profiles_data' %}', {
@@ -569,6 +654,10 @@
                     dialogDelete.value = true
                 }
 
+                const exportProfile = async (id) => {
+                    console.log("export profile id", id)
+                }
+
                 const deleteItemConfirm = async () => {
                     if (deleteId.value != null) {
                         console.log("delete id ", deleteId.value)
@@ -598,8 +687,22 @@
                 }
 
                 /* export */
-                const exportData = () => {
+                const exportData = async () => {
                     console.log("export")
+                    try {
+                        const response = await axios.get('{% url 'export_profiles_csv' %}', {
+                            // params: params,
+                            responseType: 'blob'  // This ensures you get a file response
+                        });
+                        const url = window.URL.createObjectURL(new Blob([response.data]));
+                        const link = document.createElement('a');
+                        link.href = url;
+                        link.setAttribute('download', 'profiles.csv');  // Filename
+                        document.body.appendChild(link);
+                        link.click();
+                    } catch (error) {
+                        console.error('Error exporting CSV:', error);
+                    }
                 }
 
                 /* file */
@@ -637,7 +740,7 @@
                 const deleteComment = async (comment) => {
                     console.log("deleting comment", comment)
                     try {
-                        await fetch(`/delete-comment?id=${comment.id}`, {
+                        await fetch(`{% url 'delete_comment' %}?id=${comment.id}`, {
                             method: 'DELETE',
                             headers: {
                                 'X-CSRFToken': '{{ csrf_token }}',
@@ -686,12 +789,17 @@
                     if (!val) close();
                 });
 
+                watch([editedItem], async (val) => {
+                    console.log("checking existents profile")
+                    await profileSimilarityCheck()
+                }, { deep: true });
+
                 var formTitle = computed(() => {
                     return editedIndex.value === -1 ? 'Création' : 'Modification'
                 })
 
                 return {
-                    form, exportData, expandedRowKey, expandedRows, onRowClick, deleteComment, paginationFilters, profileStates, editedIndex, saveProfile, editedItem, editItem, deleteItem, dialogDelete, closeDelete, deleteItemConfirm, skills, fetchSkills, skillsLoading, defaultItem, formTitle, profiles, totalProfiles, headers, loading, options, fetchProfiles, expanded, dialog, openFile, printFile, deleteFile, getSkillColor
+                    exportProfile, similarityMessage, getStateTitle, form, exportData, expandedRowKey, expandedRows, onRowClick, deleteComment, paginationFilters, profileStates, editedIndex, saveProfile, editedItem, editItem, deleteItem, dialogDelete, closeDelete, deleteItemConfirm, skills, fetchSkills, skillsLoading, defaultItem, formTitle, profiles, totalProfiles, headers, loading, fetchProfiles, expanded, dialog, openFile, printFile, deleteFile, getSkillColor
                 }
             }
         })

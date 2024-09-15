@@ -159,12 +159,12 @@
                     <span class="mdi mdi-database"></span>
                     Profiles
                 </a>
-                {% if user|has_groups:"admin" %}
+                <!-- {% if user|has_groups:"admin" %}
                 <a href="{% url 'users' %}" class="{% if request.path == '/users/' %}active{% endif %}">
                     <span class="mdi mdi-account-group"></span>
                     Utilisateurs
                 </a>
-                {% endif %}
+                {% endif %} -->
                 <a href="{% url 'config' %}" class="{% if request.path == '/config/' %}active{% endif %}">
                     <span class="mdi mdi-cog"></span>
                     Config

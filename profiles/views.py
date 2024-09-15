@@ -11,6 +11,9 @@ from django.views.decorators.http import require_http_methods
 from .models import ProfileForm
 from django.contrib.auth.decorators import login_required, user_passes_test
 import os
+from django.core.serializers import serialize
+import csv
+from django.http import HttpResponse
 
 
 def config(request):
@@ -22,105 +25,8 @@ def config(request):
 def profiles_view(request):
     return render(request, 'profiles.html')
 
-
-@require_http_methods(["DELETE"])
-def delete_comment(request):
-    com_id = request.GET.get('id')
-    print("deleting comment: ", com_id)
-    if com_id:
-        Comment.objects.filter(id=com_id).delete()
-        print("returning success")
-        return JsonResponse({'success': True})
-
-    return JsonResponse({'success': False})
-
-
-def profiles_data(request):
-    start = int(request.GET.get('start', 0))
-    length = int(request.GET.get('length', 10))
-    search_value = request.GET.get('search', '')
-    # Filter by skills (assuming the skill filter is a comma-separated list of skill IDs)
-    skill_filter = request.GET.get('skills', '')
-
-    # order_column = request.GET.get('order[0][column]', '0')
-    # order_direction = request.GET.get('order[0][dir]', 'asc')
-
-    # Define the column index to column name mapping
-    # column_names = [
-    #     'creation_date',
-    #     'update_date',
-    #     'town',
-    #     'name',
-    #     'surname',
-    #     'email',
-    #     'number'
-    # ]
-    # Get the column to sort by
-    # order_by = columns.get(int(order_column), 'creation_date')
-    # if order_direction == 'desc':
-    #    order_by = f'-{order_by}'
-
-    # Filter by search term
-    profiles = Profile.objects.all()
-    if search_value:
-        profiles = profiles.filter(
-            Q(name__icontains=search_value) |
-            Q(surname__icontains=search_value) |
-            Q(email__icontains=search_value)
-        )
-
-    if skill_filter:
-        skill_ids = skill_filter.split(',')
-        profiles = profiles.filter(skills__id__in=skill_ids).distinct()
-
-    # Order the queryset
-    # profiles = profiles.order_by(order_by)
-
-    # Paginate the results
-    paginator = Paginator(profiles, length)
-    profiles_page = paginator.get_page(start // length + 1)
-
-    data = [{
-        'id': profile.id,
-        'name': profile.name,
-        'surname': profile.surname,
-        'email': profile.email,
-        'number': profile.number,
-        'town': profile.town,
-        'creation_date': profile.creation_date.strftime('%d/%m/%Y'),
-        # 'creation_date': profile.creation_date.strftime('%Y-%m-%d %H:%M:%S'),
-        'update_date': profile.update_date.strftime('%d/%m/%Y %H:%M:%S'),
-        'comments': [
-            {
-                "id": com.id,
-                "text": com.text,
-                "username": com.user.username,
-                "creation_date": com.creation_date.strftime('%d/%m/%Y'),
-            } for com in profile.comments.all()
-        ],
-        'state': profile.state,
-        'diplomas': profile.diplomas,
-        'skills': list(profile.skills.all().values('id', 'name')),
-        'files': [
-            {
-                'id': f.id,
-                'url': f.file.url,
-                "file_name": os.path.basename(f.file.name),
-            } for f in profile.files.all()
-        ]
-    } for profile in profiles_page]
-
-    response = {
-        # 'draw': draw,
-        'recordsTotal': paginator.count,
-        'recordsFiltered': paginator.count,
-        'profiles': data,
-    }
-
-    return JsonResponse(response)
-
-
 @login_required
+@require_http_methods(["POST"])
 def profiles_create(request):
     print("here")
 
