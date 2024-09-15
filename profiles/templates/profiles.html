@@ -123,7 +123,8 @@
                                             <v-row cols="12">
                                                 <v-col cols="4">
                                                     <v-text-field v-model="editedItem.email" label="E-mail" name="email"
-                                                        prepend-inner-icon="mdi-at" :readonly="!{% if is_editor_or_admin == True %} true {% else %} false {% endif %}"
+                                                        prepend-inner-icon="mdi-at"
+                                                        :readonly="!{% if is_editor_or_admin == True %} true {% else %} false {% endif %}"
                                                         variant="underlined"></v-text-field>
                                                 </v-col>
                                                 <v-col cols="4">
@@ -650,9 +651,6 @@
                     dialogDelete.value = true
                 }
 
-                const exportProfile = async (id) => {
-                    console.log("export profile id", id)
-                }
 
                 const deleteItemConfirm = async () => {
                     if (deleteId.value != null) {
@@ -683,6 +681,28 @@
                 }
 
                 /* export */
+                const exportProfile = async (id) => {
+                    console.log("export profile id", id)
+                    try {
+                        let params = {
+                            id: id
+                        }
+                        const response = await axios.get(`{% url 'export_profile_pdf' %}?id={id}`, {
+                            params: params,
+                            responseType: 'blob'  // This ensures you get a file response
+                        });
+                        const url = window.URL.createObjectURL(new Blob([response.data]));
+                        const link = document.createElement('a');
+                        link.href = url;
+                        link.setAttribute('download', 'export_profil.pdf');  // Filename
+                        document.body.appendChild(link);
+                        link.click();
+                    } catch (error) {
+                        console.error('Error exporting profile pdf :', error);
+                    }
+
+                }
+
                 const exportData = async () => {
                     console.log("export")
                     try {

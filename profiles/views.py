@@ -37,7 +37,6 @@ def profiles_view(request):
 @login_required
 @require_http_methods(["POST"])
 def profiles_create(request):
-    print("here")
 
     profile_id = request.POST.get('id')
     surname = request.POST.get('surname')

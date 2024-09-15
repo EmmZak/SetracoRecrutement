@@ -17,6 +17,11 @@ import csv
 from django.http import HttpResponse
 from django.core.serializers.json import DjangoJSONEncoder
 from rest_framework import serializers
+from reportlab.lib.pagesizes import A4
+from reportlab.pdfgen import canvas
+from reportlab.lib import colors
+from reportlab.lib.units import inch
+from reportlab.lib.utils import ImageReader
 
 
 @require_http_methods(["DELETE"])
@@ -29,6 +34,119 @@ def delete_comment(request):
         return JsonResponse({'success': True})
 
     return JsonResponse({'success': False})
+
+
+@login_required
+def export_profile_pdf(request):
+    profile_id = request.GET.get("id")
+    profile = Profile.objects.get(id=profile_id)
+
+    # Create a HttpResponse object with PDF headers
+    response = HttpResponse(content_type='application/pdf')
+    response['Content-Disposition'] = f'attachment; filename="{profile.name}_{profile.surname}.pdf"'
+
+    # Create the PDF object
+    pdf = canvas.Canvas(response, pagesize=A4)
+    width, height = A4
+
+    # Helper function for page footer
+    def add_footer(page_num):
+        pdf.setFont("Helvetica", 10)
+        pdf.setFillColor(colors.grey)
+        pdf.drawString(100, 20, f"Page {page_num}")
+
+    # Page number counter
+    page_num = 1
+
+    # Add profile title
+    pdf.setFont("Helvetica-Bold", 20)
+    pdf.drawString(100, height - 60,
+                   f"Profil de {profile.name} {profile.surname}")
+
+    pdf.setLineWidth(1)
+    pdf.setStrokeColor(colors.black)
+    pdf.line(100, height - 80, width - 100, height - 80)  # Horizontal line
+
+    # Set standard font for profile info
+    pdf.setFont("Helvetica", 12)
+
+    # Draw profile details
+    pdf.drawString(100, height - 120, "Informations Personnelles")
+    pdf.setFont("Helvetica", 11)
+    y_position = height - 140
+
+    profile_details = [
+        ("Email", profile.email),
+        ("Numéro", profile.number),
+        ("Ville", profile.town),
+        ("Compétences", ', '.join(
+            [skill.name for skill in profile.skills.all()])),
+        ("Diplômes", profile.diplomas),
+        ("Date de création", profile.creation_date.strftime('%d/%m/%Y %H:%M:%S')),
+        ("Date de mise à jour", profile.update_date.strftime('%d/%m/%Y %H:%M:%S')),
+        ("Etat candidature", {
+            "STATE_TO_VERIFY": "À vérifier",
+            "STATE_VERIFIED": "Vérifié",
+            "STATE_CONSULTED": "Consulté",
+            "STATE_HIRED": "Embauché",
+            "STATE_REJECTED": "Rejeté"
+        }.get(profile.state, 'Inconnu'))
+    ]
+
+    for label, value in profile_details:
+        pdf.drawString(120, y_position, f"{label}: {value}")
+        y_position -= 20
+
+    # Add comments section
+    pdf.setFont("Helvetica-Bold", 12)
+    pdf.drawString(100, y_position, "Commentaires:")
+    y_position -= 20
+    pdf.setFont("Helvetica", 11)
+    for comment in profile.comments.all():
+        pdf.drawString(120, y_position,
+                       f"{comment.user.username}: {comment.text}")
+        y_position -= 20
+        if y_position < 50:
+            add_footer(page_num)
+            pdf.showPage()
+            page_num += 1
+            y_position = height - 100
+            pdf.setFont("Helvetica", 11)
+
+    # Add a new page for each file
+    for profile_file in profile.files.all():
+        add_footer(page_num)
+        pdf.showPage()  # New page for each file
+        page_num += 1
+
+        pdf.setFont("Helvetica-Bold", 14)
+        pdf.drawString(100, height - 100, f"Fichier: {profile_file.file.name}")
+
+        # Check if the file is an image and display it
+        file_path = profile_file.file.path
+        if os.path.exists(file_path) and file_path.lower().endswith(('.png', '.jpg', '.jpeg')):
+            try:
+                img = ImageReader(file_path)
+                img_width, img_height = img.getSize()
+                aspect_ratio = img_height / img_width
+                # Set max width for image
+                img_display_width = min(400, width - 200)
+                img_display_height = img_display_width * aspect_ratio
+                pdf.drawImage(img, 100, height - 200 - img_display_height,
+                              width=img_display_width, height=img_display_height)
+            except Exception as e:
+                pdf.drawString(100, height - 130, f"Unable to load image: {e}")
+        else:
+            pdf.drawString(100, height - 130, "Non-image file (not displayed)")
+
+    # Add footer to last page
+    add_footer(page_num)
+
+    # Save PDF
+    pdf.save()
+
+    return response
+
 
 @login_required
 def export_profiles_csv(request):
