@@ -102,42 +102,51 @@
                                             <span class="text-red">${similarityMessage}</span>
                                             <v-row cols="12">
                                                 <v-col cols="4">
+                                                    <!-- {{is_editor_or_admin}} -->
                                                     <v-text-field v-model="editedItem.surname" label="Nom"
                                                         name="surname" prepend-inner-icon="mdi-account"
+                                                        :readonly="!{% if is_editor_or_admin == True %} true {% else %} false {% endif %}"
                                                         variant="underlined"></v-text-field>
                                                 </v-col>
-                                                <v-col cols="4">
+                                                <v-col cols=" 4">
                                                     <v-text-field v-model="editedItem.name" label="Prénom" name="name"
-                                                        variant="underlined"></v-text-field>
+                                                        variant="underlined"
+                                                        :readonly="!{% if is_editor_or_admin == True %} true {% else %} false {% endif %}"></v-text-field>
                                                 </v-col>
                                                 <v-col cols="4">
                                                     <v-text-field v-model="editedItem.town" label="Localisation"
                                                         name="town" prepend-inner-icon="mdi-map-marker"
-                                                        variant="underlined"></v-text-field>
+                                                        variant="underlined"
+                                                        :readonly="!{% if is_editor_or_admin == True %} true {% else %} false {% endif %}"></v-text-field>
                                                 </v-col>
                                             </v-row>
                                             <v-row cols="12">
                                                 <v-col cols="4">
                                                     <v-text-field v-model="editedItem.email" label="E-mail" name="email"
-                                                        prepend-inner-icon="mdi-at" variant="underlined"></v-text-field>
+                                                        prepend-inner-icon="mdi-at" :readonly="!{% if is_editor_or_admin == True %} true {% else %} false {% endif %}"
+                                                        variant="underlined"></v-text-field>
                                                 </v-col>
                                                 <v-col cols="4">
                                                     <v-text-field v-model="editedItem.number" label="Numéro"
                                                         name="number" prepend-inner-icon="mdi-phone"
-                                                        variant="underlined"></v-text-field>
+                                                        variant="underlined"
+                                                        :readonly="!{% if is_editor_or_admin == True %} true {% else %} false {% endif %}"></v-text-field>
                                                 </v-col>
+                                                <!-- is_editor_or_admin: {{is_editor_or_admin}} -->
                                                 <v-col cols="4">
                                                     <!-- diplomas -->
+                                                    <!-- is_editor_or_admin: {% if is_editor_or_admin == True %} true {% else %} false {% endif %} -->
                                                     <v-textarea v-model="editedItem.diplomas" label="Diplômes"
                                                         name="diplomas" prepend-icon="mdi-certificate" rows="2"
-                                                        auto-grow variant="underlined"></v-textarea>
+                                                        auto-grow variant="underlined"
+                                                        :readonly="!{% if is_editor_or_admin == True %} true {% else %} false {% endif %}"></v-textarea>
                                                 </v-col>
                                             </v-row>
                                             <v-row v-if="false">
                                                 <v-col cols="12">
                                                     <span class="text-h5">Statut du candidat</span>
                                                     <v-chip-group v-if="true" v-model="editedItem.state" column
-                                                        selected-class="text-blue">
+                                                        :disabled="!{{is_editor_or_admin}}" selected-class="text-blue">
                                                         <v-chip v-for="(state, i) in profileStates" :key="state"
                                                             :value="state.value" text variant="outlined" filter>
                                                             ${ state.title }
@@ -334,8 +343,10 @@
                                                                 @click="openFile(file)">mdi-eye</v-icon>
                                                             <v-icon color="white"
                                                                 @click="printFile(file)">mdi-printer</v-icon>
+                                                            {% if user|has_groups:"Editeur,Admin" %}
                                                             <v-icon color="white"
                                                                 @click="deleteFile(file)">mdi-delete</v-icon>
+                                                            {% endif %}
                                                         </div>
                                                     </v-overlay>
                                                 </v-card>
@@ -360,9 +371,11 @@
                                                                 <p>${com.text}</p>
                                                             </v-col>
                                                             <v-col cols="2" class="d-flex justify-center align-center">
+                                                                {% if user|has_groups:"Editeur,Admin" %}
                                                                 <v-icon size="36" color="grey-darken-3"
                                                                     @click="deleteComment(com)"> mdi-delete
                                                                 </v-icon>
+                                                                {% endif %}
                                                             </v-col>
                                                         </v-row>
                                                     </v-card-text>
@@ -421,7 +434,9 @@
                         <v-icon size="24" color="grey-darken-3" @click="editItem(item)">
                             mdi-pencil
                         </v-icon>
+                        {% if user|has_groups:"Editeur,Admin" %}
                         <v-icon size="24" color="grey-darken-3" @click="deleteItem(item.id)"> mdi-delete </v-icon>
+                        {% endif %}
                         <v-icon size="24" color="grey-darken-3" @click="exportProfile(item.id)"> mdi-file-export
                         </v-icon>
                     </template>
@@ -533,6 +548,7 @@
                     console.log("checking if similar profile exists")
                     if (editedItem.value.id) {
                         console.log("not check when editing")
+                        similarityMessage.value = ""
                         return
                     }
                     try {
@@ -542,30 +558,6 @@
                                 'Content-Type': 'application/json',
                             }
                         });
-                        /*
-                        let res = await axios.post(
-                            '{% url 'check_profile' %}',
-                            {
-                                name: editedItem.value.name,
-                                surname: editedItem.value.surname,
-                                email: editedItem.value.email,
-                                number: editedItem.value.number
-                            },
-                            {
-                                headers: {
-                                    'X-CSRFToken': '{{ csrf_token }}',
-                                    'Content-Type': 'application/json',
-                                }
-                            }
-                        ); */
-                        // let res = await axios.post(
-                        //     '{% url 'check_profile' %}', {
-                        //     headers: {
-                        //         'X-CSRFToken': '{{ csrf_token }}',
-                        //         'Content-Type': 'application/json',
-                        //     }
-                        // }
-                        // )
                         console.log("profile similarity: ", res.data)
                         const existingAttrs = res.data;
                         let errorMessage = "Un profil avec le(s) même(s) "
