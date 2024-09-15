@@ -82,12 +82,14 @@
                             <v-toolbar-title class="text-h4">Profils</v-toolbar-title>
                             <v-spacer></v-spacer>
                             <v-dialog v-model="dialog" style="height: 100%; width: 60%;">
+                                {% if user|has_groups:"Editeur,Admin,Consultant" %}
                                 <template v-slot:activator="{ props }">
                                     <v-btn class="mb-2 text-h6" color="blue-darken-4 " rounded="45" variant="flat" dark
                                         v-bind="props" @click="editItem({})">
                                         Créer
                                     </v-btn>
                                 </template>
+                                {% endif %}
 
                                 <v-form v-model="form" method="POST" action="{% url 'profiles_create' %}"
                                     enctype="multipart/form-data">
@@ -372,7 +374,7 @@
                                                                 <p>${com.text}</p>
                                                             </v-col>
                                                             <v-col cols="2" class="d-flex justify-center align-center">
-                                                                {% if user|has_groups:"Editeur,Admin" %}
+                                                                {% if user|has_groups:"Admin" %}
                                                                 <v-icon size="36" color="grey-darken-3"
                                                                     @click="deleteComment(com)"> mdi-delete
                                                                 </v-icon>
@@ -432,9 +434,11 @@
                     </template>
 
                     <template v-slot:item.actions=" { item }">
+                        {% if user|has_groups:"Editeur,Admin,Consultant" %}
                         <v-icon size="24" color="grey-darken-3" @click="editItem(item)">
                             mdi-pencil
                         </v-icon>
+                        {% endif %}
                         {% if user|has_groups:"Editeur,Admin" %}
                         <v-icon size="24" color="grey-darken-3" @click="deleteItem(item.id)"> mdi-delete </v-icon>
                         {% endif %}

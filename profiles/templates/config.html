@@ -152,12 +152,14 @@
 </style>
 <h1>Compétences</h1>
 
+{% if user|has_groups:"Editeur,Admin" %}
 <!-- Form to add a new skill -->
 <form method="post" action="{% url 'add_skill' %}" class="add-skill-form">
     {% csrf_token %}
     <input type="text" name="skill_name" placeholder="Ajouter une compétence" required>
     <button type="submit" class="btn btn-primary">Ajouter</button>
 </form>
+{% endif %}
 
 <!-- Grid of skills v1
 <div class="skills-grid">
