@@ -18,6 +18,9 @@ class CommentSerializer(serializers.ModelSerializer):
         model = Comment
         fields = ['id', 'text', 'user', 'creation_date']
 
+        extra_kwargs = {
+            'creation_date': {'format': '%d/%m/%Y %H:%M:%S'}
+        }
 
 class ProfileSerializer(serializers.ModelSerializer):
     comments = CommentSerializer(many=True)

@@ -468,7 +468,7 @@
                 const dialogDelete = ref(false);
                 const deleteId = ref(null)
                 var form = ref(false)
-                var similarityMessage = ref("OK")
+                var similarityMessage = ref("")
                 var defaultItem = ref({
                     id: null,
                     name: "",
@@ -531,6 +531,10 @@
 
                 const profileSimilarityCheck = async () => {
                     console.log("checking if similar profile exists")
+                    if (editedItem.value.id) {
+                        console.log("not check when editing")
+                        return
+                    }
                     try {
                         const res = await axios.get('{% url 'check_profile' %}', { params: editedItem.value }, {
                             headers: {

@@ -78,9 +78,20 @@ def export_profiles_csv(request):
         comments = '; '.join(
             [f"{comment.user.username}: {comment.text}" for comment in profile.comments.all()])
 
+        profile_states = {
+            "STATE_TO_VERIFY": "À vérifier",
+            "STATE_VERIFIED": "Vérifié",
+            "STATE_CONSULTED": "Consulté",
+            "STATE_HIRED": "Embauché",
+            "STATE_REJECTED": "Rejeté"
+        }
+        state = profile_states.get(profile.state, 'Inconnu')
+        creation_date = profile.creation_date.strftime('%d/%m/%Y %H:%M:%S')
+        update_date = profile.update_date.strftime('%d/%m/%Y %H:%M:%S')
+
         writer.writerow([
             profile.name, profile.surname, profile.email, profile.number, profile.town,
-            skills, profile.diplomas, profile.creation_date, profile.update_date, profile.get_state_display(), comments
+            skills, profile.diplomas, creation_date, update_date, state, comments
         ])
 
     return response
