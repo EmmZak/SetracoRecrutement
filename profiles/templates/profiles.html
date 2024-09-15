@@ -352,7 +352,7 @@
                                             <v-timeline-item v-for="(com, i) in item.comments" :key="i">
                                                 <v-card>
                                                     <v-card-title :class="['text-subtitle-1', `bg-${item.color}`]">
-                                                        ${com.username} - ${com.creation_date}
+                                                        ${com.user.username} - ${com.creation_date}
                                                     </v-card-title>
                                                     <v-card-text class="bg-white text--primary">
                                                         <v-row>
@@ -690,14 +690,22 @@
                 const exportData = async () => {
                     console.log("export")
                     try {
+                        let params = {
+                            search: paginationFilters.value.search,
+                            skills: paginationFilters.value.skills.join(','),
+                            states: paginationFilters.value.states.join(','),
+                            start: (paginationFilters.value.page - 1) * paginationFilters.value.itemsPerPage,
+                            length: paginationFilters.value.itemsPerPage,
+                        }
+                        //console.log("params: ", params)
                         const response = await axios.get('{% url 'export_profiles_csv' %}', {
-                            // params: params,
+                            params: params,
                             responseType: 'blob'  // This ensures you get a file response
                         });
                         const url = window.URL.createObjectURL(new Blob([response.data]));
                         const link = document.createElement('a');
                         link.href = url;
-                        link.setAttribute('download', 'profiles.csv');  // Filename
+                        link.setAttribute('download', 'export_profils.csv');  // Filename
                         document.body.appendChild(link);
                         link.click();
                     } catch (error) {
@@ -707,11 +715,11 @@
 
                 /* file */
                 const openFile = (file) => {
-                    window.open(file.url, '_blank');
+                    window.open(file.file, '_blank');
                 };
 
                 const printFile = (file) => {
-                    const printWindow = window.open(file.url, '_blank', 'width=800,height=600');
+                    const printWindow = window.open(file.file, '_blank', 'width=800,height=600');
 
                     printWindow.onload = () => {
                         printWindow.focus(); // Focus on the new window
@@ -723,7 +731,7 @@
                 const deleteFile = async (file) => {
                     console.log("deletegin")
                     try {
-                        await fetch(`/delete-file?id=${file.id}`, {
+                        await fetch(`{% url 'delete_file' %}?id=${file.id}`, {
                             method: 'DELETE',
                             headers: {
                                 'X-CSRFToken': '{{ csrf_token }}',
