@@ -82,8 +82,8 @@
                                             </v-row>
                                         </v-card-text>
                                         <v-card-actions>
-                                            <v-btn :disabled="!form" :loading="loading"
-                                                color="success" size="large" type="submit" variant="elevated" block>
+                                            <v-btn :disabled="!form" :loading="loading" color="success" size="large"
+                                                type="submit" variant="elevated" block>
                                                 Créer
                                             </v-btn>
                                         </v-card-actions>
@@ -116,12 +116,14 @@
                         </div>
                     </template>
 
-                    {% if user|has_groups:"admin" %}
+                    {% if user|has_groups:"Admin" %}
                     <template v-slot:item.actions=" { item }">
+                        {% if user|has_groups:"" %}
                         <v-icon v-if="true" size="24" color="grey-darken-3" @click="editItem(item)">
                             mdi-pencil
                         </v-icon>
-                        {% if user|has_groups:"admin,editor" %}
+                        {% endif %}
+                        {% if user|has_groups:"Admin" %}
                         <v-icon size="24" color="grey-darken-3" @click="deleteItem(item.id)"> mdi-delete </v-icon>
                         {% endif %}
                     </template>
