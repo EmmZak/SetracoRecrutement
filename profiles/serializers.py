@@ -1,7 +1,7 @@
 from rest_framework import serializers
 
 from profileFile.serializers import ProfileFileSerializer
-from skills.serializers import SkillSerializer
+from config.serializers import SkillSerializer, StateSerializer
 from .models import Profile, Comment
 from django.contrib.auth.models import User
 
@@ -13,7 +13,8 @@ class UserSerializer(serializers.ModelSerializer):
 
 
 class CommentSerializer(serializers.ModelSerializer):
-    user = UserSerializer() 
+    user = UserSerializer()
+
     class Meta:
         model = Comment
         fields = ['id', 'text', 'user', 'creation_date']
@@ -22,16 +23,18 @@ class CommentSerializer(serializers.ModelSerializer):
             'creation_date': {'format': '%d/%m/%Y %H:%M:%S'}
         }
 
+
 class ProfileSerializer(serializers.ModelSerializer):
     comments = CommentSerializer(many=True)
     skills = SkillSerializer(many=True)
     # Include if you have files related to profiles
     files = ProfileFileSerializer(many=True)
+    state = StateSerializer()
 
     class Meta:
         model = Profile
-        fields = ['id', 'name', 'surname', 'email', 'number', 'town', 'creation_date',
-                  'update_date', 'comments', 'state', 'diplomas', 'skills', 'files']
+        fields = ['id', 'name', 'surname', 'email', 'state', 'number', 'town', 'creation_date',
+                  'update_date', 'comments', 'diplomas', 'skills', 'files']
         extra_kwargs = {
             'creation_date': {'format': '%d/%m/%Y'},
             'update_date': {'format': '%d/%m/%Y %H:%M:%S'},

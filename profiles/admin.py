@@ -3,6 +3,7 @@ from django.contrib import admin
 from profileFile.models import ProfileFile
 from .models import Profile, Comment
 
+"""
 @admin.action(description="Mark selected as state=new")
 def action_1(modeladmin, request, queryset):
     queryset.update(state="new")
@@ -18,7 +19,7 @@ def action_3(modeladmin, request, queryset):
 @admin.action(description="Mark selected as state=ko")
 def action_4(modeladmin, request, queryset):
     queryset.update(state="ko")
-
+"""
 
 class ProfileFileInline(admin.TabularInline):  # or use admin.StackedInline
     model = ProfileFile
@@ -34,8 +35,8 @@ class ProfileCommentInline(admin.StackedInline):  # or use admin.StackedInline
 
 @admin.register(Profile)
 class ProfileAdmin(admin.ModelAdmin):
-    list_display = ('id', 'name', 'surname', 'email', 'town', 'state', 'get_comments', 'creation_date', 'update_date', 'get_files')
-    list_filter = ('state', 'town', 'creation_date', 'update_date')
+    list_display = ('id', 'name', 'surname', 'email', 'town', 'get_comments', 'creation_date', 'update_date', 'get_files')
+    list_filter = ('town', 'creation_date', 'update_date')
     search_fields = ('name', 'surname', 'email', 'town')
     ordering = ('-creation_date',)
     filter_horizontal = ('skills',)
@@ -55,7 +56,7 @@ class ProfileAdmin(admin.ModelAdmin):
         return "No comments"
     get_comments.short_description = 'Comments'
 
-    actions = [action_1, action_2, action_3, action_4]
+    #actions = [action_1, action_2, action_3, action_4]
 
 @admin.register(Comment)
 class CommentAdmin(admin.ModelAdmin):

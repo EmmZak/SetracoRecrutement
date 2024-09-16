@@ -32,6 +32,7 @@ django-admin startapp profileFile
 django-admin startapp skills
 django-admin startapp profiles
 django-admin startapp accounts
+django-admin startapp config
 ```
 
 # Run
@@ -53,6 +54,6 @@ python3 manage.py runserver
 # Create super user
 
 ```bash
-python3 manage.py createsuperuser --username admin --email admin@admin.com
+python3 manage.py createsuperuser --username admin
 # password: admin
 ```

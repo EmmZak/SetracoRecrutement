@@ -1,15 +1,10 @@
 from django.http import JsonResponse
-from django.shortcuts import render, redirect, get_object_or_404
-from django.contrib.auth.models import User
-from django.views.decorators.http import require_POST
 from profileFile.models import ProfileFile
 from profiles.serializers import ProfileSerializer
-from skills.models import Skill
 from .models import Profile, Comment
 from django.core.paginator import Paginator
 from django.db.models import Q
 from django.views.decorators.http import require_http_methods
-from .models import ProfileForm
 from django.contrib.auth.decorators import login_required, user_passes_test
 import os
 from django.core.serializers import serialize
@@ -84,13 +79,7 @@ def export_profile_pdf(request):
         ("Diplômes", profile.diplomas),
         ("Date de création", profile.creation_date.strftime('%d/%m/%Y %H:%M:%S')),
         ("Date de mise à jour", profile.update_date.strftime('%d/%m/%Y %H:%M:%S')),
-        ("Etat candidature", {
-            "STATE_TO_VERIFY": "À vérifier",
-            "STATE_VERIFIED": "Vérifié",
-            "STATE_CONSULTED": "Consulté",
-            "STATE_HIRED": "Embauché",
-            "STATE_REJECTED": "Rejeté"
-        }.get(profile.state, 'Inconnu'))
+        ("Etat candidature", getattr(profile.state, 'name', "Inconnu"))
     ]
 
     for label, value in profile_details:
@@ -196,14 +185,7 @@ def export_profiles_csv(request):
         comments = '; '.join(
             [f"{comment.user.username}: {comment.text}" for comment in profile.comments.all()])
 
-        profile_states = {
-            "STATE_TO_VERIFY": "À vérifier",
-            "STATE_VERIFIED": "Vérifié",
-            "STATE_CONSULTED": "Consulté",
-            "STATE_HIRED": "Embauché",
-            "STATE_REJECTED": "Rejeté"
-        }
-        state = profile_states.get(profile.state, 'Inconnu')
+        state = getattr(profile.state, 'name', "Inconnu")
         creation_date = profile.creation_date.strftime('%d/%m/%Y %H:%M:%S')
         update_date = profile.update_date.strftime('%d/%m/%Y %H:%M:%S')
 
@@ -246,7 +228,7 @@ def profiles_data(request):
     start = int(request.GET.get('start', 0))
     length = int(request.GET.get('length', 10))
     search_value = request.GET.get('search', '')
-    # Filter by skills (assuming the skill filter is a comma-separated list of skill IDs)
+    # comma-separated list of IDs
     skill_filter = request.GET.get('skills', '')
     state_filter = request.GET.get('states', '')
 
@@ -256,7 +238,8 @@ def profiles_data(request):
             Q(name__icontains=search_value) |
             Q(surname__icontains=search_value) |
             Q(email__icontains=search_value) |
-            Q(number__icontains=search_value)
+            Q(number__icontains=search_value) |
+            Q(town__icontains=search_value)
         )
 
     if skill_filter:
@@ -264,47 +247,11 @@ def profiles_data(request):
         profiles = profiles.filter(skills__id__in=skill_ids).distinct()
 
     if state_filter:
-        states = state_filter.split(',')
-        print("states: ", states)
-        profiles = profiles.filter(state__in=states)
+        state_ids = state_filter.split(',')
+        profiles = profiles.filter(state__id__in=state_ids).distinct()
 
     paginator = Paginator(profiles, length)
     profiles_page = paginator.get_page(start // length + 1)
-
-    """
-    data = [{
-        'id': profile.id,
-        'name': profile.name,
-        'surname': profile.surname,
-        'email': profile.email,
-        'number': profile.number,
-        'town': profile.town,
-        'creation_date': profile.creation_date.strftime('%d/%m/%Y'),
-        'update_date': profile.update_date.strftime('%d/%m/%Y %H:%M:%S'),
-        'comments': [
-            {
-                "id": com.id,
-                "text": com.text,
-                "username": com.user.username,
-                "creation_date": com.creation_date.strftime('%d/%m/%Y'),
-            } for com in profile.comments.all()
-        ],
-        'state': profile.state,
-        'diplomas': profile.diplomas,
-        'skills': list(profile.skills.all().values('id', 'name')),
-        'files': [
-            {
-                'id': f.id,
-                'url': f.file.url,
-                "file_name": os.path.basename(f.file.name),
-            } for f in profile.files.all()
-        ]
-    } for profile in profiles_page]
-    """
-    # print("profiles_page: ", profiles_page)
-    # print("profiles_page.object_list: ", profiles_page.object_list)
-    # .values('id', 'name', 'surname')
-    # print("list profiles_page.object_list: ", list(profiles_page.object_list))
 
     serializer = ProfileSerializer(profiles_page, many=True)
 

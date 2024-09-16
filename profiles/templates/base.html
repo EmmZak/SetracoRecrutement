@@ -112,7 +112,7 @@
     <div class="bg-green d-flex flex-column justify-space-between ga-2" style="width: 250px; height: 100vw;">
         <div id="company" class="d-flex flex-row justify-space-around bg-yellow " style="height: 10%;">
             <div>logo</div>
-            <span>Setraco</span>
+            <span>CVthèque</span>
         </div>
         <div id="routes" class="d-flex flex-column  justify-start ga-2" style="height: 100%;">
             <a href="{% url 'home' %}" class="route bg-yellow">
@@ -128,21 +128,6 @@
             <button class="bg-red w-75 pa-2 rounded-lg	">Déconnexion</button>
         </div>
     </div>
-    <!-- <div class="sidebar">
-        <div id="company" class="company">
-            {% load static %} <img src="{% static "logo.png" %}" alt="Hi!" />
-            <div class="company-name">Setraco</div>
-        </div>
-        <div id="routes" class="routes">
-            <a href="{% url 'home' %}" class="route-link">
-                <i class="fas fa-home {% if request.path == '/home/' %} bg-red {% endif %}"></i>
-                <span>Home</span>
-            </a>
-        </div>
-        <div id="auth " class="d-flex justify-center  bg-blue">
-            <button class="bg-red w-75 pa-2 rounded-lg	">Déconnexion</button>
-        </div>
-    </div> -->
 
     <div class="content">
         {% block content %}

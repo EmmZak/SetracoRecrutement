@@ -145,19 +145,6 @@
                                                         :readonly="!{% if is_editor_or_admin == True %} true {% else %} false {% endif %}"></v-textarea>
                                                 </v-col>
                                             </v-row>
-                                            <v-row v-if="false">
-                                                <v-col cols="12">
-                                                    <span class="text-h5">Statut du candidat</span>
-                                                    <v-chip-group v-if="true" v-model="editedItem.state" column
-                                                        :disabled="!{{is_editor_or_admin}}" selected-class="text-blue">
-                                                        <v-chip v-for="(state, i) in profileStates" :key="state"
-                                                            :value="state.value" text variant="outlined" filter>
-                                                            ${ state.title }
-                                                        </v-chip>
-                                                    </v-chip-group>
-                                                    <input type="hidden" name="state" :value="editedItem.state">
-                                                </v-col>
-                                            </v-row>
                                             <v-row cols="12">
                                                 <v-col cols="12">
                                                     <span class="text-h5">Compétences</span>
@@ -166,7 +153,7 @@
                                                     <v-chip-group v-if="true" v-model="editedItem.skills" column
                                                         selected-class="text-green" multiple>
                                                         <v-chip v-for="(skill, i) in skills" :key="skill" :value="skill"
-                                                            name="skills" text variant="outlined" filter>
+                                                            text variant="outlined" filter>
                                                             ${ skill.name }
                                                         </v-chip>
                                                     </v-chip-group>
@@ -192,11 +179,12 @@
                                                     <v-chip-group v-if="true" v-model="editedItem.state" column
                                                         selected-class="text-blue">
                                                         <v-chip v-for="(state, i) in profileStates" :key="state"
-                                                            :value="state.value" text variant="outlined" filter>
-                                                            ${ state.title }
+                                                            :value="state" text variant="outlined" filter>
+                                                            ${ state.name }
                                                         </v-chip>
                                                     </v-chip-group>
-                                                    <input type="hidden" name="state" :value="editedItem.state">
+                                                    <input type="hidden" name="state"
+                                                        :value="editedItem.state?.id || null">
                                                 </v-col>
                                             </v-row>
                                             <!-- files -->
@@ -263,8 +251,8 @@
                                 </v-col>
                                 <v-col cols="5">
                                     <v-select :items="profileStates" v-model="paginationFilters.states"
-                                        label="Etat candidature" item-title="title" chips multiple item-text="title"
-                                        item-value="value" hide-details variant="underlined"
+                                        label="Etat candidature" item-title="name" chips multiple item-text="name"
+                                        item-value="id" hide-details variant="underlined"
                                         prepend-inner-icon="mdi-account-alert" dense></v-select>
                                 </v-col>
                             </v-row>
@@ -297,10 +285,10 @@
                         </div>
                     </template>
 
-                    <!-- state -->
+                    <!-- state
                     <template v-slot:item.state="{ value }">
                         ${getStateTitle(value)}
-                    </template>
+                    </template>  -->
 
                     <template v-slot:expanded-row="{ columns, item }">
                         <td :colspan="columns.length">
@@ -421,7 +409,7 @@
 
                                 <v-divider vertical></v-divider>
 
-                                <div class="w-50f" style="width: 50f%;">
+                                <div class="w-50f" style="width: 50%;">
                                     <v-card-title>Fichier(s)</v-card-title>
                                     <!-- <v-card-title>
                                         <v-icon name="file-multiple"></v-icon>
@@ -469,7 +457,7 @@
                     { title: 'Ville', key: 'town', sortable: false },
                     { title: 'Compétences', key: 'skills', sortable: false },
                     // { title: 'Etat', key: 'state', sortable: true },
-                    { title: 'Etat candidature', key: 'state', sortable: false },
+                    { title: 'Etat candidature', key: 'state.name', sortable: false },
                     { title: 'Diplômes', key: 'diplomas', sortable: false },
                     // { title: 'Commentaires', key: 'comment', sortable: false },
                     { title: 'Actions', key: 'actions', sortable: false },
@@ -477,6 +465,7 @@
 
                 var skillsLoading = ref(false)
                 var skills = ref([])
+                var profileStates = ref([])
                 var profiles = ref([])
                 var expanded = ref([])
                 var expandedRows = ref([])
@@ -508,7 +497,7 @@
                     surname: "",
                     email: "",
                     number: "",
-                    state: "",
+                    state: null,
                     town: "",
                     skills: [],
                     diplomas: "",
@@ -526,33 +515,22 @@
                     sortDesc: false
                 })
 
-                const profileStates = [
-                    { value: "STATE_TO_VERIFY", title: "À vérifier" },
-                    { value: "STATE_VERIFIED", title: "Vérifié" },
-                    { value: "STATE_CONSULTED", title: "Consulté" },
-                    { value: "STATE_HIRED", title: "Embauché" },
-                    { value: "STATE_REJECTED", title: "Rejeté" }
-                ];
-                const getStateTitle = (value) => {
-                    const state = profileStates.find(state => state.value === value);
-                    return state ? state.title : "Inconnu"; // Return the title if found, otherwise return the original value
-                };
-                // const profileStates = {
-                //     STATE_TO_VERIFY: "À vérifier",
-                //     STATE_VERIFIED: "Vérifié",
-                //     STATE_CONSULTED: "Consulté",
-                //     STATE_HIRED: "Embauché",
-                //     STATE_REJECTED: "Rejeté"
-                // };
+                // const profileStates = [
+                //     { value: "STATE_TO_VERIFY", title: "À vérifier" },
+                //     { value: "STATE_VERIFIED", title: "Vérifié" },
+                //     { value: "STATE_CONSULTED", title: "Consulté" },
+                //     { value: "STATE_HIRED", title: "Embauché" },
+                //     { value: "STATE_REJECTED", title: "Rejeté" }
+                // ];
 
                 const onRowClick = (item) => {
                     expandedRowKey.value = item.id
                 }
 
                 const profileSimilarityCheck = async () => {
-                    console.log("checking if similar profile exists")
+                    // console.log("checking if similar profile exists")
                     if (editedItem.value.id) {
-                        console.log("not check when editing")
+                        //console.log("not check when editing")
                         similarityMessage.value = ""
                         return
                     }
@@ -799,7 +777,21 @@
                     }
                 }
 
+                const fetchStates = async () => {
+                    //skillsLoading.value = true
+                    try {
+                        let res = await axios.get('{% url 'states_data' %}')
+                        console.log("states: ", res.data)
+                        profileStates.value = res.data
+                    } catch (err) {
+                        console.log("err: ", err)
+                    } finally {
+                        //skillsLoading.value = false
+                    }
+                }
+
                 onMounted(async () => {
+                    await fetchStates()
                     await fetchSkills()
                     await fetchProfiles();
                 })
@@ -818,7 +810,7 @@
                 });
 
                 watch([editedItem], async (val) => {
-                    console.log("checking existents profile")
+                    // console.log("checking existents profile")
                     await profileSimilarityCheck()
                 }, { deep: true });
 
@@ -827,7 +819,7 @@
                 })
 
                 return {
-                    exportProfile, similarityMessage, getStateTitle, form, exportData, expandedRowKey, expandedRows, onRowClick, deleteComment, paginationFilters, profileStates, editedIndex, saveProfile, editedItem, editItem, deleteItem, dialogDelete, closeDelete, deleteItemConfirm, skills, fetchSkills, skillsLoading, defaultItem, formTitle, profiles, totalProfiles, headers, loading, fetchProfiles, expanded, dialog, openFile, printFile, deleteFile, getSkillColor
+                    exportProfile, similarityMessage, form, exportData, expandedRowKey, expandedRows, onRowClick, deleteComment, paginationFilters, profileStates, editedIndex, saveProfile, editedItem, editItem, deleteItem, dialogDelete, closeDelete, deleteItemConfirm, skills, fetchSkills, skillsLoading, defaultItem, formTitle, profiles, totalProfiles, headers, loading, fetchProfiles, expanded, dialog, openFile, printFile, deleteFile, getSkillColor
                 }
             }
         })

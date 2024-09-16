@@ -1,0 +1,278 @@
+{% extends 'baseV3.html' %}
+{% load auth_extras %}
+
+{% block title %}Configuration{% endblock %}
+
+{% block content %}
+<style>
+    h1 {
+        margin-bottom: 20px;
+    }
+
+    .add-skill-form {
+        width: 50%;
+        display: flex;
+        margin-bottom: 20px;
+        display: flex;
+        justify-content: space-between;
+    }
+
+    .add-skill-form input[type="text"] {
+        /* flex: 1; */
+        flex: 0.6;
+        width: 100%;
+        padding: 8px;
+        margin-right: 10px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+    }
+
+    .add-skill-form .btn-primary {
+        /* width: 30%; */
+        flex: 0.4;
+
+        padding: 8px 12px;
+        background-color: #007bff;
+        border: none;
+        color: white;
+        border-radius: 4px;
+        cursor: pointer;
+    }
+
+    .add-skill-form .btn-primary:hover {
+        background-color: #005cbf;
+    }
+
+    .skills-grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 10px;
+    }
+
+    .skill-card {
+        background-color: #f8f9fa;
+        padding: 10px;
+        /* border: 1px solid #ddd; */
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        border-radius: 5px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .skill-card span {
+        font-size: 16px;
+    }
+
+    .delete-btn {
+        background: none;
+        border: none;
+        color: red;
+        cursor: pointer;
+        font-size: 20px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    /* Modal styling */
+    .modal {
+        display: none;
+        /* Hidden by default */
+        position: fixed;
+        z-index: 1;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        overflow: auto;
+        background-color: rgba(0, 0, 0, 0.4);
+        /* Black background with opacity */
+    }
+
+    .modal-content {
+        background-color: #fefefe;
+        margin: 15% auto;
+        padding: 20px;
+        border: 1px solid #888;
+        width: 80%;
+        max-width: 400px;
+        border-radius: 5px;
+    }
+
+    .close {
+        color: #aaa;
+        float: right;
+        font-size: 36px;
+        font-weight: bold;
+        cursor: pointer;
+    }
+
+    .close:hover,
+    .close:focus {
+        color: black;
+        text-decoration: none;
+    }
+
+    .btn {
+        width: 100%;
+        height: 100%;
+        /* padding: 10px 20px; */
+        border: none;
+        cursor: pointer;
+        border-radius: 3px;
+        /* margin-top: 10px; */
+    }
+
+    .cancel-btn {
+        background-color: #ccc;
+    }
+
+    .delete-btn {
+        background-color: red;
+        color: white;
+        padding: 10px 10px 10px 10px
+            /* margin-left: 10px; */
+    }
+
+    .delete-btn:hover {
+        background-color: rgb(213, 0, 0);
+    }
+
+    .delete-btn-icon {
+        background: none;
+        border: none;
+        color: rgb(89, 89, 89);
+        cursor: pointer;
+        font-size: 20px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+</style>
+
+<!-- Skills -->
+<h1>Compétences</h1>
+
+{% if user|has_groups:"Editeur,Admin" %}
+<form method="post" action="{% url 'create_skill' %}" class="add-skill-form">
+    {% csrf_token %}
+    <input type="text" name="name" placeholder="Ajouter une compétence" required>
+    <button type="submit" class="btn btn-primary">Ajouter</button>
+</form>
+{% endif %}
+
+<div class="skills-grid">
+    {% for skill in skills %}
+    <div class="skill-card">
+        <span>{{ skill.name }}</span>
+        {% if user|has_groups:"Admin" %}
+
+        <button type="button" class="delete-btn-icon mdi mdi-delete" data-toggle="modal" data-target="#deleteSkillModal"
+            data-id="{{ skill.id }}" data-name="{{ skill.name }}"
+            onclick="openSkillsDeleteModal('{{ skill.id }}', '{{ skill.name }}')">
+        </button>
+        {% endif %}
+    </div>
+    {% endfor %}
+</div>
+
+<div id="deleteSkillModal" class="modal">
+    <div class="modal-content">
+        <span class="close" onclick="closeDeleteModal()">&times;</span>
+        <p>Êtes-vous sûr(e) de vouloir supprimer <strong id="skill-name"></strong>?</p>
+        <p>Tous les profiles avec cette compétence seront modifiés</p>
+        <form method="post" id="deleteSkillForm">
+            {% csrf_token %}
+            <input type="hidden" name="pk" id="skill-id">
+            <input type="hidden" name="confirm" value="true" id="confirm-id">
+            <div>
+                <button type="submit" class="btn delete-btn" onclick="closeDeleteModal()">Supprimer</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<br>
+<!-- State -->
+<h1>Etat candidature</h1>
+
+{% if user|has_groups:"Editeur,Admin" %}
+<form method="post" action="{% url 'create_state' %}" class="add-skill-form">
+    {% csrf_token %}
+    <input type="text" name="name" placeholder="Ajouter un état" required>
+    <button type="submit" class="btn btn-primary">Ajouter</button>
+</form>
+{% endif %}
+
+<div class="skills-grid">
+    {% for state in states %}
+    <div class="skill-card">
+        <span>{{ state.name }}</span>
+        {% if user|has_groups:"Admin" %}
+
+        <button type="button" class="delete-btn-icon mdi mdi-delete" data-toggle="modal" data-target="#deleteStateModal"
+            data-id="{{ state.id }}" data-name="{{ state.name }}"
+            onclick="openStateDeleteModal('{{ state.id }}', '{{ state.name }}')">
+        </button>
+        {% endif %}
+    </div>
+    {% endfor %}
+</div>
+
+<div id="deleteStateModal" class="modal">
+    <div class="modal-content">
+        <span class="close" onclick="closeDeleteModal()">&times;</span>
+        <p>Êtes-vous sûr(e) de vouloir supprimer <strong id="state-name"></strong>?</p>
+        <p>Tous les profiles avec cet état seront modifiés</p>
+        <form method="post" id="deleteStateForm">
+            {% csrf_token %}
+            <input type="hidden" name="pk" id="state-id">
+            <input type="hidden" name="confirm" value="true" id="confirm-id">
+            <div>
+                <button type="submit" class="btn delete-btn" onclick="closeDeleteModal()">Supprimer</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    const openSkillsDeleteModal = (id, skillName) => {
+        document.getElementById('skill-name').textContent = skillName;
+        document.getElementById('skill-id').value = id;
+
+        const form = document.getElementById('deleteSkillForm');
+        form.action = `{% url 'delete_skill' 0 %}`.replace('0', id);
+
+        document.getElementById('deleteSkillModal').style.display = 'block';
+    }
+
+    const openStateDeleteModal = (id, skillName) => {
+        document.getElementById('state-name').textContent = skillName;
+        document.getElementById('state-id').value = id;
+
+        const form = document.getElementById('deleteStateForm');
+        form.action = `{% url 'delete_state' 0 %}`.replace('0', id);
+
+        document.getElementById('deleteStateModal').style.display = 'block';
+    }
+
+    // Close the modal
+    const closeDeleteModal = () => {
+        document.getElementById('deleteSkillModal').style.display = 'none';
+        document.getElementById('deleteStateModal').style.display = 'none';
+    }
+
+    window.onclick = function (event) {
+        var modal = document.getElementById('deleteSkillModal');
+        if (event.target === modal) {
+            modal.style.display = 'none';
+        }
+        var modal = document.getElementById('deleteStateModal');
+        if (event.target === modal) {
+            modal.style.display = 'none';
+        }
+    }
+</script>
+
+{% endblock %}
