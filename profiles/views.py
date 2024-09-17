@@ -68,11 +68,9 @@ def profiles_create(request):
     comment = request.POST.get('comment')
     skill_ids = request.POST.get('skills', '')
     state_id = request.POST.get('state', None)
-    # Retrieve or create Profile instance
     profile = get_object_or_404(
         Profile, id=profile_id) if profile_id else Profile()
 
-    # Update Profile fields
     profile.surname = surname
     profile.name = name
     profile.town = town
@@ -83,7 +81,6 @@ def profiles_create(request):
         id=state_id).first() if state_id else None
     profile.save()
 
-    # comment
     if comment:
         Comment.objects.create(
             profile=profile,

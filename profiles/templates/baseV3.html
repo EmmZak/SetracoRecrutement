@@ -155,6 +155,10 @@
                     <span class="mdi mdi-home"></span>
                     Accueil
                 </a>
+                <a href="{% url 'account' %}" class="{% if request.path == '/account/' %}active{% endif %}">
+                    <span class="mdi mdi-account"></span>
+                    Mon Compte
+                </a>
                 <a href="{% url 'profiles' %}" class="{% if request.path == '/profiles/' %}active{% endif %}">
                     <span class="mdi mdi-database"></span>
                     Profiles
@@ -169,6 +173,7 @@
                     <span class="mdi mdi-cog"></span>
                     Config
                 </a>
+                
             </nav>
             <!-- <div class="menu">
                 <span>
@@ -190,8 +195,6 @@
                         {% endif %}
                     </span>
                 </div>
-
-
 
                 <a href="{% url 'logout' %}">
                     <span class="mdi mdi-logout"></span>

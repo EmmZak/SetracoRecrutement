@@ -22,6 +22,24 @@ def is_admin(user):
 
 
 @login_required
+def account(request):
+    if request.method == 'POST':
+        form = CustomPasswordChangeForm(user=request.user, data=request.POST)
+        if form.is_valid():
+            form.save()
+            # Keep the user logged in
+            update_session_auth_hash(request, form.user)
+            messages.success(
+                request, 'Your password was successfully updated!')
+            # Reload the account page with success message
+            return redirect('account')
+    else:
+        form = CustomPasswordChangeForm(user=request.user)
+
+    return render(request, 'account.html', {'form': form})
+
+
+@login_required
 def password_change(request):
     if request.method == 'POST':
         form = CustomPasswordChangeForm(user=request.user, data=request.POST)
@@ -36,9 +54,11 @@ def password_change(request):
         form = CustomPasswordChangeForm(user=request.user)
     return render(request, 'password_change_form.html', {'form': form})
 
+
 @login_required
 def password_change_done(request):
     return render(request, 'password_change_done.html')
+
 
 @login_required
 def user_list(request):
