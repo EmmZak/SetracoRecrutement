@@ -1,5 +1,5 @@
 from django import forms
-from .models import Profile, Comment
+from .models import Profile, Comment, ProfileFile
 
 
 class ProfileForm(forms.ModelForm):
@@ -20,3 +20,9 @@ class CommentForm(forms.ModelForm):
         widgets = {
             'text': forms.Textarea(attrs={'rows': 3}),
         }
+
+
+class ProfileFileForm(forms.ModelForm):
+    class Meta:
+        model = ProfileFile
+        fields = ['file']

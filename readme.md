@@ -28,7 +28,6 @@ python3 manage.py migrate
 # Create app
 
 ```bash
-django-admin startapp profileFile
 django-admin startapp skills
 django-admin startapp profiles
 django-admin startapp accounts
@@ -45,6 +44,8 @@ python3 manage.py migrate
 
 python3 manage.py migrate accounts 0001_initial --fake
 python3 manage.py makemigrations accounts --empty 
+
+python3 manage.py dbshell
 ```
 
 ```bash

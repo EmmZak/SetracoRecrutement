@@ -1,10 +1,8 @@
 from django.shortcuts import get_object_or_404, render, redirect
 from django.contrib.auth.models import User
-from profileFile.forms import ProfileFileForm
-from profileFile.models import ProfileFile
 from config.models import Skill, State
-from .forms import ProfileForm, CommentForm
-from .models import Profile, Comment
+from .forms import ProfileForm, CommentForm, ProfileFileForm
+from .models import Profile, Comment, ProfileFile
 from django.views.decorators.http import require_http_methods
 from django.contrib.auth.decorators import login_required
 from django.db import transaction
@@ -54,6 +52,7 @@ def profiles_create_form(request):
 
     return redirect('/profiles')
 
+
 @transaction.atomic
 @login_required
 @require_http_methods(["POST"])
@@ -70,7 +69,8 @@ def profiles_create(request):
     skill_ids = request.POST.get('skills', '')
     state_id = request.POST.get('state', None)
     # Retrieve or create Profile instance
-    profile = get_object_or_404(Profile, id=profile_id) if profile_id else Profile()
+    profile = get_object_or_404(
+        Profile, id=profile_id) if profile_id else Profile()
 
     # Update Profile fields
     profile.surname = surname
@@ -79,7 +79,8 @@ def profiles_create(request):
     profile.email = email
     profile.number = number
     profile.diplomas = diplomas
-    profile.state = State.objects.filter(id=state_id).first() if state_id else None
+    profile.state = State.objects.filter(
+        id=state_id).first() if state_id else None
     profile.save()
 
     # comment

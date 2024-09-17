@@ -1,10 +1,9 @@
 from rest_framework import serializers
 
-from profileFile.serializers import ProfileFileSerializer
 from config.serializers import SkillSerializer, StateSerializer
-from .models import Profile, Comment
+from .models import Profile, Comment, ProfileFile
 from django.contrib.auth.models import User
-
+import os
 
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
@@ -23,6 +22,15 @@ class CommentSerializer(serializers.ModelSerializer):
             'creation_date': {'format': '%d/%m/%Y %H:%M:%S'}
         }
 
+class ProfileFileSerializer(serializers.ModelSerializer):
+    file_name = serializers.SerializerMethodField()
+
+    class Meta:
+        model = ProfileFile
+        fields = ['id', 'file', 'file_name']
+
+    def get_file_name(self, obj):
+        return os.path.basename(obj.file.name)
 
 class ProfileSerializer(serializers.ModelSerializer):
     comments = CommentSerializer(many=True)

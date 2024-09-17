@@ -1,6 +1,7 @@
 from django.urls import path
 from . import views
 from django.contrib.auth import views as auth_views
+from django.contrib.auth.views import PasswordChangeView, PasswordChangeDoneView
 
 urlpatterns = [
     path('users/', views.user_list, name='users'),
@@ -14,9 +15,14 @@ urlpatterns = [
 
     path('users/<int:pk>/update/', views.user_update, name='user_update'),
     # path('users/<int:pk>/delete/', views.user_delete, name='user_delete'),
-    #path('delete_user/', views.delete_user, name='delete_user'),
+    # path('delete_user/', views.delete_user, name='delete_user'),
 
     #
     path('login/', auth_views.LoginView.as_view(template_name='login.html'), name='login'),
     path('logout/', auth_views.LogoutView.as_view(next_page='login'), name='logout'),
+
+    # path('password_change/', PasswordChangeView.as_view(template_name='password_change_form.html'), name='password_change'),
+    path('password_change/', views.password_change, name='password_change'),
+    path('password_change/done/', views.password_change_done, name='password_change_done'),
+
 ]

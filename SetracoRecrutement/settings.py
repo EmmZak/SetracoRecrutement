@@ -34,7 +34,6 @@ ALLOWED_HOSTS = []
 INSTALLED_APPS = [
     'config',
     'accounts',
-    'profileFile',
     'profiles',
     'django.contrib.admin',
     'django.contrib.auth',

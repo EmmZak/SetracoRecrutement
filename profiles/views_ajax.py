@@ -1,5 +1,4 @@
 from django.http import JsonResponse
-from profileFile.models import ProfileFile
 from profiles.serializers import ProfileSerializer
 from .models import Profile, Comment
 from django.core.paginator import Paginator
@@ -26,6 +25,16 @@ def delete_comment(request):
     if com_id:
         Comment.objects.filter(id=com_id).delete()
         print("returning success")
+        return JsonResponse({'success': True})
+
+    return JsonResponse({'success': False})
+
+
+@require_http_methods(["DELETE"])
+def delete_file(request):
+    file_id = request.GET.get('id')
+    if file_id:
+        ProfileFile.objects.filter(id=file_id).delete()
         return JsonResponse({'success': True})
 
     return JsonResponse({'success': False})

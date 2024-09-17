@@ -25,7 +25,6 @@ urlpatterns = [
     path('', include('config.urls')),
     path('', include('profiles.urls')),
     #path('', include('skills.urls')),
-    path('', include('profileFile.urls')),
     path('', include('accounts.urls'))
 ]
 

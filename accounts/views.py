@@ -8,6 +8,10 @@ from django.urls import reverse
 from django.http import HttpResponseForbidden
 from django.http import JsonResponse
 from django.core.serializers import serialize
+from django.contrib.auth import update_session_auth_hash
+from django.contrib import messages
+
+from .forms import CustomPasswordChangeForm
 
 
 def is_admin(user):
@@ -16,6 +20,25 @@ def is_admin(user):
 # @login_required
 # @user_passes_test(is_admin)
 
+
+@login_required
+def password_change(request):
+    if request.method == 'POST':
+        form = CustomPasswordChangeForm(user=request.user, data=request.POST)
+        if form.is_valid():
+            form.save()
+            # Important to keep the user logged in after password change
+            update_session_auth_hash(request, form.user)
+            messages.success(request, 'Votre mot de passe a été mis à jour')
+            # Redirect to a success page
+            return redirect('password_change_done')
+    else:
+        form = CustomPasswordChangeForm(user=request.user)
+    return render(request, 'password_change_form.html', {'form': form})
+
+@login_required
+def password_change_done(request):
+    return render(request, 'password_change_done.html')
 
 @login_required
 def user_list(request):
