@@ -31,10 +31,19 @@ def account(request):
             update_session_auth_hash(request, form.user)
             messages.success(
                 request, 'Your password was successfully updated!')
+
+            payload = {
+                'pwd_change_success_msg': 'Votre mot de passe a été modifié',
+                'pwd_change_success': True
+            }
             # Reload the account page with success message
-            return redirect('account')
-    else:
-        form = CustomPasswordChangeForm(user=request.user)
+            return render(request, 'account.html', payload)
+        else:
+            print("pwd change form not valid", form.error_messages)
+            payload = {
+                'errors': form.error_messages.keys()
+            }
+            return render(request, 'account.html', payload)
 
     return render(request, 'account.html', {'form': form})
 

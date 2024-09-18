@@ -1,12 +1,152 @@
 {% extends "baseV3.html" %}
 
 {% block content %}
-<h2>Account Settings</h2>
 
-<h3>Change Your Password</h3>
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <style>
+        .items-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="app" style="width: 100%;">
+        <v-app>
+            <v-main>
+                <v-container class="bg-greenn">
+                    <v-form v-mode="form" method="POST">
+                        <v-card>
+                            <v-card-title>Changer le mot de passe</v-card-title>
+                            <v-card-text>
+                                {% csrf_token %}
+                                <v-row>
+                                    <v-col>
+                                        <v-text-field v-model="authData.currentPassword"
+                                            :append-icon="show1 ? 'mdi-eye' : 'mdi-eye-off'" variant="underlined"
+                                            :type="show1 ? 'text' : 'password'" label="Mot de passe actuel"
+                                            prepend-inner-icon="mdi-lock" name="old_password" counter
+                                            :rules="rules.currentPassword"
+                                            @click:append="show1 = !show1"></v-text-field>
+                                    </v-col>
+                                    <v-col>
+                                        <v-text-field v-model="authData.password1"
+                                            :append-icon="show1 ? 'mdi-eye' : 'mdi-eye-off'" variant="underlined"
+                                            :type="show1 ? 'text' : 'password'" label="Nouveau mot de passe"
+                                            prepend-inner-icon="mdi-lock" name="new_password1" counter
+                                            :rules="rules.password1" @click:append="show1 = !show1"></v-text-field>
+                                    </v-col>
+                                    <v-col>
+                                        <v-text-field v-model="authData.password2"
+                                            :append-icon="show1 ? 'mdi-eye' : 'mdi-eye-off'" variant="underlined"
+                                            :type="show1 ? 'text' : 'password'" label="Confirmer le mot de passe"
+                                            prepend-inner-icon="mdi-lock" name="new_password2" counter
+                                            :rules="rules.password2" @click:append="show1 = !show1"></v-text-field>
+                                    </v-col>
+                                </v-row>
+                            </v-card-text>
+                            <v-card-actions>
+                                <v-btn :disabled="!form" color="success" size="large" type="submit" variant="elevated"
+                                    block>
+                                    Enregistrer
+                                </v-btn>
+                            </v-card-actions>
+                        </v-card>
+                    </v-form>
+
+                    <v-dialog v-model="mdpDialog" style="width: 50%;">
+                        <v-card>
+                            <v-card-title class="text-h5">
+                                {% if pwd_change_success %}
+                                Succès
+                                {% else %}
+                                Erreur
+                                {% endif %}
+                            </v-card-title>
+                            <v-card-text>
+                                {% if pwd_change_success %}
+                                <p>Votre mot de passe a été changé avec succès.</p>
+                                {% else %}
+
+                                {% for err in errors %}
+                                {% if err == 'password_incorrect' %}
+                                <p>Ancien mot de passe incorrect</p>
+                                {% endif %}
+                                {% if err == 'password_mismatch' %}
+                                <p>Les nouveaux mots de passe ne sont pas identiques</p>
+                                {% endif %}
+                                {% endfor %}
+                                {% endif %}
+
+                            </v-card-text>
+                            <!-- <v-card-actions>
+                                <v-spacer></v-spacer>
+                                <v-btn color="primary" text @click="dialog = false">
+                                    OK
+                                </v-btn>
+                            </v-card-actions> -->
+                        </v-card>
+                    </v-dialog>
+
+                </v-container>
+            </v-main>
+        </v-app>
+    </div>
+    <script type="module">
+        const { createApp, ref, onMounted, computed, watch, nextTick } = Vue;
+        const { createVuetify } = Vuetify;
+
+        const vuetify = createVuetify();
+
+        const app = createApp({
+            setup() {
+
+                var rules = {
+                    username: [
+                        value => !!value || 'Champ obligatoire',
+                        //value => value.length >= 6 || 'Minimum 6 caractères'
+                    ],
+                    currentPassword: [
+                        value => !!value || 'Champ obligatoire',
+                    ],
+                    password1: [
+                        value => !!value || 'Field is required',
+                        value => value.length >= 8 || 'Minimum 8 caractères, 1 chiffre et 1 lettre majuscule',
+                        //value => /[A-Z]/.test(value) || 'Minimum 8 caractères, 1 chiffre et 1 lettre majuscule',
+                        //value => /\d/.test(value) || 'Minimum 8 caractères, 1 chiffre et 1 lettre majuscule'
+                    ],
+                    password2: [
+                        value => !!value || 'Champ obligatoire',
+                        value => value === authData.value.password1 || 'Les mots de passe ne sont pas identiques'
+                    ]
+                }
+                var mdpDialog = ref(true)
+                var form = ref(true)
+                var show1 = ref(false)
+                var show2 = ref(false)
+                var authData = ref({
+                    currentPassword: "",
+                    password1: "",
+                    password2: ""
+                })
+
+                return {
+                    rules, show1, show2, authData, form, mdpDialog
+                }
+            }
+        })
+        app.config.compilerOptions.delimiters = ['${', '}']
+        app.use(vuetify).mount("#app")
+    </script>
+</body>
 
 <!-- Password change form -->
-<form method="post">
+<!-- <form method="post">
     {% csrf_token %}
 
     <div class="form-group">
@@ -25,10 +165,10 @@
     </div>
 
     <button type="submit" class="btn btn-primary">Change Password</button>
-</form>
+</form> -->
 
 <!-- Success Message -->
-{% if messages %}
+<!-- {% if messages %}
 <div style="color: green;">
     <ul>
         {% for message in messages %}
@@ -36,10 +176,10 @@
         {% endfor %}
     </ul>
 </div>
-{% endif %}
+{% endif %} -->
 
 <!-- Display form errors if there are any -->
-{% if form.errors %}
+<!-- {% if form.errors %}
 <div style="color: red;">
     <ul>
         {% for field in form %}
@@ -51,7 +191,7 @@
         <li>{{ error }}</li>
         {% endfor %}
     </ul>
-</div>
+</div> -->
 {% endif %}
 <!-- Other account settings content can go here -->
 
