@@ -4,10 +4,6 @@ def create_groups(apps, schema_editor):
     Group = apps.get_model('auth', 'Group')
     Perm = apps.get_model('auth', 'Permission')
 
-    for p in list(Perm.objects.all()):
-        # print("p: ", p)
-        pass
-
     Group.objects.all().delete()
 
     # exit()
@@ -45,7 +41,7 @@ def create_groups(apps, schema_editor):
 class Migration(migrations.Migration):
 
     dependencies = [
-        #('accounts', '0003_auto_20240913_2028'),
+        ('profiles', '0001_initial'),
     ]
 
     operations = [

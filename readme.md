@@ -45,6 +45,8 @@ python3 manage.py migrate
 python3 manage.py migrate accounts 0001_initial --fake
 python3 manage.py makemigrations accounts --empty 
 
+find . -not -path "./.venv/*" -path "*/migrations/*.py" ! -name "__init__.py" -delete
+
 python3 manage.py dbshell
 ```
 

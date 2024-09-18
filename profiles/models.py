@@ -12,7 +12,7 @@ class Profile(models.Model):
     town = models.CharField(max_length=100)
     skills = models.ManyToManyField(Skill, related_name='profiles')
     state = models.ForeignKey(
-        State, on_delete=models.CASCADE, null=True, blank=True)
+        State, on_delete=models.SET_NULL, null=True, blank=True)
 
     diplomas = models.TextField(blank=True)  # Multiline string, use TextField
     creation_date = models.DateTimeField(auto_now_add=True)
