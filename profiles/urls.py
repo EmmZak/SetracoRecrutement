@@ -1,6 +1,10 @@
 from django.urls import path
-from .views import profile_delete, profiles_view, profiles_create, home, config, profiles_create_form
-from .views_ajax import profiles_data, check_profile, export_profiles_csv, export_profile_pdf, delete_comment, delete_file
+
+from .views import (config, home, profile_delete, profiles_create,
+                    profiles_create_form, profiles_view)
+from .views_ajax import (check_profile, delete_comment, delete_file,
+                         export_profile_pdf, export_profiles_csv,
+                         profiles_data)
 
 urlpatterns = [
      path('', home, name='home'),
@@ -17,12 +21,5 @@ urlpatterns = [
      path('export_profile_pdf/',
           export_profile_pdf, name='export_profile_pdf'),
      path('delete_comment/', delete_comment, name="delete_comment"),
-
-     path('delete_file/', delete_file, name='delete_file'),
-
-    # Placeholder, replace with actual view later
-    # path('config/', config, name='config'),
-    # path('test/', test, name='test'),
-    # path('users/', home, name='users'),    # Placeholder, replace with actual view later,
-    # path('users/', users_view, name='users'),
+     path('delete_file/', delete_file, name='delete_file')
 ]

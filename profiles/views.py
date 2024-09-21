@@ -1,11 +1,15 @@
-from django.shortcuts import get_object_or_404, render, redirect
-from django.contrib.auth.models import User
-from config.models import Skill, State
-from .forms import ProfileForm, CommentForm, ProfileFileForm
-from .models import Profile, Comment, ProfileFile
-from django.views.decorators.http import require_http_methods
-from django.contrib.auth.decorators import login_required, permission_required, user_passes_test
+from django.contrib.auth.decorators import (login_required,
+                                            permission_required,
+                                            user_passes_test)
 from django.db import transaction
+from django.shortcuts import get_object_or_404, redirect, render
+from django.views.decorators.http import require_http_methods
+
+from config.models import Skill, State
+
+from .forms import CommentForm, ProfileFileForm, ProfileForm
+from .models import Comment, Profile, ProfileFile
+
 
 @login_required
 def config(request):

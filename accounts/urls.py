@@ -1,7 +1,9 @@
-from django.urls import path
-from . import views
 from django.contrib.auth import views as auth_views
-from django.contrib.auth.views import PasswordChangeView, PasswordChangeDoneView
+from django.contrib.auth.views import (PasswordChangeDoneView,
+                                       PasswordChangeView)
+from django.urls import path
+
+from . import views
 
 urlpatterns = [
     path('users/', views.user_list, name='users'),

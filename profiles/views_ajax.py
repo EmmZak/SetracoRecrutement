@@ -1,21 +1,21 @@
-from django.http import JsonResponse
-from profiles.serializers import ProfileSerializer
-from .models import Profile, Comment, ProfileFile
-from django.core.paginator import Paginator
-from django.db.models import Q
-from django.views.decorators.http import require_http_methods
-from django.contrib.auth.decorators import login_required, user_passes_test, permission_required
-import os
-from django.core.serializers import serialize
 import csv
-from django.http import HttpResponse
+import os
+
+from django.contrib.auth.decorators import login_required, permission_required
+from django.core.paginator import Paginator
 from django.core.serializers.json import DjangoJSONEncoder
-from rest_framework import serializers
-from reportlab.lib.pagesizes import A4
-from reportlab.pdfgen import canvas
+from django.db.models import Q
+from django.http import HttpResponse, JsonResponse
+from django.views.decorators.http import require_http_methods
 from reportlab.lib import colors
-from reportlab.lib.units import inch
+from reportlab.lib.pagesizes import A4
 from reportlab.lib.utils import ImageReader
+from reportlab.pdfgen import canvas
+
+from profiles.serializers import ProfileSerializer
+
+from .models import Comment, Profile, ProfileFile
+
 
 @login_required
 @permission_required('profiles.delete_comment')

@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from .models import Profile, Comment, ProfileFile
+from .models import Comment, Profile, ProfileFile
 
 """
 @admin.action(description="Mark selected as state=new")

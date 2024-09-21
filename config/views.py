@@ -1,9 +1,12 @@
-from django.shortcuts import get_object_or_404, render
-from config.forms import SkillDeleteForm, SkillForm, StateDeleteForm, StateForm
+from django.contrib.auth.decorators import (login_required,
+                                            permission_required,
+                                            user_passes_test)
+from django.shortcuts import get_object_or_404, redirect, render
 from django.views.decorators.http import require_http_methods
-from django.shortcuts import redirect, render
+
+from config.forms import SkillDeleteForm, SkillForm, StateDeleteForm, StateForm
 from config.models import Skill, State
-from django.contrib.auth.decorators import login_required, user_passes_test, permission_required
+
 
 def has_skill_state_view_permissions(user):
     return user.has_perm('config.view_skill') and user.has_perm('config.view_state')

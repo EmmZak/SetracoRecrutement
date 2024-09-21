@@ -1,15 +1,13 @@
-from django.shortcuts import render, redirect, get_object_or_404
-from django.contrib.auth.models import User, Group
-from django.contrib.auth.forms import UserCreationForm, UserChangeForm
-from django.contrib.auth.decorators import login_required, user_passes_test
-from django.http import HttpResponse
-from django.views.decorators.http import require_http_methods
-from django.urls import reverse
-from django.http import HttpResponseForbidden
-from django.http import JsonResponse
-from django.core.serializers import serialize
-from django.contrib.auth import update_session_auth_hash
 from django.contrib import messages
+from django.contrib.auth import update_session_auth_hash
+from django.contrib.auth.decorators import login_required, user_passes_test
+from django.contrib.auth.forms import UserChangeForm, UserCreationForm
+from django.contrib.auth.models import Group, User
+from django.core.serializers import serialize
+from django.http import HttpResponse, HttpResponseForbidden, JsonResponse
+from django.shortcuts import get_object_or_404, redirect, render
+from django.urls import reverse
+from django.views.decorators.http import require_http_methods
 
 from .forms import CustomPasswordChangeForm
 

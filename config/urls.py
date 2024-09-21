@@ -1,5 +1,7 @@
 from django.urls import path
-from .views import config_view, delete_skill, create_skill, create_state, delete_state
+
+from .views import (config_view, create_skill, create_state, delete_skill,
+                    delete_state)
 from .views_ajax import skills_data, states_data
 
 urlpatterns = [

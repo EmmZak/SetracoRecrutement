@@ -1,9 +1,12 @@
+import os
+
+from django.contrib.auth.models import User
 from rest_framework import serializers
 
 from config.serializers import SkillSerializer, StateSerializer
-from .models import Profile, Comment, ProfileFile
-from django.contrib.auth.models import User
-import os
+
+from .models import Comment, Profile, ProfileFile
+
 
 class UserSerializer(serializers.ModelSerializer):
     class Meta:

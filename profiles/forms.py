@@ -1,5 +1,6 @@
 from django import forms
-from .models import Profile, Comment, ProfileFile
+
+from .models import Comment, Profile, ProfileFile
 
 
 class ProfileForm(forms.ModelForm):
