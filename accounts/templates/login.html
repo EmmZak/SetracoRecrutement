@@ -1,101 +1,101 @@
+{% extends 'base.html' %}
+
 {% load static %}
 
-<!DOCTYPE html>
-<html lang="en">
+{% block extra_head %}
 
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login Page</title>
-    <!-- <link rel="stylesheet" href="styles.css"> -->
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+<!-- <link rel="stylesheet" href="styles.css"> -->
+<style>
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+    }
 
-        body {
-            font-family: Arial, sans-serif;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            background-color: #f5f5f5;
-        }
+    body {
+        font-family: Arial, sans-serif;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+        background-color: #f5f5f5;
+    }
 
-        .container {
-            display: flex;
-            width: 60%;
-            max-width: 900px;
-            height: 500px;
-            box-shadow: 0px 0px 15px rgba(0, 0, 0, 0.1);
-        }
+    .container {
+        display: flex;
+        width: 60%;
+        max-width: 900px;
+        height: 500px;
+        box-shadow: 0px 0px 15px rgba(0, 0, 0, 0.1);
+    }
 
-        .left-section {
-            background-color: #34495e;
-            width: 50%;
-            color: white;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            padding: 20px;
-        }
+    .left-section {
+        background-color: #34495e;
+        width: 50%;
+        color: white;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        padding: 20px;
+    }
 
-        .left-section .logo img {
-            width: 150px;
-            height: auto;
-        }
+    .left-section .logo img {
+        width: 150px;
+        height: auto;
+    }
 
-        .left-section h1 {
-            margin-top: 20px;
-            font-size: 24px;
-        }
+    .left-section h1 {
+        margin-top: 20px;
+        font-size: 24px;
+    }
 
-        .right-section {
-            width: 50%;
-            background-color: white;
-            padding: 40px;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-        }
+    .right-section {
+        width: 50%;
+        background-color: white;
+        padding: 40px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+    }
 
-        .input-group {
-            margin-bottom: 20px;
-        }
+    .input-group {
+        margin-bottom: 20px;
+    }
 
-        .input-group label {
-            display: block;
-            margin-bottom: 5px;
-        }
+    .input-group label {
+        display: block;
+        margin-bottom: 5px;
+    }
 
-        .input-group input {
-            width: 100%;
-            padding: 10px;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-        }
+    .input-group input {
+        width: 100%;
+        padding: 10px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+    }
 
-        button {
-            padding: 10px 15px;
-            background-color: #007bff;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            width: 100%;
-            font-size: 16px;
-        }
+    button {
+        padding: 10px 15px;
+        background-color: #007bff;
+        color: white;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        width: 100%;
+        font-size: 16px;
+    }
 
-        button:hover {
-            background-color: #0056b3;
-        }
-    </style>
-</head>
+    button:hover {
+        background-color: #0056b3;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
 
 <body>
+    
     <div class="container">
         <!-- Left Section -->
         <div class="left-section">
@@ -127,7 +127,7 @@
     </div>
 </body>
 
-</html>
+{% endblock %}
 
 <!-- 
 <h2>Login</h2>

@@ -3,8 +3,13 @@ from config.forms import SkillDeleteForm, SkillForm, StateDeleteForm, StateForm
 from django.views.decorators.http import require_http_methods
 from django.shortcuts import redirect, render
 from config.models import Skill, State
+from django.contrib.auth.decorators import login_required, user_passes_test, permission_required
 
+def has_skill_state_view_permissions(user):
+    return user.has_perm('config.view_skill') and user.has_perm('config.view_state')
 
+@user_passes_test(has_skill_state_view_permissions)
+@login_required
 def config_view(request):
     if request.method == 'GET':
         skills = Skill.objects.all()
@@ -21,6 +26,8 @@ def config_view(request):
         )
 
 
+@login_required
+@permission_required('config.add_skill', raise_exception=True)
 @require_http_methods(["POST"])
 def create_skill(request):
     form = SkillForm(request.POST)
@@ -31,7 +38,8 @@ def create_skill(request):
     return redirect('/config')
     # return render(request, 'create_skill.html', {'form': form})
 
-
+@login_required
+@permission_required('config.add_state', raise_exception=True)
 @require_http_methods(["POST"])
 def create_state(request):
     form = StateForm(request.POST)
@@ -42,22 +50,7 @@ def create_state(request):
     return redirect('/config')
 
 
-"""
-@require_http_methods(["POST"])
-def delete_state(request, pk):
-    state = get_object_or_404(State, pk=pk)
-
-    form = StateDeleteForm(request.POST)
-    print("delete state: ", state, form)
-
-    if form.is_valid() and form.cleaned_data['confirm']:
-        print("delete state form valid")
-        state.delete()
-
-    return redirect('/config')
-"""
-
-
+@permission_required('config.delete_skill', raise_exception=True)
 @require_http_methods(["POST"])
 def delete_skill(request):
     pk = request.POST.get("pk")
@@ -71,6 +64,7 @@ def delete_skill(request):
     return redirect('/config')
 
 
+@permission_required('config.delete_state', raise_exception=True)
 @require_http_methods(["POST"])
 def delete_state(request):
     pk = request.POST.get("pk")

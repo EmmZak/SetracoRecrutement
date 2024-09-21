@@ -3,8 +3,11 @@ from django.db import migrations
 def create_groups(apps, schema_editor):
     Group = apps.get_model('auth', 'Group')
     Perm = apps.get_model('auth', 'Permission')
+    ContentType = apps.get_model('contenttypes', 'ContentType')
 
     Group.objects.all().delete()
+    permsss = Perm.objects.all()
+    print("permsss: ", permsss)
 
     # exit()
     admin_perm_names = [
@@ -42,6 +45,7 @@ class Migration(migrations.Migration):
 
     dependencies = [
         ('profiles', '0001_initial'),
+        ('auth', '0012_alter_user_first_name_max_length')
     ]
 
     operations = [

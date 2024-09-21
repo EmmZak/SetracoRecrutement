@@ -1,10 +1,10 @@
 from django.http import JsonResponse
 from profiles.serializers import ProfileSerializer
-from .models import Profile, Comment
+from .models import Profile, Comment, ProfileFile
 from django.core.paginator import Paginator
 from django.db.models import Q
 from django.views.decorators.http import require_http_methods
-from django.contrib.auth.decorators import login_required, user_passes_test
+from django.contrib.auth.decorators import login_required, user_passes_test, permission_required
 import os
 from django.core.serializers import serialize
 import csv
@@ -17,7 +17,8 @@ from reportlab.lib import colors
 from reportlab.lib.units import inch
 from reportlab.lib.utils import ImageReader
 
-
+@login_required
+@permission_required('profiles.delete_comment')
 @require_http_methods(["DELETE"])
 def delete_comment(request):
     com_id = request.GET.get('id')
@@ -29,7 +30,8 @@ def delete_comment(request):
 
     return JsonResponse({'success': False})
 
-
+@login_required
+@permission_required('profiles.delete_profilefile')
 @require_http_methods(["DELETE"])
 def delete_file(request):
     file_id = request.GET.get('id')
@@ -207,6 +209,7 @@ def export_profiles_csv(request):
 
 
 @login_required
+@permission_required('profiles.add_profile')
 @require_http_methods(["GET"])
 def check_profile(request):
     data = request.GET
@@ -231,7 +234,7 @@ def check_profile(request):
 
     return JsonResponse(result)
 
-
+@permission_required('profiles.view_profile')
 @login_required
 def profiles_data(request):
     start = int(request.GET.get('start', 0))

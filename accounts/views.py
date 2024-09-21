@@ -23,6 +23,11 @@ def is_admin(user):
 
 @login_required
 def account(request):
+    return render(request, 'account.html')
+
+
+@login_required
+def password_change(request):
     if request.method == 'POST':
         form = CustomPasswordChangeForm(user=request.user, data=request.POST)
         if form.is_valid():
@@ -41,13 +46,15 @@ def account(request):
         else:
             print("pwd change form not valid", form.error_messages)
             payload = {
-                'errors': form.error_messages.keys()
+                'errors': form.error_messages.keys(),
+                'pwd_change_error': True
             }
             return render(request, 'account.html', payload)
 
-    return render(request, 'account.html', {'form': form})
+    return render(request, 'account.html')
 
 
+"""
 @login_required
 def password_change(request):
     if request.method == 'POST':
@@ -67,6 +74,7 @@ def password_change(request):
 @login_required
 def password_change_done(request):
     return render(request, 'password_change_done.html')
+"""
 
 
 @login_required

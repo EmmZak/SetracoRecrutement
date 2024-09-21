@@ -4,16 +4,18 @@ from config.models import Skill, State
 from .forms import ProfileForm, CommentForm, ProfileFileForm
 from .models import Profile, Comment, ProfileFile
 from django.views.decorators.http import require_http_methods
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import login_required, permission_required, user_passes_test
 from django.db import transaction
 
-
+@login_required
 def config(request):
     if request.method == 'GET':
         skills = Skill.objects.all()
         return render(request, 'config.html', {'skills': skills})
 
 
+@permission_required('profiles.view_profile', raise_exception=True)
+@login_required
 def profiles_view(request):
     is_superuser = request.user.is_superuser
 
@@ -30,6 +32,7 @@ def profiles_view(request):
     return render(request, 'profiles.html', {'is_editor_or_admin': is_editor_or_admin_or_superuser, "profile_form": profile_form, "profile_file_form": profile_file_form, "comment_form": comment_form})
 
 
+@login_required
 @require_http_methods(["POST"])
 def profiles_create_form(request):
     print("here")
@@ -53,8 +56,13 @@ def profiles_create_form(request):
     return redirect('/profiles')
 
 
+def has_add_or_change_permission(user):
+    return user.has_perm('profiles.add_profile') or user.has_perm('profiles.change_profile')
+
+
 @transaction.atomic
 @login_required
+@user_passes_test(has_add_or_change_permission)
 @require_http_methods(["POST"])
 def profiles_create(request):
 
@@ -101,6 +109,8 @@ def profiles_create(request):
     return redirect('/profiles')
 
 
+@login_required
+@permission_required('profiles.delete_profile', raise_exception=True)
 @require_http_methods(["DELETE"])
 def profile_delete(request):
     profile_id = request.GET.get('id')

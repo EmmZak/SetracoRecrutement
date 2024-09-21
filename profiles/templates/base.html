@@ -1,138 +1,25 @@
+{% load static %}
+
 <!DOCTYPE html>
 <html lang="en">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Gestion des profiles{% endblock %}</title>
+    <!-- <link rel="stylesheet" href="{% static 'main/style.css' %}"> -->
+    <!-- MDI Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/vuetify@3.7/dist/vuetify.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/@mdi/font/css/materialdesignicons.min.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/vue@3.4/dist/vue.global.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/vuetify@3.7/dist/vuetify.min.js"></script>
-    <link href="https://cdn.jsdelivr.net/npm/vuetify@3.7/dist/vuetify.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
 
-    <title>{% block title %}My Company{% endblock %}</title>
-    <style>
-        body {
-            /* background-color: red; */
-        }
-
-        .sidebar {
-            /* width: 250px; */
-            width: 250px;
-            background-color: #000000;
-            color: #fff;
-            padding: 10px;
-            height: 100vh;
-            display: flex;
-            flex-direction: column;
-        }
-
-        .vsidebar {
-            width: 250px;
-            height: 100vw;
-        }
-
-        .company {
-            background-color: blue;
-            height: 10%;
-            width: 100%;
-            display: flex;
-            flex-direction: row;
-            justify-content: flex-start;
-        }
-
-        .company img {
-            /* width: 90%; */
-        }
-
-        .company company-name {
-            /* width: 100%; */
-            display: flex;
-        }
-
-        .auth {
-            background-color: blue;
-            height: 10%;
-
-        }
-
-        .routes {
-            background-color: green;
-            height: 100%;
-        }
-
-        .routes a {
-            background-color: rgb(87, 165, 91);
-            color: #fff;
-            display: flex;
-            flex-direction: row;
-            justify-content: start;
-            gap: 10px;
-            text-decoration: none;
-            padding: 10px 0;
-            margin: 5px 0;
-        }
-
-        .routes a span {
-            background-color: blue
-        }
-
-        .routes a i {
-            background-color: rgb(170, 0, 97)
-        }
-
-
-        .sidebar h2 {
-            text-align: center;
-        }
-
-        /* .sidebar a {
-            color: #fff;
-            text-decoration: none;
-            display: block;
-            padding: 10px 0;
-            margin: 5px 0;
-        } */
-
-        .sidebar a:hover {
-            background-color: #575757;
-        }
-
-        .route:hover {
-            background-color: #006137;
-        }
-
-        .content {
-            flex: 1;
-            padding: 20px;
-        }
-    </style>
+    {% block extra_head %}{% endblock %}
 </head>
 
-<body class="">
-    <div class="bg-green d-flex flex-column justify-space-between ga-2" style="width: 250px; height: 100vw;">
-        <div id="company" class="d-flex flex-row justify-space-around bg-yellow " style="height: 10%;">
-            <div>logo</div>
-            <span>CVthèque</span>
-        </div>
-        <div id="routes" class="d-flex flex-column  justify-start ga-2" style="height: 100%;">
-            <a href="{% url 'home' %}" class="route bg-yellow">
-                <i class="fas fa-home {% if request.path == '/home/' %} bg-red {% endif %}"></i>
-                <span>Home</span>
-            </a>
-            <a href="{% url 'home' %}" class="route ">Home</a>
-            <a href="{% url 'profiles' %}" class="{% if request.path == '/profiles/' %} bg-red {% endif %}">Profiles</a>
-            <a href="{% url 'config' %}">Configuration</a>
-            <a href="{% url 'users' %}">Utilisateurs</a>
-        </div>
-        <div id="auth " class="d-flex justify-center  bg-blue" style="height: 10%;">
-            <button class="bg-red w-75 pa-2 rounded-lg	">Déconnexion</button>
-        </div>
-    </div>
-
-    <div class="content">
-        {% block content %}
-        {% endblock %}
-    </div>
+<body>
+    {% block content %}{% endblock %}
 </body>
 
 </html>

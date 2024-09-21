@@ -1,26 +1,13 @@
-{% extends "baseV3.html" %}
+{% extends "main.html" %}
 
-{% block content %}
-
-<!DOCTYPE html>
-<html lang="en">
-
-<head>
-    <style>
-        .items-grid {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 10px;
-        }
-    </style>
-</head>
+{% block main_content %}
 
 <body>
     <div id="app" style="width: 100%;">
         <v-app>
             <v-main>
                 <v-container class="bg-greenn">
-                    <v-form v-mode="form" method="POST">
+                    <v-form v-model="isValid"  method="POST" action="{% url 'password_change' %}">
                         <v-card>
                             <v-card-title>Changer le mot de passe</v-card-title>
                             <v-card-text>
@@ -36,22 +23,22 @@
                                     </v-col>
                                     <v-col>
                                         <v-text-field v-model="authData.password1"
-                                            :append-icon="show1 ? 'mdi-eye' : 'mdi-eye-off'" variant="underlined"
-                                            :type="show1 ? 'text' : 'password'" label="Nouveau mot de passe"
+                                            :append-icon="show2 ? 'mdi-eye' : 'mdi-eye-off'" variant="underlined"
+                                            :type="show2 ? 'text' : 'password'" label="Nouveau mot de passe"
                                             prepend-inner-icon="mdi-lock" name="new_password1" counter
-                                            :rules="rules.password1" @click:append="show1 = !show1"></v-text-field>
+                                            :rules="rules.password1" @click:append="show2 = !show2"></v-text-field>
                                     </v-col>
                                     <v-col>
                                         <v-text-field v-model="authData.password2"
-                                            :append-icon="show1 ? 'mdi-eye' : 'mdi-eye-off'" variant="underlined"
-                                            :type="show1 ? 'text' : 'password'" label="Confirmer le mot de passe"
+                                            :append-icon="show2 ? 'mdi-eye' : 'mdi-eye-off'" variant="underlined"
+                                            :type="show2 ? 'text' : 'password'" label="Confirmer le mot de passe"
                                             prepend-inner-icon="mdi-lock" name="new_password2" counter
-                                            :rules="rules.password2" @click:append="show1 = !show1"></v-text-field>
+                                            :rules="rules.password2" @click:append="show2 = !show2"></v-text-field>
                                     </v-col>
                                 </v-row>
                             </v-card-text>
                             <v-card-actions>
-                                <v-btn :disabled="!form" color="success" size="large" type="submit" variant="elevated"
+                                <v-btn :disabled="!isValid" color="success" size="large" type="submit" variant="elevated"
                                     block>
                                     Enregistrer
                                 </v-btn>
@@ -59,30 +46,12 @@
                         </v-card>
                     </v-form>
 
-                    <v-dialog v-model="mdpDialog" style="width: 50%;">
+                    {% if pwd_change_success %}
+                    <v-dialog v-model="mdpDialogSuccess" style="width: 50%;">
                         <v-card>
-                            <v-card-title class="text-h5">
-                                {% if pwd_change_success %}
-                                Succès
-                                {% else %}
-                                Erreur
-                                {% endif %}
-                            </v-card-title>
+                            <v-card-title class="text-h5">Succès</v-card-title>
                             <v-card-text>
-                                {% if pwd_change_success %}
-                                <p>Votre mot de passe a été changé avec succès.</p>
-                                {% else %}
-
-                                {% for err in errors %}
-                                {% if err == 'password_incorrect' %}
-                                <p>Ancien mot de passe incorrect</p>
-                                {% endif %}
-                                {% if err == 'password_mismatch' %}
-                                <p>Les nouveaux mots de passe ne sont pas identiques</p>
-                                {% endif %}
-                                {% endfor %}
-                                {% endif %}
-
+                                <p>Votre mot de passe a été changé avec succès</p>
                             </v-card-text>
                             <!-- <v-card-actions>
                                 <v-spacer></v-spacer>
@@ -92,6 +61,32 @@
                             </v-card-actions> -->
                         </v-card>
                     </v-dialog>
+                    {% endif %}
+
+                    {% if pwd_change_error %}
+                    <v-dialog v-model="mdpDialogError" style="width: 50%;">
+                        <v-card>
+                            <v-card-title class="text-h5">Erreur</v-card-title>
+                            <v-card-text>
+                                {{errors}}
+                                {% for err in errors %}
+                                {% if err == 'password_incorrect' %}
+                                <p>Ancien mot de passe incorrect</p>
+                                {% endif %}
+                                {% if err == 'password_mismatch' %}
+                                <p>Les nouveaux mots de passe ne sont pas identiques</p>
+                                {% endif %}
+                                {% endfor %}
+                            </v-card-text>
+                            <!-- <v-card-actions>
+                                <v-spacer></v-spacer>
+                                <v-btn color="primary" text @click="dialog = false">
+                                    OK
+                                </v-btn>
+                            </v-card-actions> -->
+                        </v-card>
+                    </v-dialog>
+                    {% endif %}
 
                 </v-container>
             </v-main>
@@ -105,28 +100,31 @@
 
         const app = createApp({
             setup() {
-
+                const required = value => !!value || 'Champ obligatoire'
                 var rules = {
                     username: [
-                        value => !!value || 'Champ obligatoire',
+                        required,
+                        //value => !!value || 'Champ obligatoire',
                         //value => value.length >= 6 || 'Minimum 6 caractères'
                     ],
                     currentPassword: [
-                        value => !!value || 'Champ obligatoire',
+                        required
                     ],
                     password1: [
-                        value => !!value || 'Field is required',
-                        value => value.length >= 8 || 'Minimum 8 caractères, 1 chiffre et 1 lettre majuscule',
-                        //value => /[A-Z]/.test(value) || 'Minimum 8 caractères, 1 chiffre et 1 lettre majuscule',
-                        //value => /\d/.test(value) || 'Minimum 8 caractères, 1 chiffre et 1 lettre majuscule'
+                        required,
+                        value => value.length >= 8 || 'Le mot de passe doit contenir au moins 8 caractères',
+                        value => /[A-Z]/.test(value) || 'Le mot de passe doit contenir au moins 1 lettre majuscule',
+                        value => /\d/.test(value) || 'Le mot de passe doit contenir au moins 1 chiffre',
+                        value => value !== authData.value.currentPassword || 'Le nouveau mot de passe ne peut pas être identique à l\'ancien',
                     ],
                     password2: [
-                        value => !!value || 'Champ obligatoire',
+                        required,
                         value => value === authData.value.password1 || 'Les mots de passe ne sont pas identiques'
                     ]
                 }
-                var mdpDialog = ref(true)
-                var form = ref(true)
+                var mdpDialogSuccess = ref(true)
+                var mdpDialogError = ref(true)
+                var isValid = ref(true)
                 var show1 = ref(false)
                 var show2 = ref(false)
                 var authData = ref({
@@ -136,7 +134,7 @@
                 })
 
                 return {
-                    rules, show1, show2, authData, form, mdpDialog
+                    rules, show1, show2, authData, isValid, mdpDialogSuccess, mdpDialogError
                 }
             }
         })

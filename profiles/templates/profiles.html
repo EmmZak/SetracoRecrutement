@@ -1,9 +1,8 @@
-{% extends 'baseV3.html' %}
-{% load auth_extras %}
+{% extends 'main.html' %}
 
 {% block title: %}Profiles{% endblock %}
 
-{% block content %}
+{% block main_content %}
 
 <!DOCTYPE html>
 <html lang="en">
@@ -65,24 +64,12 @@
                     :options.sync="paginationFilters" :expanded.sync="expandedRows" @click:row="onRowClick"
                     no-data-text="Pas de profils" hide-default-headerr>
 
-                    <!-- <template v-slot:headers="{ props }">
-                        <tr>
-                            <th v-for="header in headers" :key="header.key" :id="header.key">
-                                ${header.title}
-                                <v-select v-if="header.key === 'skills'" :items="skills"
-                                    v-model="paginationFilters.skills" label="Compétences" item-title="name" chips multiple
-                                    item-text="name" item-value="id" hide-details dense></v-select>
-                            </th>
-                        </tr>
-                    </template> -->
-
                     <template v-slot:top>
                         <v-toolbar flat>
-                            <!-- <v-select :items="['manu', 'kiki' ]" label="Standard"></v-select> -->
                             <v-toolbar-title class="text-h4">Profils</v-toolbar-title>
                             <v-spacer></v-spacer>
                             <v-dialog v-model="dialog" style="height: 100%; width: 60%;">
-                                {% if user|has_groups:"Editeur,Admin,Consultant" %}
+                                {% if perms.profiles.add_profile %}
                                 <template v-slot:activator="{ props }">
                                     <v-btn class="mb-2 text-h6" color="blue-darken-4 " rounded="45" variant="flat" dark
                                         v-bind="props" @click="editItem({})">
@@ -135,10 +122,7 @@
                                                         variant="underlined"
                                                         :readonly="!{% if is_editor_or_admin == True %} true {% else %} false {% endif %}"></v-text-field>
                                                 </v-col>
-                                                <!-- is_editor_or_admin: {{is_editor_or_admin}} -->
                                                 <v-col cols="4">
-                                                    <!-- diplomas -->
-                                                    <!-- is_editor_or_admin: {% if is_editor_or_admin == True %} true {% else %} false {% endif %} -->
                                                     <v-textarea v-model="editedItem.diplomas" label="Diplômes"
                                                         name="diplomas" prepend-icon="mdi-certificate" rows="2"
                                                         auto-grow variant="underlined"
@@ -148,8 +132,6 @@
                                             <v-row cols="12">
                                                 <v-col cols="12">
                                                     <span class="text-h5">Compétences</span>
-                                                    <!-- editedItem.skills: ${editedItem.skills} <br>
-                                                    skills: ${skills} -->
                                                     <v-chip-group v-if="true" v-model="editedItem.skills" column
                                                         selected-class="text-green" multiple>
                                                         <v-chip v-for="(skill, i) in skills" :key="skill" :value="skill"
@@ -163,13 +145,7 @@
                                                 </v-col>
                                             </v-row>
                                             <v-row cols="12">
-                                                <!-- <v-col cols="6">
-                                                    <v-textarea v-model="editedItem.diplomas" label="Diplômes"
-                                                        name="diplomas" prepend-icon="mdi-certificate" rows="2"
-                                                        variant="underlined"></v-textarea>
-                                                </v-col> -->
                                                 <v-col cols="6">
-                                                    <!-- comment -->
                                                     <v-textarea v-model="editedItem.comment" label="Commentaires"
                                                         name="comment" prepend-icon="mdi-comment"
                                                         variant="underlined"></v-textarea>
@@ -187,7 +163,6 @@
                                                         :value="editedItem.state?.id || null">
                                                 </v-col>
                                             </v-row>
-                                            <!-- files -->
                                             <v-row cols="12" v-if="true">
                                                 <v-col cols="12">
                                                     <div class="image-upload">
@@ -198,15 +173,6 @@
                                                         <input name="files" id="files" type="file" multiple
                                                             style="display: none;" />
                                                     </div>
-                                                    <!-- <label for="files">Upload Files:</label> -->
-
-                                                    <!-- <input type="file" name="files" id="files" multiple> -->
-                                                    <!-- <v-file-input prepend-icon="" prepend-inner-icon="mdi-paperclip"
-                                                        label="Fichier(s) du candidat" chipss multiple
-                                                        v-model="editedItem.files" variant="underlined"></v-file-input>
-                                                    <input type="hidden" name="files" :value="editedItem.files"> -->
-                                                    <!-- <v-text-field v-model="defaultItem.diplomas" label="Files"
-                                                    prepend-icon="mdi-paperclip" variant="underlined"></v-text-field> -->
                                                 </v-col>
                                             </v-row>
 
@@ -227,19 +193,7 @@
 
                             </v-dialog>
 
-                            <v-dialog v-model="dialogDelete" style="width: 50%;">
-                                <v-card>
-                                    <v-card-title class="text-h6">Êtes-vous sûr(e) de vouloir supprimer le profile
-                                        ?</v-card-title>
-                                    <v-card-actions>
-                                        <v-spacer></v-spacer>
-                                        <v-btn color="blue-darken-1" variant="text" @click="closeDelete">Annuler</v-btn>
-                                        <v-btn color="white" class="bg-red" variant="text"
-                                            @click="deleteItemConfirm">Supprimer</v-btn>
-                                        <v-spacer></v-spacer>
-                                    </v-card-actions>
-                                </v-card>
-                            </v-dialog>
+
                         </v-toolbar>
                         <v-container flat class="px-5">
                             <!-- ${paginationFilters} -->
@@ -272,9 +226,6 @@
                                 </v-col>
                             </v-row>
                         </v-container>
-                        <!-- <v-card>
-                            here
-                        </v-card> -->
                     </template>
 
                     <!-- skills -->
@@ -284,11 +235,6 @@
                             </v-chip>
                         </div>
                     </template>
-
-                    <!-- state
-                    <template v-slot:item.state="{ value }">
-                        ${getStateTitle(value)}
-                    </template>  -->
 
                     <template v-slot:expanded-row="{ columns, item }">
                         <td :colspan="columns.length">
@@ -334,7 +280,7 @@
                                                                 @click="openFile(file)">mdi-eye</v-icon>
                                                             <v-icon color="white"
                                                                 @click="printFile(file)">mdi-printer</v-icon>
-                                                            {% if user|has_groups:"Editeur,Admin" %}
+                                                            {% if perms.profiles.delete_profilefile %}
                                                             <v-icon color="white"
                                                                 @click="deleteFile(file)">mdi-delete</v-icon>
                                                             {% endif %}
@@ -362,7 +308,7 @@
                                                                 <p>${com.text}</p>
                                                             </v-col>
                                                             <v-col cols="2" class="d-flex justify-center align-center">
-                                                                {% if user|has_groups:"Admin" %}
+                                                                {% if perms.profiles.delete_comment %}
                                                                 <v-icon size="36" color="grey-darken-3"
                                                                     @click="deleteComment(com)"> mdi-delete
                                                                 </v-icon>
@@ -376,65 +322,35 @@
                                     </v-card-text>
                                 </v-card>
                             </v-card>
-
-                            <v-card v-if="false" class="bg-redd d-flex flex-1">
-                                <div class="w-50n" style="width: 50%n; ">
-                                    <v-card-title>Données personnelles</v-card-title>
-                                    <v-card-text class="bg-red">
-                                        <v-row>
-                                            <v-icon>mdi-email</v-icon>
-                                            <p>
-                                                ${ item.email }
-                                            </p>
-                                        </v-row>
-                                        <v-row>
-                                            <v-icon>mdi-phone</v-icon>
-                                            <span>
-                                                ${ item.number }
-                                            </span>
-                                        </v-row>
-                                    </v-card-text>
-                                </div>
-
-                                <v-divider vertical></v-divider>
-
-                                <div class="w-50f">
-                                    <v-card-title>Commentaires</v-card-title>
-                                    <v-card-text
-                                        style="word-wrap: break-word; word-break: break-all; white-space: normal;">
-                                        <p>${ item.comment }
-                                        </p>
-                                    </v-card-text>
-                                </div>
-
-                                <v-divider vertical></v-divider>
-
-                                <div class="w-50f" style="width: 50%;">
-                                    <v-card-title>Fichier(s)</v-card-title>
-                                    <!-- <v-card-title>
-                                        <v-icon name="file-multiple"></v-icon>
-                                    </v-card-title> -->
-
-
-                                </div>
-                            </v-card>
                         </td>
                     </template>
 
                     <template v-slot:item.actions=" { item }">
-                        {% if user|has_groups:"Editeur,Admin,Consultant" %}
+                        {% if perms.profiles.change_profile %}
                         <v-icon size="24" color="grey-darken-3" @click="editItem(item)">
                             mdi-pencil
                         </v-icon>
                         {% endif %}
-                        {% if user|has_groups:"Editeur,Admin" %}
+                        {% if perms.profiles.delete_profile %}
                         <v-icon size="24" color="grey-darken-3" @click="deleteItem(item.id)"> mdi-delete </v-icon>
                         {% endif %}
                         <v-icon size="24" color="grey-darken-3" @click="exportProfile(item.id)"> mdi-file-export
                         </v-icon>
                     </template>
-
                 </v-data-table>
+                <v-dialog v-model="dialogDelete" style="width: 50%;">
+                    <v-card>
+                        <v-card-title class="text-h6">Êtes-vous sûr(e) de vouloir supprimer le profile
+                            ?</v-card-title>
+                        <v-card-actions>
+                            <v-spacer></v-spacer>
+                            <v-btn color="blue-darken-1" variant="text" @click="closeDelete">Annuler</v-btn>
+                            <v-btn color="white" class="bg-red" variant="text"
+                                @click="deleteItemConfirm">Supprimer</v-btn>
+                            <v-spacer></v-spacer>
+                        </v-card-actions>
+                    </v-card>
+                </v-dialog>
             </v-main>
         </v-app>
     </div>
@@ -638,13 +554,13 @@
                     if (deleteId.value != null) {
                         console.log("delete id ", deleteId.value)
                         try {
-                            await fetch(`{% url 'profile_delete' %}?id=${deleteId.value}`, {
-                                method: 'DELETE',
+                            await axios.delete(
+                                `{% url 'profile_delete' %}?id=${deleteId.value}`, {
                                 headers: {
-                                    'X-CSRFToken': '{{ csrf_token }}',
+                                    'X-CSRFToken': '{{ csrf_token }}'
                                 }
                             })
-                            fetchProfiles(); // Refresh profiles to update the list of files
+                            fetchProfiles();
                         } catch (err) {
                             console.error('Failed to delete the profile:', err);
                         }
@@ -729,13 +645,12 @@
                 const deleteFile = async (file) => {
                     console.log("deletegin")
                     try {
-                        await fetch(`{% url 'delete_file' %}?id=${file.id}`, {
-                            method: 'DELETE',
+                        await axios.delete(
+                            `{% url 'delete_file' %}?id=${file.id}`, {
                             headers: {
-                                'X-CSRFToken': '{{ csrf_token }}',
+                                'X-CSRFToken': '{{ csrf_token }}'
                             }
                         })
-                        // await axios.post(`/delete-file?id=${file.id}`);
                         fetchProfiles(); // Refresh profiles to update the list of files
                     } catch (err) {
                         console.error('Failed to delete the file:', err);
@@ -746,10 +661,10 @@
                 const deleteComment = async (comment) => {
                     console.log("deleting comment", comment)
                     try {
-                        await fetch(`{% url 'delete_comment' %}?id=${comment.id}`, {
-                            method: 'DELETE',
+                        await axios.delete(
+                            `{% url 'delete_comment' %}?id=${comment.id}`, {
                             headers: {
-                                'X-CSRFToken': '{{ csrf_token }}',
+                                'X-CSRFToken': '{{ csrf_token }}'
                             }
                         })
                         fetchProfiles();

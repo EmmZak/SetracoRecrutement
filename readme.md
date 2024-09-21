@@ -58,5 +58,6 @@ python3 manage.py runserver
 
 ```bash
 python3 manage.py createsuperuser --username admin
+python3 manage.py changepassword admin  # azertyA1
 # password: admin
 ```
