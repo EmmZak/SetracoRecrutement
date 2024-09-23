@@ -1,145 +1,106 @@
 {% extends 'base.html' %}
-
 {% load static %}
-
-{% block extra_head %}
-
-<!-- <link rel="stylesheet" href="styles.css"> -->
-<style>
-    * {
-        margin: 0;
-        padding: 0;
-        box-sizing: border-box;
-    }
-
-    body {
-        font-family: Arial, sans-serif;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        height: 100vh;
-        background-color: #f5f5f5;
-    }
-
-    .container {
-        display: flex;
-        width: 60%;
-        max-width: 900px;
-        height: 500px;
-        box-shadow: 0px 0px 15px rgba(0, 0, 0, 0.1);
-    }
-
-    .left-section {
-        background-color: #34495e;
-        width: 50%;
-        color: white;
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-        align-items: center;
-        padding: 20px;
-    }
-
-    .left-section .logo img {
-        width: 150px;
-        height: auto;
-    }
-
-    .left-section h1 {
-        margin-top: 20px;
-        font-size: 24px;
-    }
-
-    .right-section {
-        width: 50%;
-        background-color: white;
-        padding: 40px;
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-    }
-
-    .input-group {
-        margin-bottom: 20px;
-    }
-
-    .input-group label {
-        display: block;
-        margin-bottom: 5px;
-    }
-
-    .input-group input {
-        width: 100%;
-        padding: 10px;
-        border: 1px solid #ccc;
-        border-radius: 5px;
-    }
-
-    button {
-        padding: 10px 15px;
-        background-color: #007bff;
-        color: white;
-        border: none;
-        border-radius: 5px;
-        cursor: pointer;
-        width: 100%;
-        font-size: 16px;
-    }
-
-    button:hover {
-        background-color: #0056b3;
-    }
-</style>
-{% endblock %}
 
 {% block content %}
 
-<body>
-    
-    <div class="container">
-        <!-- Left Section -->
-        <div class="left-section">
-            <div class="logo">
-                <img src="{% static 'images/logoCrop.png' %}" alt="Company Logo">
-            </div>
-            <h1>CVthèque</h1>
-        </div>
+<!DOCTYPE html>
+<html lang="en">
 
-        <!-- Right Section (Login Form) -->
-        <div class="right-section">
-            <form method="post" action="{% url 'login' %}">
-                {% csrf_token %}
-                <div class="input-group">
-                    <!-- <label for="id_username">Username:</label> -->
-                    <!-- <input type="text" placeholder="Adresse e-mail" name="username" id="id_username" required> -->
-                    <input type="text" placeholder="Nom d'utilisateur" name="username" id="id_username" required>
-                </div>
-                <div class="input-group">
-                    <!-- <label for="id_password">Password:</label> -->
-                    <input type="password" placeholder="Mot de passe" name="password" id="id_password" required>
-                </div>
-                <button type="submit">Se connecter</button>
-            </form>
-            {% if form.errors %}
-            <p>Invalid username or password. Please try again.</p>
-            {% endif %}
-        </div>
+<body>
+    <div id="app" style="width: 100%;">
+        <v-app>
+            <v-main>
+                <v-container class="bg-greenn h-100 " style="display: flex; align-items: center;">
+                    <v-row class="bg-yelloww" style="height: 80%;">
+                        <v-col cols="6" class="d-flex flex-column align-center justify-center"
+                            style="background-color: #34495e;">
+                            <v-card flat color="transparent">
+                                <v-card-text class="d-flex justify-center align-center">
+                                    <v-img src="{% static 'images/logoCrop.png' %}" max-width="200"></v-img>
+                                </v-card-text>
+                                <v-card-title class="text-h4 text-center text-white">
+                                    CVthèque
+                                </v-card-title>
+                            </v-card>
+                        </v-col>
+                        <v-col cols="6" class="bg-bluee d-flex flex-column align-center justify-center">
+                            <v-form v-model="isValid" method="post" action="{% url 'login' %}" class="bg-bluee w-75">
+                                {% csrf_token %}
+                                <v-card flat>
+                                    <v-card-title class="text-h4">
+                                        Authentification
+                                    </v-card-title>
+                                    <v-card-text>
+                                        <v-text-field name="username" id="id_username" label="Nom d'utilisateur"
+                                            prepend-inner-icon="mdi-account" :rules="rules.username"
+                                            variant="underlined"></v-text-field>
+
+                                        <v-text-field v-model="authData.password" :rules="rules.password"
+                                            :append-inner-icon="show1 ? 'mdi-eye' : 'mdi-eye-off'" variant="underlined"
+                                            :type="show1 ? 'text' : 'password'" label="Mot de passe"
+                                            prepend-inner-icon="mdi-lock" name="password" id="id_password"
+                                            @click:append-inner="show1 = !show1"></v-text-field>
+                                    </v-card-text>
+                                    <v-card-text>
+                                        {% if form.errors %}
+                                        <span class="text-red">Nom d'utilisateur ou mot de passe incorrects</span>
+                                        {% endif %}
+                                    </v-card-text>
+                                    <v-card-actions>
+                                        <v-btn :disabled="!isValid" type="submit" block variant="flat"
+                                            color="success">Se
+                                            connecter</v-btn>
+                                    </v-card-actions>
+                                </v-card>
+                                </form>
+                        </v-col>
+                    </v-row>
+                </v-container>
+            </v-main>
+        </v-app>
     </div>
+    <script type="module">
+        const { createApp, ref, onMounted, computed, watch, nextTick } = Vue;
+        const { createVuetify } = Vuetify;
+
+        const vuetify = createVuetify();
+
+        const app = createApp({
+            setup() {
+                const required = value => !!value || 'Champ obligatoire'
+                var rules = {
+                    username: [
+                        required,
+                        //value => !!value || 'Champ obligatoire',
+                        //value => value.length >= 6 || 'Minimum 6 caractères'
+                    ],
+                    password: [
+                        required,
+                        value => value.length >= 8 || 'Le mot de passe doit contenir au moins 8 caractères',
+                        value => /[A-Z]/.test(value) || 'Le mot de passe doit contenir au moins 1 lettre majuscule',
+                        value => /\d/.test(value) || 'Le mot de passe doit contenir au moins 1 chiffre',
+                        value => value !== authData.value.currentPassword || 'Le nouveau mot de passe ne peut pas être identique à l\'ancien',
+                    ]
+                }
+                var mdpDialogSuccess = ref(true)
+                var mdpDialogError = ref(true)
+                var isValid = ref(false)
+                var show1 = ref(false)
+                var show2 = ref(false)
+                var authData = ref({
+                    currentPassword: "",
+                    password1: "",
+                    password2: ""
+                })
+
+                return {
+                    rules, isValid, show1, show2, authData, mdpDialogSuccess, mdpDialogError
+                }
+            }
+        })
+        app.config.compilerOptions.delimiters = ['${', '}']
+        app.use(vuetify).mount("#app")
+    </script>
 </body>
 
 {% endblock %}
-
-<!-- 
-<h2>Login</h2>
-<form method="post" action="{% url 'login' %}">
-    {% csrf_token %}
-    <div>
-        <label for="id_username">Username:</label>
-        <input type="text" name="username" id="id_username" required>
-    </div>
-    <div>
-        <label for="id_password">Password:</label>
-        <input type="password" name="password" id="id_password" required>
-    </div>
-    <button type="submit">Login</button>
-</form> -->

@@ -12,7 +12,7 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 
 import os
 from pathlib import Path
-
+from logging.handlers import TimedRotatingFileHandler
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -46,6 +46,7 @@ INSTALLED_APPS = [
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
+    'django.middleware.locale.LocaleMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
@@ -136,3 +137,103 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 LOGIN_URL = 'login'  # Redirect to login if not authenticated
 LOGIN_REDIRECT_URL = 'home'  # Redirect after login
 LOGOUT_REDIRECT_URL = 'login'
+
+
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'formatters': {
+        'verbose': {
+            'format': '{levelname} {asctime} {message}',
+            'style': '{',
+        },
+        'simple': {
+            'format': '{levelname} {message}',
+            'style': '{',
+        },
+        'access': {
+            'format': '{asctime} {message}',
+            'style': '{',
+        },
+    },
+    'handlers': {
+        'config': {
+            'level': 'DEBUG',
+            'class': 'logging.handlers.TimedRotatingFileHandler',
+            'filename': os.path.join(BASE_DIR, 'logs', 'config.log'),
+            'when': 'D',
+            'interval': 1,
+            'backupCount': 7,
+            'formatter': 'verbose',
+        },
+        'profiles': {
+            'level': 'DEBUG',
+            'class': 'logging.handlers.TimedRotatingFileHandler',
+            'filename': os.path.join(BASE_DIR, 'logs', 'profiles.log'),
+            'when': 'D',
+            'interval': 1,
+            'backupCount': 7,
+            'formatter': 'verbose',
+        },
+        'file': {
+            'level': 'DEBUG',
+            'class': 'logging.handlers.TimedRotatingFileHandler',
+            'filename': os.path.join(BASE_DIR, 'logs', 'django.log'),
+            'when': 'D',
+            'interval': 1,
+            'backupCount': 7,
+            'formatter': 'verbose',
+        },
+        'error_file': {
+            'level': 'ERROR',
+            'class': 'logging.handlers.TimedRotatingFileHandler',
+            'filename': os.path.join(BASE_DIR, 'logs', 'errors.log'),
+            'when': 'D',
+            'interval': 1,
+            'backupCount': 7,
+            'formatter': 'verbose',
+        },
+        'access_file': {
+            'level': 'INFO',
+            'class': 'logging.handlers.TimedRotatingFileHandler',
+            'filename': os.path.join(BASE_DIR, 'logs', 'access.log'),
+            'when': 'D',
+            'interval': 1,
+            'backupCount': 7,
+            'formatter': 'access',
+        },
+    },
+    'loggers': {
+        # 'django': {
+        #     'handlers': ['file', 'error_file'],
+        #     'level': 'DEBUG',
+        #     'propagate': False,  # Disable propagation to prevent logs from leaking to root logger
+        # },
+        'django.server': {
+            'level': 'WARNING'
+        },
+        'django.utils.autoreload': {
+            'level': 'CRITICAL'
+        },
+        'access': {
+            'handlers': ['access_file'],
+            'level': 'INFO',
+            'propagate': False,  # Ensure it only logs in 'access.log'
+        },
+        'django.db.backends': {
+            'handlers': ['file'],  # Sends SQL logs only to django.log
+            'level': 'WARNING',  # Set to WARNING to disable detailed SQL debug logs
+            'propagate': False,
+        },
+        'profiles': {
+            'handlers': ['profiles'],
+            'level': 'DEBUG',
+            'propagate': True,  # Ensure it only logs in 'access.log'
+        },
+        'config': {
+            'handlers': ['config'],
+            'level': 'DEBUG',
+            'propagate': True,
+        },
+    },
+}

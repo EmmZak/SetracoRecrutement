@@ -3,11 +3,13 @@
 
 {% block extra_head %}
 <style>
-    body,
-    html {
+    html,
+    body {
         margin: 0;
         padding: 0;
         height: 100%;
+        overflow: hidden;
+        /* prevent unnecessary scrollbars */
     }
 
     .container {
@@ -25,6 +27,12 @@
         flex-direction: column;
         justify-content: space-between;
         padding: 10px;
+        position: fixed;
+        /* Fix the sidebar */
+        top: 0;
+        left: 0;
+        bottom: 0;
+        height: 100vh;
     }
 
     .logo {
@@ -118,7 +126,9 @@
     }
 
     .content {
-        width: 90%;
+        width: calc(100% - 250px);
+        margin-left: 250px;
+        overflow-y: auto;
         /* padding: 20px; */
         /* background-color: #ecf0f1; */
     }
@@ -149,17 +159,18 @@
                     <span class="mdi mdi-database"></span>
                     Profiles
                 </a>
-                <!-- 
-                <a href="{% url 'users' %}" class="{% if request.path == '/users/' %}active{% endif %}">
-                    <span class="mdi mdi-account-group"></span>
-                    Utilisateurs
-                </a> -->
 
                 <a href="{% url 'config' %}" class="{% if request.path == '/config/' %}active{% endif %}">
                     <span class="mdi mdi-cog"></span>
                     Config
                 </a>
 
+                {% if request.user.is_superuser %}
+                <a href="{% url 'admin:index' %}" class="{% if request.path == '/admin/' %}active{% endif %}">
+                    <span class="mdi mdi-shield-crown"></span>
+                    Admin
+                </a>
+                {% endif %}
             </nav>
             <div class="logout">
                 <div id="account-details">

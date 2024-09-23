@@ -20,7 +20,7 @@ class Profile(models.Model):
     update_date = models.DateTimeField(auto_now=True)
 
     def __str__(self):
-        return f"{self.name} {self.surname} {self.state}]"
+        return f"{self.name} {self.surname} {self.state} {self.skills} ...]"
 
 
 class Comment(models.Model):

@@ -94,10 +94,11 @@ def create_test_users():
 
     # SUPERUSER
     superuser, created = User.objects.get_or_create(
-        username='superuser',
-        defaults={'is_superuser': True, 'is_staff': True}
+        username='superuser'
     )
     # Set password (since defaults doesn't work with password hashing)
+    superuser.is_staff = True
+    superuser.is_superuser = True
     superuser.set_password('azertyA1')
     superuser.save()
 

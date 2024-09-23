@@ -46,6 +46,7 @@ python3 manage.py migrate accounts 0001_initial --fake
 python3 manage.py makemigrations accounts --empty 
 
 python3 manage.py init_group_permissions_after_migration # custom
+python3 manage.py create_test_users 
 
 find . -not -path "./.venv/*" -path "*/migrations/*.py" ! -name "__init__.py" -delete
 

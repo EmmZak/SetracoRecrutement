@@ -59,10 +59,14 @@
     <div id="app" style="width: 100%;">
         <v-app>
             <v-main>
-                <v-data-table :headers="headers" :items="profiles" :loading="loading" items-per-page-text=""
-                    :items-per-page="paginationFilters.itemsPerPage" @update:options="fetchProfiles" show-expand
-                    :options.sync="paginationFilters" :expanded.sync="expandedRows" @click:row="onRowClick"
-                    no-data-text="Pas de profils" hide-default-headerr>
+                <v-data-table-server :headers="headers" :items="profiles" :items-length="totalProfiles"
+                    :loading="loading" show-expand @update:options="fetchProfiles" :expanded.sync="expandedRows"
+                    @click:row="onRowClick" no-data-text="Pas de profils" :items-per-page-options="[
+                    {value: 2, title: '2'},
+                    {value: 4, title: '4'},
+                    {value: 10, title: '10'},
+                    {value: 20, title: '20'}
+                  ]">
 
                     <template v-slot:top>
                         <v-toolbar flat>
@@ -199,12 +203,13 @@
                             <!-- ${paginationFilters} -->
                             <v-row>
                                 <v-col cols="7">
-                                    <v-select :items="skills" v-model="paginationFilters.skills" label="Compétences"
-                                        item-title="name" chips multiple item-text="name" item-value="id" hide-details
-                                        variant="underlined" prepend-inner-icon="mdi-tools" dense></v-select>
+                                    <v-select :items="skills" v-model="paginationFiltersCustom.skills"
+                                        label="Compétences" item-title="name" chips multiple item-text="name"
+                                        item-value="id" hide-details variant="underlined" prepend-inner-icon="mdi-tools"
+                                        dense></v-select>
                                 </v-col>
                                 <v-col cols="5">
-                                    <v-select :items="profileStates" v-model="paginationFilters.states"
+                                    <v-select :items="profileStates" v-model="paginationFiltersCustom.states"
                                         label="Etat candidature" item-title="name" chips multiple item-text="name"
                                         item-value="id" hide-details variant="underlined"
                                         prepend-inner-icon="mdi-account-alert" dense></v-select>
@@ -213,7 +218,7 @@
                             <v-row cols="12" align="center" justify="space-around">
 
                                 <v-col cols="3">
-                                    <v-text-field v-model="paginationFilters.search" label="Recherche"
+                                    <v-text-field v-model="paginationFiltersCustom.search" label="Recherche"
                                         prepend-inner-icon="mdi-magnify" variant="underlined" hide-details
                                         single-line></v-text-field>
                                 </v-col>
@@ -334,10 +339,12 @@
                         {% if perms.profiles.delete_profile %}
                         <v-icon size="24" color="grey-darken-3" @click="deleteItem(item.id)"> mdi-delete </v-icon>
                         {% endif %}
-                        <v-icon size="24" color="grey-darken-3" @click="exportProfile(item.id)"> mdi-file-export
+                        <v-icon size="24" color="grey-darken-3" @click="exportProfile(item)"> mdi-file-export
                         </v-icon>
                     </template>
-                </v-data-table>
+                </v-data-table-server>
+                <!-- ${pagination} -->
+
                 <v-dialog v-model="dialogDelete" style="width: 50%;">
                     <v-card>
                         <v-card-title class="text-h6">Êtes-vous sûr(e) de vouloir supprimer le profile
@@ -420,33 +427,25 @@
                     comment: "",
                     files: []
                 })
-                var paginationFilters = ref({
+                var pagination = ref({
                     page: 1,
-                    itemsPerPage: 50,
+                    itemsPerPage: 20,
+                    total: 0
+                    //sortBy: "",    // Holds the column by which to sort
+                    //sortDesc: false
+                })
+                var paginationFiltersCustom = ref({
                     skills: [],
                     states: [],
-                    state: null,
-                    search: "",
-                    sortBy: "",    // Holds the column by which to sort
-                    sortDesc: false
+                    search: ""
                 })
-
-                // const profileStates = [
-                //     { value: "STATE_TO_VERIFY", title: "À vérifier" },
-                //     { value: "STATE_VERIFIED", title: "Vérifié" },
-                //     { value: "STATE_CONSULTED", title: "Consulté" },
-                //     { value: "STATE_HIRED", title: "Embauché" },
-                //     { value: "STATE_REJECTED", title: "Rejeté" }
-                // ];
 
                 const onRowClick = (item) => {
                     expandedRowKey.value = item.id
                 }
 
                 const profileSimilarityCheck = async () => {
-                    // console.log("checking if similar profile exists")
                     if (editedItem.value.id) {
-                        //console.log("not check when editing")
                         similarityMessage.value = ""
                         return
                     }
@@ -467,7 +466,7 @@
                                 errorMessage = "Un profil avec le même email/numéro existe déjà";
                             } else if (existingAttrs.number) {
                                 errorMessage = "Un profil avec le même numéro existe déjà";
-                            } else {
+                            } else if (existingAttrs.email) {
                                 errorMessage = "Un profil avec le même email existe déjà";
                             }
                             similarityMessage.value = errorMessage;
@@ -482,23 +481,34 @@
                 }
 
                 const fetchProfiles = async (options) => {
-                    console.log("fetcing profiles with options", options)
+                    console.log("fetching profiles with options", options)
+                    console.log("fetching profiles with pagination", pagination.value)
                     loading.value = true;
+                    let itemsPerPage = pagination.value.itemsPerPage
+                    let page = pagination.value.page
                     try {
+                        if (options) {
+                            itemsPerPage = options.itemsPerPage
+                            page = options.page
+                        }
                         let params = {
-                            search: paginationFilters.value.search,
-                            skills: paginationFilters.value.skills.join(','),
-                            states: paginationFilters.value.states.join(','),
-                            start: (paginationFilters.value.page - 1) * paginationFilters.value.itemsPerPage,
-                            length: paginationFilters.value.itemsPerPage,
+                            search: paginationFiltersCustom.value.search,
+                            skills: paginationFiltersCustom.value.skills.join(','),
+                            states: paginationFiltersCustom.value.states.join(','),
+                            start: (page - 1) * itemsPerPage,
+                            length: itemsPerPage
                         }
                         //console.log("params: ", params)
                         let res = await axios.get('{% url 'profiles_data' %}', {
                             params: params
                         })
+                        console.log("res.data: ", res.data)
                         console.log("res.data.profiles: ", res.data.profiles)
                         profiles.value = res.data.profiles
-                        totalProfiles.value = res.data.recordsTotal;
+                        totalProfiles.value = res.data.recordsFiltered;
+                        pagination.value.itemsPerPage = itemsPerPage
+                        pagination.value.page = page
+
                         expanded.value = profiles.value
 
                         if (expandedRowKey.value) {
@@ -579,7 +589,8 @@
                 }
 
                 /* export */
-                const exportProfile = async (id) => {
+                const exportProfile = async (profile) => {
+                    let id = profile.id
                     console.log("export profile id", id)
                     try {
                         let params = {
@@ -595,6 +606,25 @@
                         link.setAttribute('download', 'export_profil.pdf');  // Filename
                         document.body.appendChild(link);
                         link.click();
+
+                        /* download
+                        for (let file of profile.files) {
+                            console.log("file ", file)
+                            const fileExtension = file.file_name.split('.').pop().toLowerCase();
+                            console.log("fileExtension ", fileExtension)
+                            if (fileExtension === 'pdf' || fileExtension === 'docx') {
+                                const fileResponse = await axios.get(file.file, {
+                                    responseType: 'blob'
+                                });
+                                console.log("fileResponse ", fileResponse)
+                                const fileUrl = window.URL.createObjectURL(new Blob([fileResponse.data]));
+                                const fileLink = document.createElement('a');
+                                fileLink.href = fileUrl;
+                                fileLink.setAttribute('download', file.name);  // Use the file's original name
+                                document.body.appendChild(fileLink);
+                                fileLink.click();
+                            }
+                        } */
                     } catch (error) {
                         console.error('Error exporting profile pdf :', error);
                     }
@@ -605,11 +635,9 @@
                     console.log("export")
                     try {
                         let params = {
-                            search: paginationFilters.value.search,
-                            skills: paginationFilters.value.skills.join(','),
-                            states: paginationFilters.value.states.join(','),
-                            start: (paginationFilters.value.page - 1) * paginationFilters.value.itemsPerPage,
-                            length: paginationFilters.value.itemsPerPage,
+                            search: paginationFiltersCustom.value.search,
+                            skills: paginationFiltersCustom.value.skills.join(','),
+                            states: paginationFiltersCustom.value.states.join(','),
                         }
                         //console.log("params: ", params)
                         const response = await axios.get('{% url 'export_profiles_csv' %}', {
@@ -683,7 +711,7 @@
                     skillsLoading.value = true
                     try {
                         let res = await axios.get('{% url 'skills_data' %}')
-                        console.log("skills: ", res.data)
+                        //console.log("skills: ", res.data)
                         skills.value = res.data
                     } catch (err) {
                         console.log("err: ", err)
@@ -696,7 +724,7 @@
                     //skillsLoading.value = true
                     try {
                         let res = await axios.get('{% url 'states_data' %}')
-                        console.log("states: ", res.data)
+                        //console.log("states: ", res.data)
                         profileStates.value = res.data
                     } catch (err) {
                         console.log("err: ", err)
@@ -708,15 +736,16 @@
                 onMounted(async () => {
                     await fetchStates()
                     await fetchSkills()
-                    await fetchProfiles();
+                    // await fetchProfiles();
                 })
 
                 watch(dialogDelete, (val) => {
                     if (!val) closeDelete();
                 });
 
-                watch(paginationFilters, (val) => {
-                    console.log("fileters hcabged", paginationFilters.value)
+
+                watch(paginationFiltersCustom, (val) => {
+                    console.log("filters changed", paginationFiltersCustom.value)
                     fetchProfiles()
                 }, { deep: true });
 
@@ -734,7 +763,7 @@
                 })
 
                 return {
-                    exportProfile, similarityMessage, form, exportData, expandedRowKey, expandedRows, onRowClick, deleteComment, paginationFilters, profileStates, editedIndex, saveProfile, editedItem, editItem, deleteItem, dialogDelete, closeDelete, deleteItemConfirm, skills, fetchSkills, skillsLoading, defaultItem, formTitle, profiles, totalProfiles, headers, loading, fetchProfiles, expanded, dialog, openFile, printFile, deleteFile, getSkillColor
+                    exportProfile, similarityMessage, form, exportData, expandedRowKey, expandedRows, onRowClick, deleteComment, pagination, paginationFiltersCustom, profileStates, editedIndex, saveProfile, editedItem, editItem, deleteItem, dialogDelete, closeDelete, deleteItemConfirm, skills, fetchSkills, skillsLoading, defaultItem, formTitle, profiles, totalProfiles, headers, loading, fetchProfiles, expanded, dialog, openFile, printFile, deleteFile, getSkillColor
                 }
             }
         })

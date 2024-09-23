@@ -9,7 +9,11 @@ from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 from django.views.decorators.http import require_http_methods
 
+from SetracoRecrutement.logger import Logger
+
 from .forms import CustomPasswordChangeForm
+
+logger = Logger('accounts')
 
 
 def is_admin(user):
@@ -26,53 +30,39 @@ def account(request):
 
 @login_required
 def password_change(request):
-    if request.method == 'POST':
-        form = CustomPasswordChangeForm(user=request.user, data=request.POST)
-        if form.is_valid():
-            form.save()
-            # Keep the user logged in
-            update_session_auth_hash(request, form.user)
-            messages.success(
-                request, 'Your password was successfully updated!')
+    logger.info("Changing password", request=request)
+    payload = {
+        'pwd_change_success': None,
+        'pwd_change_error': None,
+        'errors': []
+    }
+    try:
+        if request.method == 'POST':
+            form = CustomPasswordChangeForm(
+                user=request.user, data=request.POST)
+            if form.is_valid():
+                form.save()
+                # Keep the user logged in
+                update_session_auth_hash(request, form.user)
+                messages.success(
+                    request, 'Your password was successfully updated!')
 
-            payload = {
-                'pwd_change_success_msg': 'Votre mot de passe a été modifié',
-                'pwd_change_success': True
-            }
-            # Reload the account page with success message
-            return render(request, 'account.html', payload)
-        else:
-            print("pwd change form not valid", form.error_messages)
-            payload = {
-                'errors': form.error_messages.keys(),
-                'pwd_change_error': True
-            }
-            return render(request, 'account.html', payload)
+                payload = {
+                    'pwd_change_success': True,
+                    'pwd_change_error': False,
+                }
+                payload['pwd_change_success'] = True
+                payload['pwd_change_error'] = False
+                # Reload the account page with success message
+            else:
+                print("pwd change form not valid", form.error_messages)
+                payload['pwd_change_success'] = True
+                payload['pwd_change_error'] = False
+                payload['errors'] = form.error_messages.keys()
+    except Exception as e:
+        logger.error(f"Error changing password {e}", request=request)
 
-    return render(request, 'account.html')
-
-
-"""
-@login_required
-def password_change(request):
-    if request.method == 'POST':
-        form = CustomPasswordChangeForm(user=request.user, data=request.POST)
-        if form.is_valid():
-            form.save()
-            # Important to keep the user logged in after password change
-            update_session_auth_hash(request, form.user)
-            messages.success(request, 'Votre mot de passe a été mis à jour')
-            # Redirect to a success page
-            return redirect('password_change_done')
-    else:
-        form = CustomPasswordChangeForm(user=request.user)
-    return render(request, 'password_change_form.html', {'form': form})
-
-
-@login_required
-def password_change_done(request):
-    return render(request, 'password_change_done.html')
-"""
+    return render(request, 'account.html', payload)
 
 
 @login_required
