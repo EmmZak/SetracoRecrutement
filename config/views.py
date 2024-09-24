@@ -75,7 +75,6 @@ def delete_skill(request):
     logger.info(f"Deleting skill by pk: {pk}", request=request)
     try:
         skill = get_object_or_404(Skill, pk=pk)
-        logger.info(f"{request.user.username} delete skill {skill}")
         form = SkillDeleteForm(request.POST)
 
         if form.is_valid() and form.cleaned_data['confirm']:

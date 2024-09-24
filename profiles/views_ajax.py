@@ -17,8 +17,7 @@ from profiles.serializers import ProfileSerializer
 
 from .models import Comment, Profile, ProfileFile
 
-logger = Logger('profiles_ajax')
-logger.debug("Django logging profiles_ajax is working!")
+logger = Logger('profiles')
 
 
 @login_required

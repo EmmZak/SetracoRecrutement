@@ -64,7 +64,19 @@ def profiles_create(request):
         skill_ids = request.POST.get('skills', '')
         state_id = request.POST.get('state', None)
         files = request.FILES.getlist('files')
-
+        logger.debug(
+            f"Profile form data: "
+            f"surname={surname}, "
+            f"name={name}, "
+            f"town={town}, "
+            f"email={email}, "
+            f"number={number}, "
+            f"diplomas={diplomas}, "
+            f"comment={comment}, "
+            f"skill_ids={skill_ids}, "
+            f"state_id={state_id}, "
+            f"files={len(files)} files uploaded."
+        )
         profile = get_object_or_404(
             Profile, id=profile_id) if profile_id else Profile()
 

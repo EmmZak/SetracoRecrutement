@@ -175,6 +175,15 @@ LOGGING = {
             'backupCount': 7,
             'formatter': 'verbose',
         },
+        # 'profiles_ajax': {
+        #     'level': 'DEBUG',
+        #     'class': 'logging.handlers.TimedRotatingFileHandler',
+        #     'filename': os.path.join(BASE_DIR, 'logs', 'profiles_ajax.log'),
+        #     'when': 'D',
+        #     'interval': 1,
+        #     'backupCount': 7,
+        #     'formatter': 'verbose',
+        # },
         'file': {
             'level': 'DEBUG',
             'class': 'logging.handlers.TimedRotatingFileHandler',
@@ -227,17 +236,17 @@ LOGGING = {
         },
         'profiles': {
             'handlers': ['profiles'],
-            'level': 'DEBUG',
+            'level': 'INFO',
             'propagate': True,  # Ensure it only logs in 'access.log'
         },
-        'profiles.views_ajax': {
-            'handlers': ['profiles'],
-            'level': 'DEBUG',
-            'propagate': True,  # Ensure it only logs in 'access.log'
-        },
+        # 'profiles_ajax': {
+        #     'handlers': ['profiles_ajax'],
+        #     'level': 'DEBUG',
+        #     'propagate': True,  # Ensure it only logs in 'access.log'
+        # },
         'config': {
             'handlers': ['config'],
-            'level': 'DEBUG',
+            'level': 'INFO',
             'propagate': True,
         },
     },
