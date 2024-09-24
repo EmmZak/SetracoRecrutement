@@ -230,6 +230,11 @@ LOGGING = {
             'level': 'DEBUG',
             'propagate': True,  # Ensure it only logs in 'access.log'
         },
+        'profiles.views_ajax': {
+            'handlers': ['profiles'],
+            'level': 'DEBUG',
+            'propagate': True,  # Ensure it only logs in 'access.log'
+        },
         'config': {
             'handlers': ['config'],
             'level': 'DEBUG',

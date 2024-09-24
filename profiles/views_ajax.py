@@ -18,6 +18,7 @@ from profiles.serializers import ProfileSerializer
 from .models import Comment, Profile, ProfileFile
 
 logger = Logger('profiles_ajax')
+logger.debug("Django logging profiles_ajax is working!")
 
 
 @login_required
@@ -254,7 +255,6 @@ def profiles_data(request):
     try:
         start = int(request.GET.get('start', 0))
         length = int(request.GET.get('length', 10))
-        page = int(request.GET.get('page', 1))
         search_value = request.GET.get('search', '')
         # comma-separated list of IDs
         skill_filter = request.GET.get('skills', '')

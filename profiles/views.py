@@ -31,7 +31,7 @@ def profiles_view(request):
         name__in=['Editeur', 'Admin']).exists()
 
     is_editor_or_admin_or_superuser = is_superuser or is_editor_or_admin
-    print("is_editor_or_admin: ", is_editor_or_admin_or_superuser)
+    #print("is_editor_or_admin: ", is_editor_or_admin_or_superuser)
 
     profile_form = ProfileForm()
     profile_file_form = ProfileFileForm()
