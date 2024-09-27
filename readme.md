@@ -36,6 +36,12 @@ django-admin startapp config
 
 # Run
 
+```bash
+export DJANGO_SETTINGS_MODULE=SetracoRecrutement.settings.local
+export DJANGO_SECRET_KEY="local"
+python3 manage.py runserver
+```
+
 If new model added etc
 
 ```bash
@@ -45,7 +51,7 @@ python3 manage.py migrate
 python3 manage.py migrate accounts 0001_initial --fake
 python3 manage.py makemigrations accounts --empty 
 
-python3 manage.py init_group_permissions_after_migration # custom
+python3 manage.py init_group_permissions_after_migration
 python3 manage.py create_test_users 
 
 find . -not -path "./.venv/*" -path "*/migrations/*.py" ! -name "__init__.py" -delete
@@ -53,9 +59,20 @@ find . -not -path "./.venv/*" -path "*/migrations/*.py" ! -name "__init__.py" -d
 python3 manage.py dbshell
 ```
 
+## Data integrity
+
+### backup
 ```bash
-python3 manage.py runserver
+python3 manage.py backup 
 ```
+
+### restore
+```bash
+python3 manage.py migrate 
+python3 manage.py restore /Users/emmanuelzakaryan/Projects/SetracoRecrutement/backups/backup_27_09_2024.zip
+```
+
+
 
 # Create super user
 
