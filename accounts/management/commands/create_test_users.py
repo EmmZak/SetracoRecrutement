@@ -6,5 +6,4 @@ class Command(BaseCommand):
     help = "Creates read only default permission groups for users"
 
     def handle(self, *args, **options):
-        print("handle createion")
         create_test_users()

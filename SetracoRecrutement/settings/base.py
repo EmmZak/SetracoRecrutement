@@ -9,6 +9,8 @@ if SECRET_KEY is None:
 BASE_DIR = Path(__file__).resolve().parent.parent.parent
 DEBUG = False
 
+BACKUP_DIR = os.path.join(BASE_DIR, 'backups')
+
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
@@ -120,6 +122,15 @@ LOGGING = {
             'backupCount': 7,
             'formatter': 'verbose',
         },
+        'backup': {
+            'level': 'DEBUG',
+            'class': 'logging.handlers.TimedRotatingFileHandler',
+            'filename': os.path.join(LOGS_DIR, 'backup.log'),
+            'when': 'D',
+            'interval': 1,
+            'backupCount': 7,
+            'formatter': 'verbose',
+        },
         'file': {
             'level': 'DEBUG',
             'class': 'logging.handlers.TimedRotatingFileHandler',
@@ -177,6 +188,11 @@ LOGGING = {
         },
         'config': {
             'handlers': ['config'],
+            'level': 'INFO',
+            'propagate': True,
+        },
+        'backup': {
+            'handlers': ['backup'],
             'level': 'INFO',
             'propagate': True,
         },
