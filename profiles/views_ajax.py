@@ -30,12 +30,13 @@ def delete_comment(request):
         if com_id:
             Comment.objects.filter(id=com_id).delete()
             print("returning success")
-            return JsonResponse({'success': True})
+            return HttpResponse(status=200)
     except Exception as e:
         logger.error(
             f"Error deleting comment by id: {com_id} {e}", request=request)
+        return HttpResponse(status=500)
 
-    return JsonResponse({'success': False})
+    return HttpResponse(status=400)
 
 
 @login_required
@@ -47,12 +48,13 @@ def delete_file(request):
     try:
         if file_id:
             ProfileFile.objects.filter(id=file_id).delete()
-            return JsonResponse({'success': True})
+            return HttpResponse(status=200)
     except Exception as e:
         logger.error(
             f"Error deleting file by id: {file_id} {e}", request=request)
-
-    return JsonResponse({'success': False})
+        return HttpResponse(status=500)
+    
+    return HttpResponse(status=400)
 
 
 @login_required
@@ -155,6 +157,7 @@ def export_profile_pdf(request):
     except Exception as e:
         logger.error(
             f"Error exporting profile by id: {profile_id} {e}", request=request)
+        return HttpResponse(status=500)
 
 
 @login_required
@@ -189,8 +192,8 @@ def export_profiles_csv(request):
         writer = csv.writer(response)
 
         writer.writerow([
-            'Nom', 'Prénom', 'Email', 'Numéro', 'Ville', 'Compétences', 'Diplômes',
-            'Date de création', 'Date de mise à jour', 'État', 'Commentaires'
+            'Nom', 'Prenom', 'Email', 'Numero', 'Ville', 'Competences', 'Diplomes',
+            'Date de creation', 'Date de mise a jour', 'Etat', 'Commentaires'
         ])
 
         for profile in profiles:
@@ -211,7 +214,7 @@ def export_profiles_csv(request):
         return response
     except Exception as e:
         logger.error(f"Exporting profiles in csv {e}", request=request)
-
+        return HttpResponse(status=500)
 
 @login_required
 @permission_required('profiles.add_profile')

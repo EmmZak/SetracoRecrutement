@@ -620,6 +620,7 @@
                         } */
                     } catch (error) {
                         console.error('Error exporting profile pdf :', error);
+                        alert("Error exporting profile PDF: ", error)
                     }
 
                 }
@@ -645,6 +646,7 @@
                         link.click();
                     } catch (error) {
                         console.error('Error exporting CSV:', error);
+                        alert("Error exporting CSV: ", error)
                     }
                 }
 
@@ -675,6 +677,7 @@
                         fetchProfiles(); // Refresh profiles to update the list of files
                     } catch (err) {
                         console.error('Failed to delete the file:', err);
+                        alert("Failed to delete the file")
                     }
                 };
 
@@ -691,6 +694,7 @@
                         fetchProfiles();
                     } catch (err) {
                         console.error('Failed to delete the comment:', err);
+                        alert("Failed to delete the comment")
                     }
                 }
 
