@@ -53,7 +53,7 @@ def delete_file(request):
         logger.error(
             f"Error deleting file by id: {file_id} {e}", request=request)
         return HttpResponse(status=500)
-    
+
     return HttpResponse(status=400)
 
 
@@ -78,7 +78,7 @@ def export_profile_pdf(request):
 
         page_num = 1
 
-        pdf.setFont("Helvetica-Bold", 20)
+        pdf.setFont("Helvetica-Bold", 22)
         pdf.drawString(100, height - 60,
                        f"Profil de {profile.name} {profile.surname}")
 
@@ -86,18 +86,16 @@ def export_profile_pdf(request):
         pdf.setStrokeColor(colors.black)
         pdf.line(100, height - 80, width - 100, height - 80)  # Horizontal line
 
-        pdf.setFont("Helvetica", 12)
-
+        pdf.setFont("Helvetica-Bold", 18)
         pdf.drawString(100, height - 120, "Informations Personnelles")
-        pdf.setFont("Helvetica", 11)
+        pdf.setFont("Helvetica", 12)
         y_position = height - 140
 
         profile_details = [
             ("Email", profile.email),
             ("Numéro", profile.number),
             ("Ville", profile.town),
-            ("Compétences", ', '.join(
-                [skill.name for skill in profile.skills.all()])),
+            # ("Compétences", ', '.join([skill.name for skill in profile.skills.all()])),
             ("Diplômes", profile.diplomas),
             ("Date de création", profile.creation_date.strftime('%d/%m/%Y %H:%M:%S')),
             ("Date de mise à jour", profile.update_date.strftime('%d/%m/%Y %H:%M:%S')),
@@ -109,9 +107,20 @@ def export_profile_pdf(request):
             y_position -= 20
 
         pdf.setFont("Helvetica-Bold", 12)
+        pdf.drawString(100, y_position, "Compétences:")
+        y_position -= 20
+        pdf.setFont("Helvetica", 12)
+
+        for skill in profile.skills.all():
+            pdf.drawString(120, y_position, skill.name)
+            y_position -= 20
+
+        """
+        pdf.setFont("Helvetica-Bold", 12)
         pdf.drawString(100, y_position, "Commentaires:")
         y_position -= 20
-        pdf.setFont("Helvetica", 11)
+        pdf.setFont("Helvetica", 12)
+        
         for comment in profile.comments.all():
             pdf.drawString(120, y_position,
                            f"{comment.user.username}: {comment.text}")
@@ -122,35 +131,7 @@ def export_profile_pdf(request):
                 page_num += 1
                 y_position = height - 100
                 pdf.setFont("Helvetica", 11)
-
-        # Add a new page for each file
-        for profile_file in profile.files.all():
-            # Check if the file is an image and display it
-            file_path = profile_file.file.path
-            if os.path.exists(file_path) and file_path.lower().endswith(('.png', '.jpg', '.jpeg')):
-                add_footer(page_num)
-                pdf.showPage()  # New page for each file
-                page_num += 1
-
-                pdf.setFont("Helvetica-Bold", 14)
-                pdf.drawString(100, height - 100,
-                               f"Fichier: {profile_file.file.name}")
-                try:
-                    img = ImageReader(file_path)
-                    img_width, img_height = img.getSize()
-                    aspect_ratio = img_height / img_width
-                    # Set max width for image
-                    img_display_width = min(400, width - 200)
-                    img_display_height = img_display_width * aspect_ratio
-                    pdf.drawImage(img, 100, height - 200 - img_display_height,
-                                  width=img_display_width, height=img_display_height)
-                except Exception as e:
-                    pdf.drawString(100, height - 130,
-                                   f"Unable to load image: {e}")
-            else:
-                # pdf.drawString(100, height - 130, "Non-image file (not displayed)")
-                pass
-
+        """
         add_footer(page_num)
         pdf.save()
         return response
