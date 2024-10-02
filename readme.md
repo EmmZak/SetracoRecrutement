@@ -1,3 +1,9 @@
+## settings
+
+by default prod settings inside settings.py
+
+if need to overrite use those in /__settings/
+
 ## files
 
 store all files woth profile, 
