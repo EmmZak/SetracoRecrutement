@@ -27,7 +27,19 @@ class CustomUserAdmin(UserAdmin):
         ('Permissions', {'fields': ('is_superuser', 'groups')})
     )
 
+    list_display = ("username", "is_superuser", "get_groups")
+
     form = UserChangeForm
+
+    def get_groups(self, obj):
+        groups = obj.groups.all()
+        if groups:
+            return ", ".join([group.name for group in groups])
+        
+        if obj.is_superuser:
+            return ""
+        return "Pas de groupe associé"
+    get_groups.short_description = "Groupe d'utilisateur"
 
     def formfield_for_manytomany(self, db_field, request=None, **kwargs):
         if db_field.name == "groups":
