@@ -22,7 +22,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 # SECURITY WARNING: don't run with debug turned on in production!
 
-DEBUG = False
+DEBUG = True
 ALLOWED_HOSTS = ["*"]
 
 SECRET_KEY = "aerazeraera"
@@ -121,7 +121,7 @@ USE_TZ = True
 # settings.py
 STATIC_URL = '/static/'
 STATICFILES_DIRS = [BASE_DIR / 'static']
-# STATIC_ROOT = STATIC_URL
+STATIC_ROOT = STATIC_URL
 
 
 MEDIA_URL = '/media/'

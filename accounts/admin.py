@@ -22,9 +22,14 @@ class CustomUserAdmin(UserAdmin):
 
     fieldsets = (
         (None, {'fields': ('username', 'password')}),
-        ('Permissions', {'fields': ('is_active',
-         'is_superuser', 'groups')}),
+        ('Personal info', {'fields': ('first_name', 'last_name', 'email')}),
+        ('Permissions', {'fields': ('is_active', 'is_staff', 'is_superuser', 'groups')}),
+        # Omit the 'Important dates' section, which normally contains 'last_login' and 'date_joined'
     )
+
+    list_display = ('username', 'email', 'first_name', 'last_name', 'is_staff')
+    list_filter = ('is_superuser', 'groups',)  # Removed 'is_staff', 'is_superuser', and 'groups' filters
+
 
     def formfield_for_manytomany(self, db_field, request=None, **kwargs):
         if db_field.name == "groups":
@@ -33,8 +38,8 @@ class CustomUserAdmin(UserAdmin):
 
 
 # Unregister the default User admin and register the customized one
-admin.site.unregister(User)
-admin.site.register(User, CustomUserAdmin)
+#admin.site.unregister(User)
+#admin.site.register(User, CustomUserAdmin)
 
 """
 class CustomUserAdmin(BaseUserAdmin):
