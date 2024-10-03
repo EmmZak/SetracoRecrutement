@@ -24,6 +24,17 @@ DB_PATH: str
 STATIC_PATH: str
 MEDIA_PATH: str
 DJANGO_SECRET_KEY: str
+
+exemple for Windows
+
+DEBUG=True
+BASE_DIR=c:\
+ENV_PATH=c:\
+DB_PATH=c:\
+STATIC_PATH=c:\
+MEDIA_PATH=c:\
+DJANGO_SECRET_KEY=secret_key_to_set
+
 """
 
 # if debug => local, dev, qa
