@@ -1,8 +1,10 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
 from django import forms
-from django.contrib.auth.models import User, Group
-from django.utils.html import format_html
+from django.contrib.auth.models import User
+from django.contrib.auth.forms import (
+    UserChangeForm
+)
 
 
 class SingleGroupAdminForm(forms.ModelForm):
@@ -22,14 +24,10 @@ class CustomUserAdmin(UserAdmin):
 
     fieldsets = (
         (None, {'fields': ('username', 'password')}),
-        ('Personal info', {'fields': ('first_name', 'last_name', 'email')}),
-        ('Permissions', {'fields': ('is_active', 'is_staff', 'is_superuser', 'groups')}),
-        # Omit the 'Important dates' section, which normally contains 'last_login' and 'date_joined'
+        ('Permissions', {'fields': ('is_superuser', 'groups')})
     )
 
-    list_display = ('username', 'email', 'first_name', 'last_name', 'is_staff')
-    list_filter = ('is_superuser', 'groups',)  # Removed 'is_staff', 'is_superuser', and 'groups' filters
-
+    form = UserChangeForm
 
     def formfield_for_manytomany(self, db_field, request=None, **kwargs):
         if db_field.name == "groups":
@@ -38,18 +36,5 @@ class CustomUserAdmin(UserAdmin):
 
 
 # Unregister the default User admin and register the customized one
-#admin.site.unregister(User)
-#admin.site.register(User, CustomUserAdmin)
-
-"""
-class CustomUserAdmin(BaseUserAdmin):
-    fieldsets = (
-        (None, {'fields': ('username', 'password')}),
-        ('Permissions', {'fields': ('is_active',
-         'is_superuser', 'groups')}),
-    )
-
-
 admin.site.unregister(User)
 admin.site.register(User, CustomUserAdmin)
-"""
