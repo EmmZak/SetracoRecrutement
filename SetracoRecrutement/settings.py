@@ -12,21 +12,31 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 import os
 from pathlib import Path
 from logging.handlers import TimedRotatingFileHandler
+from dotenv import load_dotenv
 
+"""
+.env vars
 
-BASE_DIR = Path(__file__).resolve().parent.parent
+DEBUG: bool
+BASE_DIR: str
+ENV_PATH: str
+DB_PATH: str
+STATIC_PATH: str
+MEDIA_PATH: str
+DJANGO_SECRET_KEY: str
+"""
 
+# if debug => local, dev, qa
+# else => prod (windows)
+DEBUG = os.environ.get('DEBUG', '') != 'False'
+BASE_DIR = Path(__file__).resolve().parent.parent if DEBUG else Path(os.getenv('BASE_DIR'))
+ENV_FILE = BASE_DIR / '.env' if DEBUG else Path(os.getenv('ENV_PATH'))
+load_dotenv(ENV_FILE)
 
-# Quick-start development settings - unsuitable for production
-# See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
+SECRET_KEY = os.environ.get(
+    'DJANGO_SECRET_KEY', 'django-insecure-&psk#na5l=p3q8_a+-$4w1f^lt3lx1c@d*p4x$ymm_rn7pwb87')
 
-# SECURITY WARNING: don't run with debug turned on in production!
-
-DEBUG = True
 ALLOWED_HOSTS = ["*"]
-
-SECRET_KEY = "aerazeraera"
-
 # Application definition
 
 INSTALLED_APPS = [
@@ -79,7 +89,7 @@ WSGI_APPLICATION = 'SetracoRecrutement.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'NAME': BASE_DIR / 'db.sqlite3' if DEBUG else os.getenv('DB_PATH'),
     }
 }
 
@@ -106,12 +116,9 @@ AUTH_PASSWORD_VALIDATORS = [
 # Internationalization
 # https://docs.djangoproject.com/en/4.2/topics/i18n/
 
-LANGUAGE_CODE = 'en-us'
-
+LANGUAGE_CODE = 'fr-FR'
 TIME_ZONE = 'UTC'
-
 USE_I18N = True
-
 USE_TZ = True
 
 
@@ -120,12 +127,12 @@ USE_TZ = True
 
 # settings.py
 STATIC_URL = '/static/'
-STATICFILES_DIRS = [BASE_DIR / 'static']
-STATIC_ROOT = STATIC_URL
-
-
 MEDIA_URL = '/media/'
-MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+#STATICFILES_DIRS = [BASE_DIR / 'static']
+#STATIC_ROOT = STATIC_URL
+
+STATIC_ROOT = BASE_DIR / 'static' if DEBUG else os.getenv('STATIC_PATH')
+MEDIA_ROOT = BASE_DIR / 'media' if DEBUG else os.getenv('MEDIA_PATH')
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field

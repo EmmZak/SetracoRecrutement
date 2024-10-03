@@ -1,3 +1,0 @@
-export DJANGO_SETTINGS_MODULE=SetracoRecrutement.settings.qa
-export DJANGO_SECRET_KEY="razerar"
-python3 manage.py runserver
