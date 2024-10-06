@@ -1,1 +1,9 @@
-python3 manage.py runserver
+python3 manage.py runserver --settings SetracoRecrutement.settings.local
+
+python3 manage.py runserver --settings SetracoRecrutement.settings.prod 
+
+python3 manage.py migrate --settings SetracoRecrutement.settings.prod 
+python3 manage.py init_group_permissions_after_migration --settings SetracoRecrutement.settings.prod 
+python3 manage.py create_test_users --settings SetracoRecrutement.settings.prod 
+python3 manage.py collectstatic --settings SetracoRecrutement.settings.prod 
+

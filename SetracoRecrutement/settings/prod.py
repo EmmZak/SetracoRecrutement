@@ -23,6 +23,7 @@ ENV_PATH: str
 DB_PATH: str
 STATIC_PATH: str
 MEDIA_PATH: str
+LOGS_DIR: str
 DJANGO_SECRET_KEY: str
 
 exemple for Windows
@@ -39,15 +40,17 @@ DJANGO_SECRET_KEY=secret_key_to_set
 
 # if debug => local, dev, qa
 # else => prod (windows)
-DEBUG = os.environ.get('DEBUG', '') != 'False'
-BASE_DIR = Path(__file__).resolve().parent.parent if DEBUG else Path(os.getenv('BASE_DIR'))
-ENV_FILE = BASE_DIR / '.env' if DEBUG else Path(os.getenv('ENV_PATH'))
+DEBUG = False
+ENV_FILE = "/home/ubuntu/.env"
+
 load_dotenv(ENV_FILE)
 
-DB_PATH = BASE_DIR / 'db.sqlite3' if DEBUG else os.getenv('DB_PATH')
+BASE_DIR_PATH = os.getenv('BASE_DIR')
+BASE_DIR = Path(BASE_DIR_PATH)
+DB_PATH = os.getenv('DB_PATH')
+print("DB_PATH: ", DB_PATH)
 
-SECRET_KEY = os.environ.get(
-    'DJANGO_SECRET_KEY', 'django-insecure-&psk#na5l=p3q8_a+-$4w1f^lt3lx1c@d*p4x$ymm_rn7pwb87')
+SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY')
 
 ALLOWED_HOSTS = ["*"]
 # Application definition
@@ -149,10 +152,9 @@ STATICFILES_DIRS = [
 STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
 
 
-#STATIC_ROOT = BASE_DIR / 'static' if DEBUG else os.getenv('STATIC_PATH')
+# STATIC_ROOT = BASE_DIR / 'static' if DEBUG else os.getenv('STATIC_PATH')
 MEDIA_URL = '/media/'
-
-MEDIA_ROOT = BASE_DIR / 'media' if DEBUG else os.getenv('MEDIA_PATH')
+MEDIA_ROOT = os.getenv('MEDIA_PATH')
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
@@ -163,7 +165,9 @@ LOGIN_URL = 'login'  # Redirect to login if not authenticated
 LOGIN_REDIRECT_URL = 'home'  # Redirect after login
 LOGOUT_REDIRECT_URL = 'login'
 
-
+LOGS_DIR = os.getenv('LOGS_DIR', BASE_DIR / 'logs')
+if not os.path.exists(LOGS_DIR):
+    os.makedirs(LOGS_DIR)
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,
@@ -185,7 +189,7 @@ LOGGING = {
         'config': {
             'level': 'DEBUG',
             'class': 'logging.handlers.TimedRotatingFileHandler',
-            'filename': os.path.join(BASE_DIR, 'logs', 'config.log'),
+            'filename': os.path.join(LOGS_DIR, 'config.log'),
             'when': 'D',
             'interval': 1,
             'backupCount': 7,
@@ -194,7 +198,7 @@ LOGGING = {
         'profiles': {
             'level': 'DEBUG',
             'class': 'logging.handlers.TimedRotatingFileHandler',
-            'filename': os.path.join(BASE_DIR, 'logs', 'profiles.log'),
+            'filename': os.path.join(LOGS_DIR, 'profiles.log'),
             'when': 'D',
             'interval': 1,
             'backupCount': 7,
@@ -203,7 +207,7 @@ LOGGING = {
         # 'profiles_ajax': {
         #     'level': 'DEBUG',
         #     'class': 'logging.handlers.TimedRotatingFileHandler',
-        #     'filename': os.path.join(BASE_DIR, 'logs', 'profiles_ajax.log'),
+        #     'filename': os.path.join(LOGS_DIR, 'profiles_ajax.log'),
         #     'when': 'D',
         #     'interval': 1,
         #     'backupCount': 7,
@@ -212,7 +216,7 @@ LOGGING = {
         'file': {
             'level': 'DEBUG',
             'class': 'logging.handlers.TimedRotatingFileHandler',
-            'filename': os.path.join(BASE_DIR, 'logs', 'django.log'),
+            'filename': os.path.join(LOGS_DIR, 'django.log'),
             'when': 'D',
             'interval': 1,
             'backupCount': 7,
@@ -221,7 +225,7 @@ LOGGING = {
         'error_file': {
             'level': 'ERROR',
             'class': 'logging.handlers.TimedRotatingFileHandler',
-            'filename': os.path.join(BASE_DIR, 'logs', 'errors.log'),
+            'filename': os.path.join(LOGS_DIR, 'errors.log'),
             'when': 'D',
             'interval': 1,
             'backupCount': 7,
@@ -230,7 +234,7 @@ LOGGING = {
         'access_file': {
             'level': 'INFO',
             'class': 'logging.handlers.TimedRotatingFileHandler',
-            'filename': os.path.join(BASE_DIR, 'logs', 'access.log'),
+            'filename': os.path.join(LOGS_DIR, 'access.log'),
             'when': 'D',
             'interval': 1,
             'backupCount': 7,
