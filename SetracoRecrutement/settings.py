@@ -44,6 +44,8 @@ BASE_DIR = Path(__file__).resolve().parent.parent if DEBUG else Path(os.getenv('
 ENV_FILE = BASE_DIR / '.env' if DEBUG else Path(os.getenv('ENV_PATH'))
 load_dotenv(ENV_FILE)
 
+DB_PATH = BASE_DIR / 'db.sqlite3' if DEBUG else os.getenv('DB_PATH')
+
 SECRET_KEY = os.environ.get(
     'DJANGO_SECRET_KEY', 'django-insecure-&psk#na5l=p3q8_a+-$4w1f^lt3lx1c@d*p4x$ymm_rn7pwb87')
 
@@ -63,6 +65,7 @@ INSTALLED_APPS = [
 ]
 
 MIDDLEWARE = [
+    'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.locale.LocaleMiddleware',
@@ -100,7 +103,7 @@ WSGI_APPLICATION = 'SetracoRecrutement.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3' if DEBUG else os.getenv('DB_PATH'),
+        'NAME': DB_PATH,
     }
 }
 
@@ -142,6 +145,9 @@ STATIC_ROOT = BASE_DIR / "staticfiles"
 STATICFILES_DIRS = [
     os.path.join(BASE_DIR, 'static'),
 ]
+
+STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
+
 
 #STATIC_ROOT = BASE_DIR / 'static' if DEBUG else os.getenv('STATIC_PATH')
 MEDIA_URL = '/media/'
@@ -232,11 +238,11 @@ LOGGING = {
         },
     },
     'loggers': {
-        # 'django': {
-        #     'handlers': ['file', 'error_file'],
-        #     'level': 'DEBUG',
-        #     'propagate': False,  # Disable propagation to prevent logs from leaking to root logger
-        # },
+        'django': {
+            'handlers': ['file', 'error_file'],
+            'level': 'ERROR',
+            'propagate': False,  # Disable propagation to prevent logs from leaking to root logger
+        },
         'django.server': {
             'level': 'WARNING'
         },
