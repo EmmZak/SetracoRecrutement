@@ -54,7 +54,10 @@ SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY')
 
 ALLOWED_HOSTS = ["*"]
 # Application definition
-
+CSRF_TRUSTED_ORIGINS = [
+    'https://cvtheque.devexperimentation.fr',
+    'https://www.cvtheque.devexperimentation.fr'
+]
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
