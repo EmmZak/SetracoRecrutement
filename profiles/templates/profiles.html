@@ -265,10 +265,11 @@
                                             <v-hover v-slot="{ isHovering, props }">
                                                 <v-card class="mx-auto" color="grey-lighten-4" max-width="600"
                                                     v-bind="props">
-                                                    <v-card-title :class="{ 'opacity-100': isHovering }">
+                                                    <v-card-title >
                                                         ${file.file_name}
                                                     </v-card-title>
                                                     <v-overlay id="overlay" :model-value="!!isHovering"
+                                                        style="z-index: 9999; top: 0px"
                                                         class="d-flex justify-center align-center w-100 h-100"
                                                         scrim="#036358" contained>
                                                         <div class="d-flex justify-space-around align-center transition-fast-in-fast-out bg-blue-lighten-2
