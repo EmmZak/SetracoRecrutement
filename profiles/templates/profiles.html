@@ -155,9 +155,9 @@
                                                         :value="editedItem.state?.id || null">
                                                 </v-col>
                                             </v-row>
+                                            <span class="text-h5">Fichiers</span>
                                             <v-row cols="12" v-if="true">
-                                                <v-col cols="12">
-                                                    <span class="text-h5">Fichiers</span>
+                                                <v-col cols="3">
                                                     <div class="image-upload mt-2 ">
                                                         <label for="files">
                                                             <span
@@ -168,7 +168,15 @@
                                                         </label>
 
                                                         <input name="files" id="files" type="file" multiple
-                                                            style="display: none;" />
+                                                            style="display: none;" @change="handleFileChange" />
+                                                    </div>
+                                                </v-col>
+                                                <v-col cols="9" class="align-center">
+                                                    <div v-if="selectedFiles.length" class="h-100">
+                                                        <v-chip v-for="(file, index) in selectedFiles" :key="index"
+                                                            class="mr-2 h-100" outlined>
+                                                            ${file.name}
+                                                        </v-chip>
                                                     </div>
                                                 </v-col>
                                             </v-row>
@@ -265,7 +273,7 @@
                                             <v-hover v-slot="{ isHovering, props }">
                                                 <v-card class="mx-auto" color="grey-lighten-4" max-width="600"
                                                     v-bind="props">
-                                                    <v-card-title >
+                                                    <v-card-title>
                                                         ${file.file_name}
                                                     </v-card-title>
                                                     <v-overlay id="overlay" :model-value="!!isHovering"
@@ -408,6 +416,7 @@
                     comment: "",
                     files: []
                 })
+                var selectedFiles = ref([])
                 var editedItem = ref({
                     id: null,
                     name: "",
@@ -436,6 +445,10 @@
 
                 const onRowClick = (item) => {
                     expandedRowKey.value = item.id
+                }
+
+                const handleFileChange = (event) => {
+                    selectedFiles.value = Array.from(event.target.files);
                 }
 
                 const profileSimilarityCheck = async () => {
@@ -761,7 +774,7 @@
                 })
 
                 return {
-                    exportProfile, similarityMessage, form, exportData, expandedRowKey, expandedRows, onRowClick, deleteComment, pagination, paginationFiltersCustom, profileStates, editedIndex, saveProfile, editedItem, editItem, deleteItem, dialogDelete, closeDelete, deleteItemConfirm, skills, fetchSkills, skillsLoading, defaultItem, formTitle, profiles, totalProfiles, headers, loading, fetchProfiles, expanded, dialog, openFile, printFile, deleteFile, getSkillColor
+                    handleFileChange, selectedFiles, exportProfile, similarityMessage, form, exportData, expandedRowKey, expandedRows, onRowClick, deleteComment, pagination, paginationFiltersCustom, profileStates, editedIndex, saveProfile, editedItem, editItem, deleteItem, dialogDelete, closeDelete, deleteItemConfirm, skills, fetchSkills, skillsLoading, defaultItem, formTitle, profiles, totalProfiles, headers, loading, fetchProfiles, expanded, dialog, openFile, printFile, deleteFile, getSkillColor
                 }
             }
         })
