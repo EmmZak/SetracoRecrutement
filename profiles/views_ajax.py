@@ -242,6 +242,10 @@ def profiles_data(request):
         # comma-separated list of IDs
         skill_filter = request.GET.get('skills', '')
         state_filter = request.GET.get('states', '')
+        sort_key = request.GET.get('sortBy[key]', 'creation_date')
+        sort_order = request.GET.get('sortBy[order]', 'desc')
+        
+        print("sort_key: ", sort_key, " sort_order: ", sort_order)
 
         profiles = Profile.objects.all()
         if search_value:
@@ -260,6 +264,16 @@ def profiles_data(request):
         if state_filter:
             state_ids = state_filter.split(',')
             profiles = profiles.filter(state__id__in=state_ids).distinct()
+
+        # Convert 'state.name' to 'state__name'
+        if sort_key == 'state.name':
+            sort_key = 'state__name'
+
+        # Apply sorting
+        if sort_key:
+            if sort_order == 'desc':
+                sort_key = f'-{sort_key}'  # Prepend a minus sign for descending order
+            profiles = profiles.order_by(sort_key)
 
         paginator = Paginator(profiles, length)
         profiles_page = paginator.get_page(start // length + 1)

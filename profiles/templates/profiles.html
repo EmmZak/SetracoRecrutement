@@ -374,15 +374,15 @@
             setup() {
                 const headers = [
                     // { title: 'Date de création', key: 'creation_date', sortable: true },
-                    { title: 'Modifié', key: 'update_date', sortable: false },
-                    { title: 'Nom', key: 'surname', sortable: false },
-                    { title: 'Prénom', key: 'name', sortable: false },
+                    { title: 'Modifié', key: 'update_date', sortable: true },
+                    { title: 'Nom', key: 'surname', sortable: true },
+                    { title: 'Prénom', key: 'name', sortable: true },
                     // { title: 'Email', key: 'email', sortable: false },
                     // { title: 'Numéro', key: 'number', sortable: false },
-                    { title: 'Ville', key: 'town', sortable: false },
+                    { title: 'Ville', key: 'town', sortable: true },
                     { title: 'Compétences', key: 'skills', sortable: false },
                     // { title: 'Etat', key: 'state', sortable: true },
-                    { title: 'Etat candidature', key: 'state.name', sortable: false },
+                    { title: 'Etat candidature', key: 'state.name', sortable: true },
                     { title: 'Diplômes', key: 'diplomas', sortable: false },
                     // { title: 'Commentaires', key: 'comment', sortable: false },
                     { title: 'Actions', key: 'actions', sortable: false },
@@ -433,9 +433,8 @@
                 var pagination = ref({
                     page: 1,
                     itemsPerPage: 20,
-                    total: 0
-                    //sortBy: "",    // Holds the column by which to sort
-                    //sortDesc: false
+                    total: 0,
+                    sortBy: null
                 })
                 var paginationFiltersCustom = ref({
                     skills: [],
@@ -488,33 +487,31 @@
                 }
 
                 const fetchProfiles = async (options) => {
-                    console.log("fetching profiles with options", options)
-                    console.log("fetching profiles with pagination", pagination.value)
+                    //console.log("fetching profiles with options", options)
+                    //console.log("fetching profiles with pagination", pagination.value)
                     loading.value = true;
-                    let itemsPerPage = pagination.value.itemsPerPage
-                    let page = pagination.value.page
+
+                    const { itemsPerPage, page, sortBy } = options?.itemsPerPage ? options : pagination.value;
+                    const sortField = sortBy[0] || null;
                     try {
-                        if (options) {
-                            itemsPerPage = options.itemsPerPage
-                            page = options.page
-                        }
                         let params = {
                             search: paginationFiltersCustom.value.search,
                             skills: paginationFiltersCustom.value.skills.join(','),
                             states: paginationFiltersCustom.value.states.join(','),
                             start: (page - 1) * itemsPerPage,
+                            sortBy: sortField, //sortBy,
                             length: itemsPerPage
                         }
                         //console.log("params: ", params)
                         let res = await axios.get('{% url 'profiles_data' %}', {
                             params: params
                         })
-                        console.log("res.data: ", res.data)
+                        //console.log("res.data: ", res.data)
                         console.log("res.data.profiles: ", res.data.profiles)
                         profiles.value = res.data.profiles
                         totalProfiles.value = res.data.recordsFiltered;
-                        pagination.value.itemsPerPage = itemsPerPage
-                        pagination.value.page = page
+
+                        Object.assign(pagination.value, { itemsPerPage, page, sortBy });
 
                         expanded.value = profiles.value
 
