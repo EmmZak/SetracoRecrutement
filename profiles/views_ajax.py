@@ -245,8 +245,6 @@ def profiles_data(request):
         sort_key = request.GET.get('sortBy[key]', 'creation_date')
         sort_order = request.GET.get('sortBy[order]', 'desc')
         
-        print("sort_key: ", sort_key, " sort_order: ", sort_order)
-
         profiles = Profile.objects.all()
         if search_value:
             profiles = profiles.filter(

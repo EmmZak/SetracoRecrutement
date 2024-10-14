@@ -8,6 +8,7 @@ from SetracoRecrutement.logger import Logger
 from config.forms import SkillDeleteForm, SkillForm, StateDeleteForm, StateForm
 from config.models import Skill, State
 from django.core.exceptions import PermissionDenied
+from .services import find_all_states, find_all_skills
 
 logger = Logger('config')
 
@@ -21,8 +22,8 @@ def has_skill_state_view_permissions(user):
 @login_required
 def config_view(request):
     if request.method == 'GET':
-        skills = Skill.objects.all()
-        states = State.objects.all()
+        skills = find_all_skills()
+        states = find_all_states()
 
         create_form = SkillForm()
         delete_form = SkillDeleteForm()
