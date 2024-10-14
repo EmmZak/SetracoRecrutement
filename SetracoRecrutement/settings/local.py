@@ -244,7 +244,7 @@ LOGGING = {
     'loggers': {
         'django': {
             'handlers': ['file', 'error_file'],
-            'level': 'ERROR',
+            'level': 'WARNING',
             'propagate': False,  # Disable propagation to prevent logs from leaking to root logger
         },
         'django.server': {

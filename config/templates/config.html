@@ -71,6 +71,55 @@
                         </v-card-text>
                     </v-card>
 
+                    <v-card flat>
+                        <v-card-title class="bg-redd text-h4 pa-5">
+                            Formations
+                        </v-card-title>
+                        {% if perms.config.add_skill %}
+                        <v-card-actions>
+                            <v-form method="POST" action="{% url 'create_training' %}" style="width: 100%;">
+                                {% csrf_token %}
+                                <v-row>
+                                    <v-col cols="4">
+                                        <v-text-field label="Ajouter une formation" name="name"
+                                            prepend-inner-icon="mdi-tools" variant="outlined"></v-text-field>
+                                    </v-col>
+                                    <v-col cols="3">
+                                        <v-btn class="text-none mb-4 right" color="blue" type="submit" size="x-large"
+                                            variant="flat" block>
+                                            Ajouter
+                                        </v-btn>
+                                    </v-col>
+                                </v-row>
+                            </v-form>
+                        </v-card-actions>
+                        {% endif %}
+                        <v-card-text>
+                            <v-row class="bg-greenn items-grid px-2">
+                                {% for training in trainings %}
+                                <v-card class="bg-grey-lighten-4">
+                                    <v-row>
+                                        <v-col cols="9" class="bg-bluee d-flex justify-centerr align-center">
+                                            <v-card-title class="text-subtitle-1 bg-redd">
+                                                {{training.name}}
+                                            </v-card-title>
+                                        </v-col>
+                                        {% if perms.config.delete_skill %}
+                                        <v-col cols="3" class="bg-redd ">
+                                            <v-card-actions class="bg-greenn w-100 d-flex justify-center align-center">
+                                                <!-- {{training}} -->
+                                                <v-icon size="20" color="grey-darken-3"
+                                                    @click="deleteTraining({{training.id}}, '{{training.name}}')">
+                                                    mdi-delete </v-icon>
+                                            </v-card-actions>
+                                        </v-col>
+                                        {% endif %}
+                                    </v-row>
+                                </v-card>
+                                {% endfor %}
+                            </v-row>
+                        </v-card-text>
+                    </v-card>
 
                     <v-card flat>
                         <v-card-title class="bg-redd text-h4 pa-5">
@@ -154,15 +203,36 @@
                 <v-dialog v-model="deleteSkillDialog.open" style="width: 50%;">
                     <v-card class="bg-greenn">
                         <v-card-text class="text-h6">
-                            <p>Êtes-vous sûr(e) de vouloir supprimer <strong
-                                    id="skill-name">${deleteSkillDialog.name}</strong>?</p>
-                            <p>Tous les profiles avec cet état seront modifiés</p>
+                            <p>Êtes-vous sûr(e) de vouloir supprimer <strong>${deleteSkillDialog.name}</strong>?</p>
+                            <p>Tous les profiles avec cette compétence seront modifiés</p>
                         </v-card-text>
                         <v-card-actions>
                             <form method="post" action="{% url 'delete_skill' %}" class="w-100">
                                 {% csrf_token %}
-                                <input type="hidden" name="pk" :value="deleteSkillDialog.id" id="skill-id">
-                                <input type="hidden" name="confirm" value="true" id="confirm-id">
+                                <input type="hidden" name="pk" :value="deleteSkillDialog.id">
+                                <input type="hidden" name="confirm" value="true">
+                                <div>
+                                    <v-btn class="text-none mb-4 " color="red" type="submit" size="x-large"
+                                        variant="flat" block>
+                                        Supprimer
+                                    </v-btn>
+                                </div>
+                            </form>
+                        </v-card-actions>
+                    </v-card>
+                </v-dialog>
+
+                <v-dialog v-model="deleteTrainingDialog.open" style="width: 50%;">
+                    <v-card class="bg-greenn">
+                        <v-card-text class="text-h6">
+                            <p>Êtes-vous sûr(e) de vouloir supprimer <strong>${deleteTrainingDialog.name}</strong>?</p>
+                            <p>Tous les profiles avec cette formation seront modifiés</p>
+                        </v-card-text>
+                        <v-card-actions>
+                            <form method="post" action="{% url 'delete_training' %}" class="w-100">
+                                {% csrf_token %}
+                                <input type="hidden" name="pk" :value="deleteTrainingDialog.id">
+                                <input type="hidden" name="confirm" value="true">
                                 <div>
                                     <v-btn class="text-none mb-4 " color="red" type="submit" size="x-large"
                                         variant="flat" block>
@@ -177,15 +247,14 @@
                 <v-dialog v-model="deleteStateDialog.open" style="width: 50%;">
                     <v-card class="bg-greenn">
                         <v-card-text class="text-h6">
-                            <p>Êtes-vous sûr(e) de vouloir supprimer <strong
-                                    id="skill-name">${deleteStateDialog.name}</strong>?</p>
+                            <p>Êtes-vous sûr(e) de vouloir supprimer <strong>${deleteStateDialog.name}</strong>?</p>
                             <p>Tous les profiles avec cet état seront modifiés</p>
                         </v-card-text>
                         <v-card-actions>
                             <form method="post" action="{% url 'delete_state' %}" class="w-100">
                                 {% csrf_token %}
-                                <input type="hidden" name="pk" :value="deleteStateDialog.id" id="state-id">
-                                <input type="hidden" name="confirm" value="true" id="confirm-id">
+                                <input type="hidden" name="pk" :value="deleteStateDialog.id">
+                                <input type="hidden" name="confirm" value="true">
                                 <div>
                                     <v-btn class="text-none mb-4 " color="red" type="submit" size="x-large"
                                         variant="flat" block>
@@ -222,6 +291,18 @@
                     deleteSkillDialog.value.open = true
                 }
 
+                var deleteTrainingDialog = ref({
+                    open: false,
+                    id: null,
+                    name: ""
+                })
+
+                const deleteTraining = (id, name) => {
+                    deleteTrainingDialog.value.id = id
+                    deleteTrainingDialog.value.name = name
+                    deleteTrainingDialog.value.open = true
+                }
+
                 var deleteStateDialog = ref({
                     open: false,
                     id: null,
@@ -235,7 +316,7 @@
                 }
 
                 return {
-                    deleteSkillDialog, deleteSkill, deleteStateDialog, deleteState
+                    deleteTraining, deleteTrainingDialog, deleteSkillDialog, deleteSkill, deleteStateDialog, deleteState
                 }
             }
         })
