@@ -7,3 +7,6 @@ logs
 .env
 staticfiles
 home
+media
+*/__pycache__
+*/.pyc

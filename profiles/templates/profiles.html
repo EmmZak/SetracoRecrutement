@@ -133,7 +133,20 @@
                                                     </v-chip-group>
                                                     <input type="hidden" name="skills"
                                                         :value="editedItem.skills?.map(s => s.id) || []">
-
+                                                </v-col>
+                                            </v-row>
+                                            <v-row cols="12">
+                                                <v-col cols="12">
+                                                    <span class="text-h5">Formations</span>
+                                                    <v-chip-group v-if="true" v-model="editedItem.trainings" column
+                                                        selected-class="text-green" multiple>
+                                                        <v-chip v-for="(training, i) in trainings" :key="training"
+                                                            :value="training" text variant="outlined" filter>
+                                                            ${ training.name }
+                                                        </v-chip>
+                                                    </v-chip-group>
+                                                    <input type="hidden" name="trainings"
+                                                        :value="editedItem.trainings?.map(t => t.id) || []">
                                                 </v-col>
                                             </v-row>
                                             <v-row cols="12">
@@ -203,6 +216,20 @@
                         <v-container flat class="px-5">
                             <!-- ${paginationFilters} -->
                             <v-row>
+                                <v-col>
+                                    <v-select :items="skills" v-model="paginationFiltersCustom.skills"
+                                        label="Compétences" item-title="name" chips multiple item-text="name"
+                                        item-value="id" hide-details variant="underlined" prepend-inner-icon="mdi-tools"
+                                        dense></v-select>
+                                </v-col>
+                                <v-col>
+                                    <v-select :items="trainings" v-model="paginationFiltersCustom.trainings"
+                                        label="Formations" item-title="name" chips multiple item-text="name"
+                                        item-value="id" hide-details variant="underlined" prepend-inner-icon="mdi-tools"
+                                        dense></v-select>
+                                </v-col>
+                            </v-row>
+                            <v-row>
                                 <v-col cols="7">
                                     <v-select :items="skills" v-model="paginationFiltersCustom.skills"
                                         label="Compétences" item-title="name" chips multiple item-text="name"
@@ -241,21 +268,27 @@
                             </v-chip>
                         </div>
                     </template>
+                    <!-- formations -->
+                    <template v-slot:item.trainings="{ value }">
+                        <div class="ma-1" style="display: flex; flex-direction: column; gap: 4px" bg-red>
+                            <v-chip v-for="(training, i) in value"> ${training.name}
+                            </v-chip>
+                        </div>
+                    </template>
 
                     <template v-slot:expanded-row="{ columns, item }">
                         <td :colspan="columns.length">
                             <v-card v-if="true" id="expand-div" style="display: flex; ">
                                 <div style="flex-basis: 100%" class="bg-greenn">
                                     <v-card-title>Données personnelles</v-card-title>
-                                    <v-card-text>
-                                        <v-row class="align-center">
+                                    <v-card-text v-if="true">
+                                        <v-row class="align-center ">
                                             <v-col cols="auto">
                                                 <v-icon large>mdi-email</v-icon>
                                             </v-col>
                                             <v-col>
                                                 <p class="text-body-1">${item.email}</p>
                                             </v-col>
-
                                         </v-row>
                                         <v-row class="align-center">
                                             <v-col cols="auto">
@@ -263,6 +296,22 @@
                                             </v-col>
                                             <v-col>
                                                 <p class="text-body-1">${item.number}</p>
+                                            </v-col>
+                                        </v-row>
+                                        <v-row class="align-center">
+                                            <v-col cols="auto">
+                                                <v-icon large>mdi-certificate</v-icon>
+                                            </v-col>
+                                            <v-col>
+                                                <p class="text-body-1">${item.diplomas}</p>
+                                            </v-col>
+                                        </v-row>
+                                        <v-row class="align-center">
+                                            <v-col cols="auto">
+                                                <v-icon large>mdi-calendar-range</v-icon>
+                                            </v-col>
+                                            <v-col>
+                                                <p class="text-body-1">${item.birthday}</p>
                                             </v-col>
                                         </v-row>
                                     </v-card-text>
@@ -381,15 +430,17 @@
                     // { title: 'Numéro', key: 'number', sortable: false },
                     { title: 'Ville', key: 'town', sortable: true },
                     { title: 'Compétences', key: 'skills', sortable: false },
+                    { title: 'Formations', key: 'trainings', sortable: false },
                     // { title: 'Etat', key: 'state', sortable: true },
                     { title: 'Etat candidature', key: 'state.name', sortable: true },
-                    { title: 'Diplômes', key: 'diplomas', sortable: false },
+                    // { title: 'Diplômes', key: 'diplomas', sortable: false },
                     // { title: 'Commentaires', key: 'comment', sortable: false },
                     { title: 'Actions', key: 'actions', sortable: false },
                 ]
 
                 var skillsLoading = ref(false)
                 var skills = ref([])
+                var trainings = ref([])
                 var profileStates = ref([])
                 var profiles = ref([])
                 var expanded = ref([])
@@ -409,9 +460,11 @@
                     surname: "",
                     email: "",
                     number: "",
+                    birthday: "",
                     state: "",
                     town: "",
                     skills: [],
+                    trainings: [],
                     diplomas: "",
                     comment: "",
                     files: []
@@ -422,10 +475,12 @@
                     name: "",
                     surname: "",
                     email: "",
+                    birthday: "",
                     number: "",
                     state: null,
                     town: "",
                     skills: [],
+                    trainings: [],
                     diplomas: "",
                     comment: "",
                     files: []
@@ -439,6 +494,7 @@
                 var paginationFiltersCustom = ref({
                     skills: [],
                     states: [],
+                    trainings: [],
                     search: ""
                 })
 
@@ -498,6 +554,7 @@
                             search: paginationFiltersCustom.value.search,
                             skills: paginationFiltersCustom.value.skills.join(','),
                             states: paginationFiltersCustom.value.states.join(','),
+                            trainings: paginationFiltersCustom.value.trainings.join(','),
                             start: (page - 1) * itemsPerPage,
                             sortBy: sortField, //sortBy,
                             length: itemsPerPage
@@ -585,7 +642,11 @@
 
                 const editItem = async (item) => {
                     console.log("edit item item: ", item)
-                    await fetchSkills()
+                    await Promise.all([
+                        fetchStates(),
+                        fetchSkills(),
+                        fetchTrainings(),
+                    ]);
                     editedIndex.value = profiles.value.indexOf(item)
                     editedItem.value = Object.assign({}, item)
                     //editedItem.value.name = item.name
@@ -610,25 +671,6 @@
                         link.setAttribute('download', 'export_profil.pdf');  // Filename
                         document.body.appendChild(link);
                         link.click();
-
-                        /* download
-                        for (let file of profile.files) {
-                            console.log("file ", file)
-                            const fileExtension = file.file_name.split('.').pop().toLowerCase();
-                            console.log("fileExtension ", fileExtension)
-                            if (fileExtension === 'pdf' || fileExtension === 'docx') {
-                                const fileResponse = await axios.get(file.file, {
-                                    responseType: 'blob'
-                                });
-                                console.log("fileResponse ", fileResponse)
-                                const fileUrl = window.URL.createObjectURL(new Blob([fileResponse.data]));
-                                const fileLink = document.createElement('a');
-                                fileLink.href = fileUrl;
-                                fileLink.setAttribute('download', file.name);  // Use the file's original name
-                                document.body.appendChild(fileLink);
-                                fileLink.click();
-                            }
-                        } */
                     } catch (error) {
                         console.error('Error exporting profile pdf :', error);
                         alert("Error exporting profile PDF: ", error)
@@ -728,6 +770,19 @@
                     }
                 }
 
+                const fetchTrainings = async () => {
+                    skillsLoading.value = true
+                    try {
+                        let res = await axios.get('{% url 'trainings_data' %}')
+                        console.log("trainings: ", res.data)
+                        trainings.value = res.data
+                    } catch (err) {
+                        console.log("err: ", err)
+                    } finally {
+                        skillsLoading.value = false
+                    }
+                }
+
                 const fetchStates = async () => {
                     //skillsLoading.value = true
                     try {
@@ -742,9 +797,11 @@
                 }
 
                 onMounted(async () => {
-                    await fetchStates()
-                    await fetchSkills()
-                    // await fetchProfiles();
+                    await Promise.all([
+                        fetchStates(),
+                        fetchSkills(),
+                        fetchTrainings(),
+                    ]);
                 })
 
                 watch(dialogDelete, (val) => {
@@ -762,7 +819,10 @@
                 });
 
                 watch([editedItem], async (val) => {
-                    // console.log("checking existents profile")
+                    // don't check if closing the dialog
+                    if (editedItem.id == null) {
+                        return
+                    }
                     await profileSimilarityCheck()
                 }, { deep: true });
 
@@ -771,7 +831,7 @@
                 })
 
                 return {
-                    handleFileChange, selectedFiles, exportProfile, similarityMessage, form, exportData, expandedRowKey, expandedRows, onRowClick, deleteComment, pagination, paginationFiltersCustom, profileStates, editedIndex, saveProfile, editedItem, editItem, deleteItem, dialogDelete, closeDelete, deleteItemConfirm, skills, fetchSkills, skillsLoading, defaultItem, formTitle, profiles, totalProfiles, headers, loading, fetchProfiles, expanded, dialog, openFile, printFile, deleteFile, getSkillColor
+                    trainings, fetchTrainings, handleFileChange, selectedFiles, exportProfile, similarityMessage, form, exportData, expandedRowKey, expandedRows, onRowClick, deleteComment, pagination, paginationFiltersCustom, profileStates, editedIndex, saveProfile, editedItem, editItem, deleteItem, dialogDelete, closeDelete, deleteItemConfirm, skills, fetchSkills, skillsLoading, defaultItem, formTitle, profiles, totalProfiles, headers, loading, fetchProfiles, expanded, dialog, openFile, printFile, deleteFile, getSkillColor
                 }
             }
         })

@@ -197,6 +197,7 @@ def export_profiles_csv(request):
         logger.error(f"Exporting profiles in csv {e}", request=request)
         return HttpResponse(status=500)
 
+
 @login_required
 @permission_required('profiles.add_profile')
 @require_http_methods(["GET"])
@@ -241,10 +242,11 @@ def profiles_data(request):
         search_value = request.GET.get('search', '')
         # comma-separated list of IDs
         skill_filter = request.GET.get('skills', '')
+        training_filter = request.GET.get('trainings', '')
         state_filter = request.GET.get('states', '')
         sort_key = request.GET.get('sortBy[key]', 'creation_date')
         sort_order = request.GET.get('sortBy[order]', 'desc')
-        
+
         profiles = Profile.objects.all()
         if search_value:
             profiles = profiles.filter(
@@ -259,18 +261,22 @@ def profiles_data(request):
             skill_ids = skill_filter.split(',')
             profiles = profiles.filter(skills__id__in=skill_ids).distinct()
 
+        if training_filter:
+            training_ids = training_filter.split(',')
+            profiles = profiles.filter(
+                trainings__id__in=training_ids).distinct()
+
         if state_filter:
             state_ids = state_filter.split(',')
             profiles = profiles.filter(state__id__in=state_ids).distinct()
 
-        # Convert 'state.name' to 'state__name'
         if sort_key == 'state.name':
             sort_key = 'state__name'
 
-        # Apply sorting
         if sort_key:
             if sort_order == 'desc':
-                sort_key = f'-{sort_key}'  # Prepend a minus sign for descending order
+                # Prepend a minus sign for descending order
+                sort_key = f'-{sort_key}'
             profiles = profiles.order_by(sort_key)
 
         paginator = Paginator(profiles, length)

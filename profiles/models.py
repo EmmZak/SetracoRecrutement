@@ -2,7 +2,7 @@ from django import forms
 from django.contrib.auth.models import User
 from django.db import models
 
-from config.models import Skill, State
+from config.models import Skill, State, Training
 
 
 class Profile(models.Model):
@@ -12,7 +12,7 @@ class Profile(models.Model):
     number = models.CharField(max_length=20)
     town = models.CharField(max_length=100)
     skills = models.ManyToManyField(Skill, related_name='profiles')
-    trainings = models.ManyToManyField(Skill, related_name='trainings')
+    trainings = models.ManyToManyField(Training, related_name='trainings')
     state = models.ForeignKey(
         State, on_delete=models.SET_NULL, null=True, blank=True)
 

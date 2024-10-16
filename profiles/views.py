@@ -3,16 +3,21 @@ from django.contrib.auth.decorators import (login_required,
                                             user_passes_test)
 from django.db import transaction
 from django.shortcuts import get_object_or_404, redirect, render
+from django.urls import reverse
 from django.views.decorators.http import require_http_methods
 
 from SetracoRecrutement.logger import Logger
-from config.models import Skill, State
+from config.models import Skill, State, Training
 
-from .forms import CommentForm, ProfileFileForm, ProfileForm
 from .models import Comment, Profile, ProfileFile
 from django.core.exceptions import PermissionDenied
 
 logger = Logger('profiles')
+
+
+def error_page(request):
+    error_message = request.GET.get('message', 'Erreur inconnue')
+    return render(request, 'error.html', {'error_message': error_message})
 
 
 @login_required
@@ -25,25 +30,22 @@ def config(request):
 @permission_required('profiles.view_profile', raise_exception=True)
 @login_required
 def profiles_view(request):
+    print("request GET", request.GET)
     is_superuser = request.user.is_superuser
 
     is_editor_or_admin = request.user.groups.filter(
         name__in=['Editeur', 'Admin']).exists()
 
     is_editor_or_admin_or_superuser = is_superuser or is_editor_or_admin
-    #print("is_editor_or_admin: ", is_editor_or_admin_or_superuser)
 
-    profile_form = ProfileForm()
-    profile_file_form = ProfileFileForm()
-    comment_form = CommentForm()
-
-    return render(request, 'profiles.html', {'is_editor_or_admin': is_editor_or_admin_or_superuser, "profile_form": profile_form, "profile_file_form": profile_file_form, "comment_form": comment_form})
+    return render(request, 'profiles.html', {'is_editor_or_admin': is_editor_or_admin_or_superuser})
 
 
 def has_add_or_change_permission(user):
     if not (user.has_perm('profiles.add_profile') or user.has_perm('profiles.change_profile')):
         raise PermissionDenied  # Raises the exception when permissions are lacking
     return True
+
 
 @transaction.atomic
 @login_required
@@ -62,6 +64,7 @@ def profiles_create(request):
         diplomas = request.POST.get('diplomas')
         comment = request.POST.get('comment')
         skill_ids = request.POST.get('skills', '')
+        training_ids = request.POST.get('trainings', '')
         state_id = request.POST.get('state', None)
         files = request.FILES.getlist('files')
         logger.debug(
@@ -74,6 +77,7 @@ def profiles_create(request):
             f"diplomas={diplomas}, "
             f"comment={comment}, "
             f"skill_ids={skill_ids}, "
+            f"training_ids={training_ids}, "
             f"state_id={state_id}, "
             f"files={len(files)} files uploaded."
         )
@@ -88,7 +92,7 @@ def profiles_create(request):
         profile.diplomas = diplomas
         profile.state = State.objects.filter(
             id=state_id).first() if state_id else None
-        
+
         profile.save()
 
         if comment:
@@ -105,10 +109,18 @@ def profiles_create(request):
         else:
             profile.skills.clear()
 
+        if training_ids:
+            selected_training_ids = list(map(int, training_ids.split(',')))
+            selected_trainings = Training.objects.filter(id__in=selected_training_ids)
+            profile.trainings.set(selected_trainings)
+        else:
+            profile.trainings.clear()
+
         for file in files:
             ProfileFile.objects.create(profile=profile, file=file)
     except Exception as e:
         logger.error(f"Error creating profile {e}", request=request)
+        return render(request, 'error.html', {'error_message': "Erreur lors de la création/mise à jour du profile"})
 
     return redirect('/profiles')
 

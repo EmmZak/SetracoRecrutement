@@ -16,7 +16,7 @@ class StateSerializer(serializers.ModelSerializer):
         model = State
         fields = ['id', 'name']
 
-class StateSerializer(serializers.ModelSerializer):
+class TrainingSerializer(serializers.ModelSerializer):
     class Meta:
         model = Training
         fields = ['id', 'name']
