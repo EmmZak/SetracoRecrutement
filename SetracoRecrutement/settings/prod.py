@@ -38,12 +38,8 @@ SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY')
 DB_PATH="/home/ubuntu/db.sqlite3"
 MEDIA_URL = '/media/'
 MEDIA_ROOT = "/home/ubuntu/media"
-if not os.path.exists(MEDIA_ROOT):
-    os.makedirs(MEDIA_ROOT)
 
 LOGS_DIR="/home/ubuntu/logs"
-if not os.path.exists(LOGS_DIR):
-    os.makedirs(LOGS_DIR)
 
 ALLOWED_HOSTS = ["*"]
 # Application definition
