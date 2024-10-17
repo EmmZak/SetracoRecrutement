@@ -1,6 +1,8 @@
 from django import forms
 from django.contrib.auth.models import User
 from django.db import models
+from django.dispatch import receiver
+import os
 
 from config.models import Skill, State, Training
 
@@ -44,3 +46,13 @@ class ProfileFile(models.Model):
 
     def __str__(self):
         return f"File for {self.profile.name} {self.profile.surname}"
+
+@receiver(models.signals.post_delete, sender=ProfileFile)
+def auto_delete_file_on_delete(sender, instance, **kwargs):
+    """
+    Deletes file from filesystem
+    when corresponding `MediaFile` object is deleted.
+    """
+    if instance.file:
+        if os.path.isfile(instance.file.path):
+            os.remove(instance.file.path)
