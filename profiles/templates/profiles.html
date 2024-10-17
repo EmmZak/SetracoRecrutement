@@ -698,6 +698,7 @@
                             search: paginationFiltersCustom.value.search,
                             skills: paginationFiltersCustom.value.skills.join(','),
                             states: paginationFiltersCustom.value.states.join(','),
+                            trainings: paginationFiltersCustom.value.trainings.join(','),
                         }
                         //console.log("params: ", params)
                         const response = await axios.get('{% url 'export_profiles_csv' %}', {
