@@ -12,20 +12,8 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 import os
 from pathlib import Path
 from logging.handlers import TimedRotatingFileHandler
-from dotenv import load_dotenv
 
 """
-.env vars
-
-DEBUG: bool
-BASE_DIR: str
-ENV_PATH: str
-DB_PATH: str
-STATIC_PATH: str
-MEDIA_PATH: str
-LOGS_DIR: str
-DJANGO_SECRET_KEY: str
-
 exemple for Windows
 
 DEBUG=True
@@ -41,16 +29,21 @@ DJANGO_SECRET_KEY=secret_key_to_set
 # if debug => local, dev, qa
 # else => prod (windows)
 DEBUG = False
-ENV_FILE = "/home/ubuntu/.env"
 
-load_dotenv(ENV_FILE)
-
-BASE_DIR_PATH = os.getenv('BASE_DIR')
+BASE_DIR_PATH = "/home/ubuntu/SetracoRecrutement"
 BASE_DIR = Path(BASE_DIR_PATH)
-DB_PATH = os.getenv('DB_PATH')
-print("DB_PATH: ", DB_PATH)
 
 SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY')
+
+DB_PATH="/home/ubuntu/db.sqlite3"
+MEDIA_URL = '/media/'
+MEDIA_ROOT = "/home/ubuntu/media"
+if not os.path.exists(MEDIA_ROOT):
+    os.makedirs(MEDIA_ROOT)
+
+LOGS_DIR="/home/ubuntu/logs"
+if not os.path.exists(LOGS_DIR):
+    os.makedirs(LOGS_DIR)
 
 ALLOWED_HOSTS = ["*"]
 # Application definition
@@ -156,8 +149,6 @@ STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
 
 
 # STATIC_ROOT = BASE_DIR / 'static' if DEBUG else os.getenv('STATIC_PATH')
-MEDIA_URL = '/media/'
-MEDIA_ROOT = os.getenv('MEDIA_PATH')
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
@@ -168,9 +159,6 @@ LOGIN_URL = 'login'  # Redirect to login if not authenticated
 LOGIN_REDIRECT_URL = 'home'  # Redirect after login
 LOGOUT_REDIRECT_URL = 'login'
 
-LOGS_DIR = os.getenv('LOGS_DIR', BASE_DIR / 'logs')
-if not os.path.exists(LOGS_DIR):
-    os.makedirs(LOGS_DIR)
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,

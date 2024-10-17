@@ -60,7 +60,7 @@
                         <v-toolbar flat>
                             <v-toolbar-title class="text-h4">Profils</v-toolbar-title>
                             <v-spacer></v-spacer>
-                            <v-dialog v-model="dialog" style="height: 100%; width: 60%;">
+                            <v-dialog v-model="dialog" style="height: 100%; width: 75%;">
                                 {% if perms.profiles.add_profile %}
                                 <template v-slot:activator="{ props }">
                                     <v-btn class="mb-2 text-h6" color="blue-darken-4 " rounded="45" variant="flat" dark
@@ -120,6 +120,21 @@
                                                         auto-grow variant="underlined"
                                                         :readonly="!{% if is_editor_or_admin == True %} true {% else %} false {% endif %}"></v-textarea>
                                                 </v-col>
+                                            </v-row>
+                                            <v-row cols="12">
+                                                <v-col cols="4">
+                                                    <v-text-field v-model="editedItem.birthday"
+                                                        label="Date de naissance" name="birthday"
+                                                        prepend-inner-icon="mdi-calendar-range"
+                                                        :readonly="!{% if is_editor_or_admin == True %} true {% else %} false {% endif %}"
+                                                        variant="underlined"></v-text-field>
+                                                    <!-- <v-date-input v-model="editedItem.birthday"
+                                                        prepend-inner-icon="mdi-calendar-range" prepend-icon=""
+                                                        label="Date de naissance" name="birthday"
+                                                        :readonly="!{% if is_editor_or_admin == True %} true {% else %} false {% endif %}"
+                                                        variant="underlined"></v-date-input> -->
+                                                </v-col>
+                                            </v-row>
                                             </v-row>
                                             <v-row cols="12">
                                                 <v-col cols="12">
@@ -208,12 +223,10 @@
                                             Sauvegarder
                                         </v-btn>
                                     </v-card-actions> -->
-
                             </v-dialog>
 
-
                         </v-toolbar>
-                        <v-container flat class="px-5">
+                        <v-container fluid class="px-5 ">
                             <!-- ${paginationFilters} -->
                             <v-row>
                                 <v-col>
@@ -223,28 +236,19 @@
                                         dense></v-select>
                                 </v-col>
                                 <v-col>
+                                    <v-select :items="profileStates" v-model="paginationFiltersCustom.states"
+                                        label="Etat candidature" item-title="name" chips multiple item-text="name"
+                                        item-value="id" hide-details variant="underlined"
+                                        prepend-inner-icon="mdi-account-alert" dense></v-select>
+                                </v-col>
+                                <v-col>
                                     <v-select :items="trainings" v-model="paginationFiltersCustom.trainings"
                                         label="Formations" item-title="name" chips multiple item-text="name"
                                         item-value="id" hide-details variant="underlined" prepend-inner-icon="mdi-tools"
                                         dense></v-select>
                                 </v-col>
                             </v-row>
-                            <v-row>
-                                <v-col cols="7">
-                                    <v-select :items="skills" v-model="paginationFiltersCustom.skills"
-                                        label="Compétences" item-title="name" chips multiple item-text="name"
-                                        item-value="id" hide-details variant="underlined" prepend-inner-icon="mdi-tools"
-                                        dense></v-select>
-                                </v-col>
-                                <v-col cols="5">
-                                    <v-select :items="profileStates" v-model="paginationFiltersCustom.states"
-                                        label="Etat candidature" item-title="name" chips multiple item-text="name"
-                                        item-value="id" hide-details variant="underlined"
-                                        prepend-inner-icon="mdi-account-alert" dense></v-select>
-                                </v-col>
-                            </v-row>
-                            <v-row cols="12" align="center" justify="space-around">
-
+                            <v-row cols="12" align="center" justify="space-between" class="">
                                 <v-col cols="3">
                                     <v-text-field v-model="paginationFiltersCustom.search" label="Recherche"
                                         prepend-inner-icon="mdi-magnify" variant="underlined" hide-details
@@ -349,6 +353,15 @@
 
                                 </div>
                                 <v-divider vertical></v-divider>
+                                <v-card v-if="false"  style="flex-basis: 100%">
+                                    <v-card-title>Suivi</v-card-title>
+                                    <v-card-text>
+                                        <v-timeline align="start" side="end">
+
+                                        </v-timeline>
+                                    </v-card-text>
+                                </v-card>
+                                <v-divider v-if="false" vertical></v-divider>
                                 <v-card style="flex-basis: 100%">
                                     <v-card-title>Commentaires</v-card-title>
                                     <v-card-text>

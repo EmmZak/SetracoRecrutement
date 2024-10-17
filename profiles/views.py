@@ -30,7 +30,6 @@ def config(request):
 @permission_required('profiles.view_profile', raise_exception=True)
 @login_required
 def profiles_view(request):
-    print("request GET", request.GET)
     is_superuser = request.user.is_superuser
 
     is_editor_or_admin = request.user.groups.filter(
@@ -61,6 +60,7 @@ def profiles_create(request):
         town = request.POST.get('town')
         email = request.POST.get('email')
         number = request.POST.get('number')
+        birthday = request.POST.get('birthday')
         diplomas = request.POST.get('diplomas')
         comment = request.POST.get('comment')
         skill_ids = request.POST.get('skills', '')
@@ -89,6 +89,7 @@ def profiles_create(request):
         profile.town = town
         profile.email = email
         profile.number = number
+        profile.birthday = birthday
         profile.diplomas = diplomas
         profile.state = State.objects.filter(
             id=state_id).first() if state_id else None

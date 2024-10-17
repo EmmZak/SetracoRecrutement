@@ -96,6 +96,7 @@ def export_profile_pdf(request):
             ("Numéro", profile.number),
             ("Ville", profile.town),
             # ("Compétences", ', '.join([skill.name for skill in profile.skills.all()])),
+            ("Date de naissance", profile.birthday),
             ("Diplômes", profile.diplomas),
             ("Date de création", profile.creation_date.strftime('%d/%m/%Y %H:%M:%S')),
             ("Date de mise à jour", profile.update_date.strftime('%d/%m/%Y %H:%M:%S')),
@@ -115,23 +116,15 @@ def export_profile_pdf(request):
             pdf.drawString(120, y_position, skill.name)
             y_position -= 20
 
-        """
         pdf.setFont("Helvetica-Bold", 12)
-        pdf.drawString(100, y_position, "Commentaires:")
+        pdf.drawString(100, y_position, "Formations:")
         y_position -= 20
         pdf.setFont("Helvetica", 12)
-        
-        for comment in profile.comments.all():
-            pdf.drawString(120, y_position,
-                           f"{comment.user.username}: {comment.text}")
+
+        for training in profile.trainings.all():
+            pdf.drawString(120, y_position, training.name)
             y_position -= 20
-            if y_position < 50:
-                add_footer(page_num)
-                pdf.showPage()
-                page_num += 1
-                y_position = height - 100
-                pdf.setFont("Helvetica", 11)
-        """
+
         add_footer(page_num)
         pdf.save()
         return response
@@ -149,6 +142,7 @@ def export_profiles_csv(request):
         search_value = request.GET.get('search', '')
         skill_filter = request.GET.get('skills', '')
         state_filter = request.GET.get('states', '')
+        training_filter = request.GET.get('trainings', '')
 
         profiles = Profile.objects.all()
         if search_value:
@@ -162,6 +156,10 @@ def export_profiles_csv(request):
         if skill_filter:
             skill_ids = skill_filter.split(',')
             profiles = profiles.filter(skills__id__in=skill_ids).distinct()
+        
+        if training_filter:
+            training_ids = training_filter.split(',')
+            profiles = profiles.filter(trainings__id__in=training_ids).distinct()
 
         if state_filter:
             states = state_filter.split(',')
@@ -173,8 +171,9 @@ def export_profiles_csv(request):
         writer = csv.writer(response)
 
         writer.writerow([
-            'Nom', 'Prenom', 'Email', 'Numero', 'Ville', 'Competences', 'Diplomes',
-            'Date de creation', 'Date de mise a jour', 'Etat', 'Commentaires'
+            'Date de creation', 'Date de mise a jour', 'Nom', 'Prenom', 'Date de naissance',
+            'Email', 'Numero', 'Ville', 'Competences', 'Diplomes',
+            'Etat', 'Commentaires', 'Formations'
         ])
 
         for profile in profiles:
@@ -183,13 +182,17 @@ def export_profiles_csv(request):
             comments = '; '.join(
                 [f"{comment.user.username}: {comment.text}" for comment in profile.comments.all()])
 
+            trainings = '; '.join(
+                [f"{training.name}" for training in profile.trainings.all()])
+
             state = getattr(profile.state, 'name', "Inconnu")
             creation_date = profile.creation_date.strftime('%d/%m/%Y %H:%M:%S')
             update_date = profile.update_date.strftime('%d/%m/%Y %H:%M:%S')
 
             writer.writerow([
-                profile.name, profile.surname, profile.email, profile.number, profile.town,
-                skills, profile.diplomas, creation_date, update_date, state, comments
+                creation_date, update_date, profile.name, profile.surname, profile.birthday,
+                profile.email, profile.number, profile.town, skills, profile.diplomas,
+                state, comments, trainings
             ])
 
         return response

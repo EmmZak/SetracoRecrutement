@@ -12,20 +12,8 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 import os
 from pathlib import Path
 from logging.handlers import TimedRotatingFileHandler
-from dotenv import load_dotenv
 
 """
-.env vars
-
-DEBUG: bool
-BASE_DIR: str
-ENV_PATH: str
-DB_PATH: str
-STATIC_PATH: str
-MEDIA_PATH: str
-LOGS_DIR: str
-DJANGO_SECRET_KEY: str
-
 exemple for Windows
 
 DEBUG=True
@@ -35,21 +23,31 @@ DB_PATH=c:\
 STATIC_PATH=c:\
 MEDIA_PATH=c:\
 DJANGO_SECRET_KEY=secret_key_to_set
-
 """
 
 # if debug => local, dev, qa
 # else => prod (windows)
 DEBUG = True
-ENV_FILE = ".env"
 
-load_dotenv(ENV_FILE)
 BASE_DIR = Path(__file__).resolve().parent.parent.parent
-
-DB_PATH = BASE_DIR / 'db.sqlite3'
 
 SECRET_KEY = os.environ.get(
     'DJANGO_SECRET_KEY', 'django-insecure-&psk#na5l=p3q8_a+-$4w1f^lt3lx1c@d*p4x$ymm_rn7pwb87')
+
+DB_PATH = BASE_DIR / 'db.sqlite3'
+MEDIA_URL = '/media/'
+MEDIA_ROOT = BASE_DIR / 'media'
+if not os.path.exists(MEDIA_ROOT):
+    os.makedirs(MEDIA_ROOT)
+
+LOGS_DIR = BASE_DIR / 'logs'
+if not os.path.exists(LOGS_DIR):
+    os.makedirs(LOGS_DIR)
+
+print("BASE_DIR: ", BASE_DIR)
+print("DB_PATH: ", DB_PATH)
+print("MEDIA_ROOT: ", MEDIA_ROOT)
+print("LOGS_DIR: ", LOGS_DIR)
 
 ALLOWED_HOSTS = ["*"]
 # Application definition
@@ -147,13 +145,13 @@ STATIC_ROOT = BASE_DIR / "staticfiles"
 STATICFILES_DIRS = [
     os.path.join(BASE_DIR, 'static'),
 ]
+print("STATICFILES_DIRS: ", STATICFILES_DIRS)
 
 STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
 
 
 # STATIC_ROOT = BASE_DIR / 'static' if DEBUG else os.getenv('STATIC_PATH')
-MEDIA_URL = '/media/'
-MEDIA_ROOT = BASE_DIR / 'media'
+
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
@@ -165,9 +163,6 @@ LOGIN_REDIRECT_URL = 'home'  # Redirect after login
 LOGOUT_REDIRECT_URL = 'login'
 
 
-LOGS_DIR = os.getenv('LOGS_DIR', BASE_DIR / 'logs')
-if not os.path.exists(LOGS_DIR):
-    os.makedirs(LOGS_DIR)
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,

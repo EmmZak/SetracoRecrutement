@@ -17,6 +17,8 @@ class Profile(models.Model):
         State, on_delete=models.SET_NULL, null=True, blank=True)
 
     diplomas = models.TextField(blank=True)  # Multiline string, use TextField
+    # birthday = models.DateField(null=True, blank=True)
+    birthday = models.CharField(max_length=50, default="")
     creation_date = models.DateTimeField(auto_now_add=True)
     update_date = models.DateTimeField(auto_now=True)
 

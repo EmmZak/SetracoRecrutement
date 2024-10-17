@@ -48,7 +48,7 @@ class ProfileSerializer(serializers.ModelSerializer):
     class Meta:
         model = Profile
         fields = ['id', 'name', 'surname', 'email', 'state', 'number', 'town', 'creation_date',
-                  'update_date', 'comments', 'diplomas', 'skills', 'trainings', 'files']
+                  'update_date', 'comments', 'birthday', 'diplomas', 'skills', 'trainings', 'files']
         extra_kwargs = {
             'creation_date': {'format': '%d/%m/%Y'},
             'update_date': {'format': '%d/%m/%Y %H:%M:%S'},
