@@ -13,9 +13,21 @@
             gap: 10px;
         }
 
+        .items-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 10px;
+        }
+
         @media (max-width: 1280px) {
             .items-grid {
                 grid-template-columns: repeat(4, 1fr);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .items-grid {
+                grid-template-columns: repeat(3, 1fr);
             }
         }
 
@@ -32,7 +44,7 @@
     <div id="configApp" style="width: 100%;">
         <v-app>
             <v-main>
-                <v-container class="bg-yelloww">
+                <v-container fluid class="bg-yelloww">
                     <v-card flat>
                         <v-card-title class="bg-redd text-h4 pa-5">
                             Compétences

@@ -151,7 +151,7 @@
                                                 </v-col>
                                             </v-row>
                                             <v-row cols="12">
-                                                <v-col cols="12">
+                                                <v-col cols="6">
                                                     <span class="text-h5">Formations</span>
                                                     <v-chip-group v-if="true" v-model="editedItem.trainings" column
                                                         selected-class="text-green" multiple>
@@ -162,13 +162,6 @@
                                                     </v-chip-group>
                                                     <input type="hidden" name="trainings"
                                                         :value="editedItem.trainings?.map(t => t.id) || []">
-                                                </v-col>
-                                            </v-row>
-                                            <v-row cols="12">
-                                                <v-col cols="6">
-                                                    <v-textarea v-model="editedItem.comment" label="Commentaires"
-                                                        name="comment" prepend-icon="mdi-comment"
-                                                        variant="underlined"></v-textarea>
                                                 </v-col>
                                                 <v-col cols="6">
                                                     <span class="text-h5">Statut du candidat</span>
@@ -181,6 +174,18 @@
                                                     </v-chip-group>
                                                     <input type="hidden" name="state"
                                                         :value="editedItem.state?.id || null">
+                                                </v-col>
+                                            </v-row>
+                                            <v-row cols="12">
+                                                <v-col cols="6">
+                                                    <v-textarea v-model="editedItem.comment" label="Commentaires"
+                                                        name="comment" prepend-icon="mdi-comment"
+                                                        variant="underlined"></v-textarea>
+                                                </v-col>
+                                                <v-col cols="6">
+                                                    <v-textarea v-model="editedItem.followup" label="Suivi interne"
+                                                        name="followup" prepend-icon="mdi-timeline-check"
+                                                        variant="underlined"></v-textarea>
                                                 </v-col>
                                             </v-row>
                                             <span class="text-h5">Fichiers</span>
@@ -244,8 +249,8 @@
                                 <v-col>
                                     <v-select :items="trainings" v-model="paginationFiltersCustom.trainings"
                                         label="Formations" item-title="name" chips multiple item-text="name"
-                                        item-value="id" hide-details variant="underlined" prepend-inner-icon="mdi-certificate"
-                                        dense></v-select>
+                                        item-value="id" hide-details variant="underlined"
+                                        prepend-inner-icon="mdi-certificate" dense></v-select>
                                 </v-col>
                             </v-row>
                             <v-row cols="12" align="center" justify="space-between" class="">
@@ -353,20 +358,14 @@
 
                                 </div>
                                 <v-divider vertical></v-divider>
-                                <v-card v-if="false"  style="flex-basis: 100%">
-                                    <v-card-title>Suivi</v-card-title>
-                                    <v-card-text>
-                                        <v-timeline align="start" side="end">
-
-                                        </v-timeline>
-                                    </v-card-text>
-                                </v-card>
-                                <v-divider v-if="false" vertical></v-divider>
                                 <v-card style="flex-basis: 100%">
                                     <v-card-title>Commentaires</v-card-title>
                                     <v-card-text>
                                         <v-timeline align="start" side="end">
                                             <v-timeline-item v-for="(com, i) in item.comments" :key="i">
+                                                <template v-slot:icon>
+                                                    <span class="text-white">${i+1}</span>
+                                                </template>
                                                 <v-card>
                                                     <v-card-title :class="['text-subtitle-1', `bg-${item.color}`]">
                                                         ${com.user.username} - ${com.creation_date}
@@ -380,6 +379,36 @@
                                                                 {% if perms.profiles.delete_comment %}
                                                                 <v-icon size="36" color="grey-darken-3"
                                                                     @click="deleteComment(com)"> mdi-delete
+                                                                </v-icon>
+                                                                {% endif %}
+                                                            </v-col>
+                                                        </v-row>
+                                                    </v-card-text>
+                                                </v-card>
+                                            </v-timeline-item>
+                                        </v-timeline>
+                                    </v-card-text>
+                                </v-card>
+                                <v-divider v-if="true" vertical></v-divider>
+                                <v-card v-if="true" style="flex-basis: 100%">
+                                    <v-card-title>Suivi interne</v-card-title>
+                                    <v-card-text>
+                                        <v-timeline align="start" side="end">
+                                            <v-timeline-item v-for="(flw, i) in item.followups" :key="i"
+                                                :dot-color="i%2==0? 'pink': 'teal-lighten-3'">
+                                                <v-card>
+                                                    <v-card-title :class="['text-subtitle-1', `bg-${item.color}`]">
+                                                        ${flw.user.username} - ${flw.creation_date}
+                                                    </v-card-title>
+                                                    <v-card-text class="bg-white text--primary">
+                                                        <v-row>
+                                                            <v-col cols="10">
+                                                                <p>${flw.text}</p>
+                                                            </v-col>
+                                                            <v-col cols="2" class="d-flex justify-center align-center">
+                                                                {% if perms.profiles.delete_followup %}
+                                                                <v-icon size="36" color="grey-darken-3"
+                                                                    @click="deleteFollowup(flw)"> mdi-delete
                                                                 </v-icon>
                                                                 {% endif %}
                                                             </v-col>
@@ -480,6 +509,7 @@
                     trainings: [],
                     diplomas: "",
                     comment: "",
+                    followup: "",
                     files: []
                 })
                 var selectedFiles = ref([])
@@ -496,6 +526,7 @@
                     trainings: [],
                     diplomas: "",
                     comment: "",
+                    followup: "",
                     files: []
                 })
                 var pagination = ref({
@@ -765,6 +796,23 @@
                     }
                 }
 
+                /* delete followup */
+                const deleteFollowup = async (flw) => {
+                    console.log("deleting followup", flw)
+                    try {
+                        await axios.delete(
+                            `{% url 'delete_followup' %}?id=${flw.id}`, {
+                            headers: {
+                                'X-CSRFToken': '{{ csrf_token }}'
+                            }
+                        })
+                        fetchProfiles();
+                    } catch (err) {
+                        console.error('Failed to delete the flw:', err);
+                        alert("Failed to delete the flw")
+                    }
+                }
+
                 /* skill */
                 const getSkillColor = (index) => {
                     const colors = ['red', 'blue', 'green', 'purple', 'orange'];
@@ -845,7 +893,7 @@
                 })
 
                 return {
-                    trainings, fetchTrainings, handleFileChange, selectedFiles, exportProfile, similarityMessage, form, exportData, expandedRowKey, expandedRows, onRowClick, deleteComment, pagination, paginationFiltersCustom, profileStates, editedIndex, saveProfile, editedItem, editItem, deleteItem, dialogDelete, closeDelete, deleteItemConfirm, skills, fetchSkills, skillsLoading, defaultItem, formTitle, profiles, totalProfiles, headers, loading, fetchProfiles, expanded, dialog, openFile, printFile, deleteFile, getSkillColor
+                    deleteFollowup, trainings, fetchTrainings, handleFileChange, selectedFiles, exportProfile, similarityMessage, form, exportData, expandedRowKey, expandedRows, onRowClick, deleteComment, pagination, paginationFiltersCustom, profileStates, editedIndex, saveProfile, editedItem, editItem, deleteItem, dialogDelete, closeDelete, deleteItemConfirm, skills, fetchSkills, skillsLoading, defaultItem, formTitle, profiles, totalProfiles, headers, loading, fetchProfiles, expanded, dialog, openFile, printFile, deleteFile, getSkillColor
                 }
             }
         })

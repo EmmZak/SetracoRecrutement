@@ -1,6 +1,6 @@
 from django import forms
 
-from .models import Comment, Profile, ProfileFile
+from .models import Comment, Profile, ProfileFile, FollowUp
 
 
 class ProfileForm(forms.ModelForm):
@@ -22,6 +22,13 @@ class CommentForm(forms.ModelForm):
             'text': forms.Textarea(attrs={'rows': 3}),
         }
 
+class FollowUpForm(forms.ModelForm):
+    class Meta:
+        model = FollowUp
+        fields = ['text']
+        widgets = {
+            'text': forms.Textarea(attrs={'rows': 3}),
+        }
 
 class ProfileFileForm(forms.ModelForm):
     class Meta:

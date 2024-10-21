@@ -29,7 +29,9 @@ def create_groups_from_apps():
             'profile', ['view', 'add', 'change', 'delete']),
         *get_permissions_for_model('profilefile', ['delete']),
         *get_permissions_for_model('comment', ['delete']),
+        *get_permissions_for_model('followup', ['delete']),
         *get_permissions_for_model('skill', ['view', 'add', 'delete']),
+        *get_permissions_for_model('training', ['view', 'add', 'delete']),
         *get_permissions_for_model('state', ['view', 'add', 'delete']),
     ]
     perms = Permission.objects.filter(codename__in=admin_perm_names).all()
@@ -43,7 +45,10 @@ def create_groups_from_apps():
         *get_permissions_for_model('profile',
                                    ['view', 'add', 'change', 'delete']),
         *get_permissions_for_model('profilefile', ['delete']),
+        *get_permissions_for_model('comment', ['delete']),
+        *get_permissions_for_model('followup', ['delete']),
         *get_permissions_for_model('skill', ['view', 'add']),
+        *get_permissions_for_model('training', ['view', 'add']),
         *get_permissions_for_model('state', ['view', 'add']),
     ]
     perms = Permission.objects.filter(codename__in=editor_perm_names).all()
@@ -54,6 +59,7 @@ def create_groups_from_apps():
     consultant_perm_names = [
         *get_permissions_for_model('profile', ['view', 'change']),
         *get_permissions_for_model('skill', ['view']),
+        *get_permissions_for_model('training', ['view']),
         *get_permissions_for_model('state', ['view']),
     ]
     perms = Permission.objects.filter(codename__in=consultant_perm_names).all()

@@ -15,7 +15,7 @@ from reportlab.pdfgen import canvas
 from SetracoRecrutement.logger import Logger
 from profiles.serializers import ProfileSerializer
 
-from .models import Comment, Profile, ProfileFile
+from .models import Comment, Profile, ProfileFile, FollowUp
 
 logger = Logger('profiles')
 
@@ -34,6 +34,25 @@ def delete_comment(request):
     except Exception as e:
         logger.error(
             f"Error deleting comment by id: {com_id} {e}", request=request)
+        return HttpResponse(status=500)
+
+    return HttpResponse(status=400)
+
+
+@login_required
+@permission_required('profiles.delete_followup')
+@require_http_methods(["DELETE"])
+def delete_followup(request):
+    flw_id = request.GET.get('id')
+    logger.info(f"Deleting followup by id: {flw_id}", request=request)
+    try:
+        if flw_id:
+            FollowUp.objects.filter(id=flw_id).delete()
+            print("returning success")
+            return HttpResponse(status=200)
+    except Exception as e:
+        logger.error(
+            f"Error deleting followup by id: {flw_id} {e}", request=request)
         return HttpResponse(status=500)
 
     return HttpResponse(status=400)
@@ -156,10 +175,11 @@ def export_profiles_csv(request):
         if skill_filter:
             skill_ids = skill_filter.split(',')
             profiles = profiles.filter(skills__id__in=skill_ids).distinct()
-        
+
         if training_filter:
             training_ids = training_filter.split(',')
-            profiles = profiles.filter(trainings__id__in=training_ids).distinct()
+            profiles = profiles.filter(
+                trainings__id__in=training_ids).distinct()
 
         if state_filter:
             states = state_filter.split(',')

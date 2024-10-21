@@ -9,7 +9,7 @@ from django.views.decorators.http import require_http_methods
 from SetracoRecrutement.logger import Logger
 from config.models import Skill, State, Training
 
-from .models import Comment, Profile, ProfileFile
+from .models import Comment, Profile, ProfileFile, FollowUp
 from django.core.exceptions import PermissionDenied
 
 logger = Logger('profiles')
@@ -63,6 +63,7 @@ def profiles_create(request):
         birthday = request.POST.get('birthday')
         diplomas = request.POST.get('diplomas')
         comment = request.POST.get('comment')
+        followup = request.POST.get('followup')
         skill_ids = request.POST.get('skills', '')
         training_ids = request.POST.get('trainings', '')
         state_id = request.POST.get('state', None)
@@ -76,6 +77,7 @@ def profiles_create(request):
             f"number={number}, "
             f"diplomas={diplomas}, "
             f"comment={comment}, "
+            f"followup={followup}, "
             f"skill_ids={skill_ids}, "
             f"training_ids={training_ids}, "
             f"state_id={state_id}, "
@@ -103,6 +105,13 @@ def profiles_create(request):
                 text=comment
             )
 
+        if followup:
+            FollowUp.objects.create(
+                profile=profile,
+                user=request.user,
+                text=followup
+            )
+
         if skill_ids:
             selected_skill_ids = list(map(int, skill_ids.split(',')))
             selected_skills = Skill.objects.filter(id__in=selected_skill_ids)
@@ -112,7 +121,8 @@ def profiles_create(request):
 
         if training_ids:
             selected_training_ids = list(map(int, training_ids.split(',')))
-            selected_trainings = Training.objects.filter(id__in=selected_training_ids)
+            selected_trainings = Training.objects.filter(
+                id__in=selected_training_ids)
             profile.trainings.set(selected_trainings)
         else:
             profile.trainings.clear()

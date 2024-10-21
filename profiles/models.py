@@ -38,6 +38,15 @@ class Comment(models.Model):
     def __str__(self):
         return f"Comment by {self.user.username} on {self.creation_date}"
 
+class FollowUp(models.Model):
+    profile = models.ForeignKey(
+        Profile, related_name='followups', on_delete=models.CASCADE)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    text = models.TextField()
+    creation_date = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"FollowUp by {self.user.username} on {self.creation_date}"
 
 class ProfileFile(models.Model):
     profile = models.ForeignKey(

@@ -2,7 +2,7 @@ from django.urls import path
 
 from .views import (config, home, profile_delete, profiles_create,
                     profiles_view, error_page)
-from .views_ajax import (check_profile, delete_comment, delete_file,
+from .views_ajax import (check_profile, delete_comment, delete_followup, delete_file,
                          export_profile_pdf, export_profiles_csv,
                          profiles_data)
 
@@ -22,5 +22,6 @@ urlpatterns = [
     path('export_profile_pdf/',
          export_profile_pdf, name='export_profile_pdf'),
     path('delete_comment/', delete_comment, name="delete_comment"),
+    path('delete_followup/', delete_followup, name="delete_followup"),
     path('delete_file/', delete_file, name='delete_file')
 ]
