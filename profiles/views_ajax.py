@@ -169,7 +169,8 @@ def export_profiles_csv(request):
                 Q(name__icontains=search_value) |
                 Q(surname__icontains=search_value) |
                 Q(email__icontains=search_value) |
-                Q(number__icontains=search_value)
+                Q(number__icontains=search_value) |
+                Q(town__icontains=search_value)
             )
 
         if skill_filter:
@@ -193,7 +194,7 @@ def export_profiles_csv(request):
         writer.writerow([
             'Date de creation', 'Date de mise a jour', 'Nom', 'Prenom', 'Date de naissance',
             'Email', 'Numero', 'Ville', 'Competences', 'Diplomes',
-            'Etat', 'Commentaires', 'Formations'
+            'Etat', 'Commentaires', 'Suivi interne', 'Formations'
         ])
 
         for profile in profiles:
@@ -201,6 +202,9 @@ def export_profiles_csv(request):
 
             comments = '; '.join(
                 [f"{comment.user.username}: {comment.text}" for comment in profile.comments.all()])
+
+            followups = '; '.join(
+                [f"{flw.user.username}: {flw.text}" for flw in profile.followups.all()])
 
             trainings = '; '.join(
                 [f"{training.name}" for training in profile.trainings.all()])
@@ -212,7 +216,7 @@ def export_profiles_csv(request):
             writer.writerow([
                 creation_date, update_date, profile.name, profile.surname, profile.birthday,
                 profile.email, profile.number, profile.town, skills, profile.diplomas,
-                state, comments, trainings
+                state, comments, followups, trainings
             ])
 
         return response
