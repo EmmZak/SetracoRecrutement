@@ -288,137 +288,154 @@
                     <template v-slot:expanded-row="{ columns, item }">
                         <td :colspan="columns.length">
                             <v-card v-if="true" id="expand-div" style="display: flex; ">
-                                <div style="flex-basis: 100%" class="bg-greenn">
-                                    <v-card-title>Données personnelles</v-card-title>
-                                    <v-card-text v-if="true">
-                                        <v-row class="align-center ">
-                                            <v-col cols="auto">
-                                                <v-icon large>mdi-email</v-icon>
-                                            </v-col>
-                                            <v-col>
-                                                <p class="text-body-1">${item.email}</p>
-                                            </v-col>
-                                        </v-row>
-                                        <v-row class="align-center">
-                                            <v-col cols="auto">
-                                                <v-icon large>mdi-phone</v-icon>
-                                            </v-col>
-                                            <v-col>
-                                                <p class="text-body-1">${item.number}</p>
-                                            </v-col>
-                                        </v-row>
-                                        <v-row class="align-center">
-                                            <v-col cols="auto">
-                                                <v-icon large>mdi-account-school</v-icon>
-                                            </v-col>
-                                            <v-col>
-                                                <p class="text-body-1">${item.diplomas}</p>
-                                            </v-col>
-                                        </v-row>
-                                        <v-row class="align-center">
-                                            <v-col cols="auto">
-                                                <v-icon large>mdi-calendar-range</v-icon>
-                                            </v-col>
-                                            <v-col>
-                                                <p class="text-body-1">${item.birthday}</p>
-                                            </v-col>
-                                        </v-row>
-                                    </v-card-text>
+                                <v-row no-gutters>
+                                    <v-col cols="4">
+                                        <v-card flat style="flex-basis: 100%">
+                                            <v-card-title>Données personnelles</v-card-title>
+                                            <v-card-text v-if="true">
+                                                <v-row class="align-center ">
+                                                    <v-col cols="auto">
+                                                        <v-icon large>mdi-email</v-icon>
+                                                    </v-col>
+                                                    <v-col>
+                                                        <p class="text-body-1">${item.email}</p>
+                                                    </v-col>
+                                                </v-row>
+                                                <v-row class="align-center">
+                                                    <v-col cols="auto">
+                                                        <v-icon large>mdi-phone</v-icon>
+                                                    </v-col>
+                                                    <v-col>
+                                                        <p class="text-body-1">${item.number}</p>
+                                                    </v-col>
+                                                </v-row>
+                                                <v-row class="align-center">
+                                                    <v-col cols="auto">
+                                                        <v-icon large>mdi-account-school</v-icon>
+                                                    </v-col>
+                                                    <v-col>
+                                                        <p class="text-body-1">${item.diplomas}</p>
+                                                    </v-col>
+                                                </v-row>
+                                                <v-row class="align-center">
+                                                    <v-col cols="auto">
+                                                        <v-icon large>mdi-calendar-range</v-icon>
+                                                    </v-col>
+                                                    <v-col>
+                                                        <p class="text-body-1">${item.birthday}</p>
+                                                    </v-col>
+                                                </v-row>
+                                            </v-card-text>
 
-                                    <v-card-title>Fichier(s)</v-card-title>
-                                    <v-card-text v-if="true" class="files-grid-container">
-                                        <div v-for="file in item.files" :key="file.id" class="files-grid-item">
-                                            <v-hover v-slot="{ isHovering, props }">
-                                                <v-card class="mx-auto" color="grey-lighten-4" max-width="600"
-                                                    v-bind="props">
-                                                    <v-card-title>
-                                                        ${file.file_name}
-                                                    </v-card-title>
-                                                    <v-overlay id="overlay" :model-value="!!isHovering"
-                                                        style="z-index: 9999; top: 0px"
-                                                        class="d-flex justify-center align-center w-100 h-100"
-                                                        scrim="#036358" contained>
-                                                        <div class="d-flex justify-space-around align-center transition-fast-in-fast-out bg-blue-lighten-2
-                                                                        v-card--reveal "
-                                                            style="height: 100%; width: 100%;">
-                                                            <v-icon color="white"
-                                                                @click="openFile(file)">mdi-eye</v-icon>
-                                                            <v-icon color="white"
-                                                                @click="printFile(file)">mdi-printer</v-icon>
-                                                            {% if perms.profiles.delete_profilefile %}
-                                                            <v-icon color="white"
-                                                                @click="deleteFile(file)">mdi-delete</v-icon>
-                                                            {% endif %}
-                                                        </div>
-                                                    </v-overlay>
-                                                </v-card>
-                                            </v-hover>
-                                        </div>
-                                    </v-card-text>
-
-                                </div>
+                                            <v-card-title>Fichier(s)</v-card-title>
+                                            <v-card-text v-if="true" class="files-grid-containerr">
+                                                <v-row no-gutters class="w-full"
+                                                    style="overflow: hiddenn; width: 100%;">
+                                                    <v-col class="pa-1" cols="6" v-for="file in item.files"
+                                                        :key="file.id">
+                                                        <v-hover v-slot="{ isHovering, props }">
+                                                            <v-card class="mx-auto" color="grey-lighten-4"
+                                                                max-width="600" v-bind="props">
+                                                                <v-card-title>
+                                                                    ${file.file_name}
+                                                                </v-card-title>
+                                                                <v-overlay id="overlay" :model-value="!!isHovering"
+                                                                    style="z-index: 9999; top: 0px"
+                                                                    class="d-flex justify-center align-center w-100 h-100"
+                                                                    scrim="#036358" contained>
+                                                                    <div class="d-flex justify-space-around align-center transition-fast-in-fast-out bg-blue-lighten-2
+                                                                                v-card--reveal "
+                                                                        style="height: 100%; width: 100%;">
+                                                                        <v-icon color="white"
+                                                                            @click="openFile(file)">mdi-eye</v-icon>
+                                                                        <v-icon color="white"
+                                                                            @click="printFile(file)">mdi-printer</v-icon>
+                                                                        {% if perms.profiles.delete_profilefile %}
+                                                                        <v-icon color="white"
+                                                                            @click="deleteFile(file)">mdi-delete</v-icon>
+                                                                        {% endif %}
+                                                                    </div>
+                                                                </v-overlay>
+                                                            </v-card>
+                                                        </v-hover>
+                                                    </v-col>
+                                                </v-row>
+                                            </v-card-text>
+                                        </v-card>
+                                    </v-col>
+                                    <v-col cols="4">
+                                        <v-card flat style="flex-basis: 100%">
+                                            <v-card-title>Commentaires</v-card-title>
+                                            <v-card-text>
+                                                <v-timeline align="start" side="end">
+                                                    <v-timeline-item v-for="(com, i) in item.comments" :key="i">
+                                                        <template v-slot:icon>
+                                                            <span class="text-white">${i+1}</span>
+                                                        </template>
+                                                        <v-card>
+                                                            <v-card-title
+                                                                :class="['text-subtitle-1', `bg-${item.color}`]">
+                                                                ${com.user.username} - ${com.creation_date}
+                                                            </v-card-title>
+                                                            <v-card-text class="bg-white text--primary">
+                                                                <v-row>
+                                                                    <v-col cols="10">
+                                                                        <p>${com.text}</p>
+                                                                    </v-col>
+                                                                    <v-col cols="2"
+                                                                        class="d-flex justify-center align-center">
+                                                                        {% if perms.profiles.delete_comment %}
+                                                                        <v-icon size="36" color="grey-darken-3"
+                                                                            @click="deleteComment(com)"> mdi-delete
+                                                                        </v-icon>
+                                                                        {% endif %}
+                                                                    </v-col>
+                                                                </v-row>
+                                                            </v-card-text>
+                                                        </v-card>
+                                                    </v-timeline-item>
+                                                </v-timeline>
+                                            </v-card-text>
+                                        </v-card>
+                                    </v-col>
+                                    <v-col cols="4">
+                                        <v-card flat style="flex-basis: 100%">
+                                            <v-card-title>Suivi interne</v-card-title>
+                                            <v-card-text>
+                                                <v-timeline align="start" side="end">
+                                                    <v-timeline-item v-for="(flw, i) in item.followups" :key="i"
+                                                        :dot-color="i%2==0? 'pink': 'teal-lighten-3'">
+                                                        <v-card>
+                                                            <v-card-title
+                                                                :class="['text-subtitle-1', `bg-${item.color}`]">
+                                                                ${flw.user.username} - ${flw.creation_date}
+                                                            </v-card-title>
+                                                            <v-card-text class="bg-white text--primary">
+                                                                <v-row>
+                                                                    <v-col cols="10">
+                                                                        <p>${flw.text}</p>
+                                                                    </v-col>
+                                                                    <v-col cols="2"
+                                                                        class="d-flex justify-center align-center">
+                                                                        {% if perms.profiles.delete_followup %}
+                                                                        <v-icon size="36" color="grey-darken-3"
+                                                                            @click="deleteFollowup(flw)"> mdi-delete
+                                                                        </v-icon>
+                                                                        {% endif %}
+                                                                    </v-col>
+                                                                </v-row>
+                                                            </v-card-text>
+                                                        </v-card>
+                                                    </v-timeline-item>
+                                                </v-timeline>
+                                            </v-card-text>
+                                        </v-card>
+                                    </v-col>
+                                </v-row>
                                 <v-divider vertical></v-divider>
-                                <v-card style="flex-basis: 100%">
-                                    <v-card-title>Commentaires</v-card-title>
-                                    <v-card-text>
-                                        <v-timeline align="start" side="end">
-                                            <v-timeline-item v-for="(com, i) in item.comments" :key="i">
-                                                <template v-slot:icon>
-                                                    <span class="text-white">${i+1}</span>
-                                                </template>
-                                                <v-card>
-                                                    <v-card-title :class="['text-subtitle-1', `bg-${item.color}`]">
-                                                        ${com.user.username} - ${com.creation_date}
-                                                    </v-card-title>
-                                                    <v-card-text class="bg-white text--primary">
-                                                        <v-row>
-                                                            <v-col cols="10">
-                                                                <p>${com.text}</p>
-                                                            </v-col>
-                                                            <v-col cols="2" class="d-flex justify-center align-center">
-                                                                {% if perms.profiles.delete_comment %}
-                                                                <v-icon size="36" color="grey-darken-3"
-                                                                    @click="deleteComment(com)"> mdi-delete
-                                                                </v-icon>
-                                                                {% endif %}
-                                                            </v-col>
-                                                        </v-row>
-                                                    </v-card-text>
-                                                </v-card>
-                                            </v-timeline-item>
-                                        </v-timeline>
-                                    </v-card-text>
-                                </v-card>
+
                                 <v-divider v-if="true" vertical></v-divider>
-                                <v-card v-if="true" style="flex-basis: 100%">
-                                    <v-card-title>Suivi interne</v-card-title>
-                                    <v-card-text>
-                                        <v-timeline align="start" side="end">
-                                            <v-timeline-item v-for="(flw, i) in item.followups" :key="i"
-                                                :dot-color="i%2==0? 'pink': 'teal-lighten-3'">
-                                                <v-card>
-                                                    <v-card-title :class="['text-subtitle-1', `bg-${item.color}`]">
-                                                        ${flw.user.username} - ${flw.creation_date}
-                                                    </v-card-title>
-                                                    <v-card-text class="bg-white text--primary">
-                                                        <v-row>
-                                                            <v-col cols="10">
-                                                                <p>${flw.text}</p>
-                                                            </v-col>
-                                                            <v-col cols="2" class="d-flex justify-center align-center">
-                                                                {% if perms.profiles.delete_followup %}
-                                                                <v-icon size="36" color="grey-darken-3"
-                                                                    @click="deleteFollowup(flw)"> mdi-delete
-                                                                </v-icon>
-                                                                {% endif %}
-                                                            </v-col>
-                                                        </v-row>
-                                                    </v-card-text>
-                                                </v-card>
-                                            </v-timeline-item>
-                                        </v-timeline>
-                                    </v-card-text>
-                                </v-card>
+
                             </v-card>
                         </td>
                     </template>
