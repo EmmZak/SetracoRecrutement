@@ -2,17 +2,17 @@
     <!-- ${paginationFilters} -->
     <v-row>
         <v-col>
-            <v-select :items="skills" v-model="paginationFiltersCustom.skills" label="Compétences" item-title="name"
-                chips multiple item-text="name" item-value="id" hide-details variant="underlined"
-                prepend-inner-icon="mdi-tools" dense></v-select>
+            <v-select :menu-props="{ maxWidth: 0 }" :items="skills" v-model="paginationFiltersCustom.skills"
+                label="Compétences" item-title="name" chips multiple item-text="name" item-value="id" hide-details
+                variant="underlined" prepend-inner-icon="mdi-tools" dense></v-select>
         </v-col>
         <v-col>
-            <v-select :items="profileStates" v-model="paginationFiltersCustom.states" label="Etat candidature"
+            <v-select :menu-props="{ maxWidth: 0 }" :items="profileStates" v-model="paginationFiltersCustom.states" label="Etat candidature"
                 item-title="name" chips multiple item-text="name" item-value="id" hide-details variant="underlined"
                 prepend-inner-icon="mdi-account-alert" dense></v-select>
         </v-col>
         <v-col>
-            <v-select :items="trainings" v-model="paginationFiltersCustom.trainings" label="Formations"
+            <v-select :menu-props="{ maxWidth: 0 }" :items="trainings" v-model="paginationFiltersCustom.trainings" label="Formations"
                 item-title="name" chips multiple item-text="name" item-value="id" hide-details variant="underlined"
                 prepend-inner-icon="mdi-certificate" dense></v-select>
         </v-col>

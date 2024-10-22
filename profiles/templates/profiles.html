@@ -35,12 +35,7 @@
             <v-main>
                 <v-data-table-server :headers="headers" :items="profiles" :items-length="totalProfiles"
                     :loading="loading" show-expand @update:options="fetchProfiles" :expanded.sync="expandedRows"
-                    @click:row="onRowClick" no-data-text="Pas de profils" :items-per-page-options="[
-                    {value: 2, title: '2'},
-                    {value: 4, title: '4'},
-                    {value: 10, title: '10'},
-                    {value: 20, title: '20'}
-                  ]">
+                    @click:row="onRowClick" no-data-text="Pas de profils" autowidth>
 
                     <template v-slot:top>
                         <v-toolbar flat>
@@ -234,8 +229,6 @@
                                         {% include 'components/followups_list.html' %}
                                     </v-col>
                                 </v-row>
-
-
                             </v-card>
                         </td>
                     </template>
