@@ -1,0 +1,26 @@
+<v-card flat style="flex-basis: 100%">
+    <v-card-title>Commentaires</v-card-title>
+    <v-card-text>
+        <v-timeline align="start" side="end">
+            <v-timeline-item v-for="(com, i) in item.comments" :key="i">
+                <template v-slot:icon><span class="text-white">${i + 1}</span></template>
+                <v-card>
+                    <v-card-title class="text-subtitle-1">
+                        ${com.user.username} - ${com.creation_date}</v-card-title>
+                    <v-card-text class="bg-white text--primary">
+                        <v-row>
+                            <v-col cols="10">
+                                <p>${com.text}</p>
+                            </v-col>
+                            <v-col cols="2" class="d-flex justify-center align-center">
+                                {% if perms.profiles.delete_comment %}
+                                <v-icon size="36" color="grey-darken-3" @click="deleteComment(com)">mdi-delete</v-icon>
+                                {% endif %}
+                            </v-col>
+                        </v-row>
+                    </v-card-text>
+                </v-card>
+            </v-timeline-item>
+        </v-timeline>
+    </v-card-text>
+</v-card>

@@ -1,0 +1,33 @@
+<v-container fluid class="px-5 ">
+    <!-- ${paginationFilters} -->
+    <v-row>
+        <v-col>
+            <v-select :items="skills" v-model="paginationFiltersCustom.skills" label="Compétences" item-title="name"
+                chips multiple item-text="name" item-value="id" hide-details variant="underlined"
+                prepend-inner-icon="mdi-tools" dense></v-select>
+        </v-col>
+        <v-col>
+            <v-select :items="profileStates" v-model="paginationFiltersCustom.states" label="Etat candidature"
+                item-title="name" chips multiple item-text="name" item-value="id" hide-details variant="underlined"
+                prepend-inner-icon="mdi-account-alert" dense></v-select>
+        </v-col>
+        <v-col>
+            <v-select :items="trainings" v-model="paginationFiltersCustom.trainings" label="Formations"
+                item-title="name" chips multiple item-text="name" item-value="id" hide-details variant="underlined"
+                prepend-inner-icon="mdi-certificate" dense></v-select>
+        </v-col>
+    </v-row>
+    <v-row cols="12" align="center" justify="space-between" class="">
+        <v-col cols="3">
+            <v-text-field v-model="paginationFiltersCustom.search" label="Recherche" prepend-inner-icon="mdi-magnify"
+                variant="underlined" hide-details single-line></v-text-field>
+        </v-col>
+        <v-col cols="2">
+            <v-btn class="text-none ms-4 text-white" color="blue-darken-4 " rounded="0" variant="flat"
+                @click="exportData">
+                <v-icon left>mdi-file-export</v-icon>
+                Exporter
+            </v-btn>
+        </v-col>
+    </v-row>
+</v-container>

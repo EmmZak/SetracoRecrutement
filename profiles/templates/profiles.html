@@ -26,20 +26,6 @@
         tbody tr:nth-of-type(odd) {
             background-color: rgba(160, 160, 160, 0.05);
         }
-
-        .files-grid-container {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 10px;
-            padding: 10px;
-        }
-
-        .files-grid-item {
-            text-align: center;
-            border-radius: 5px;
-            width: 100%;
-            box-sizing: border-box;
-        }
     </style>
 </head>
 
@@ -73,7 +59,6 @@
                                 <v-form v-model="form" method="POST" action="{% url 'profiles_create' %}"
                                     enctype="multipart/form-data">
                                     {% csrf_token %}
-
                                     <input type="hidden" name="id" id="profile-id" :value="editedItem.id">
                                     <v-card>
                                         <v-card-title>
@@ -196,7 +181,6 @@
                                                             <span
                                                                 class="border-dashed rounded-lg grey-lighten-1 pa-2">Choisir
                                                                 des fichiers</span>
-                                                            <!-- <v-icon color="grey" x-large>mdi-file-upload</v-icon> -->
 
                                                         </label>
 
@@ -223,237 +207,41 @@
                                         </v-card-actions>
                                     </v-card>
                                     </form>
-                                    <!-- <v-card-actions>
-                                        <v-btn color="blue-darken-1" variant="text" @click="saveProfile">
-                                            Sauvegarder
-                                        </v-btn>
-                                    </v-card-actions> -->
                             </v-dialog>
 
                         </v-toolbar>
-                        <v-container fluid class="px-5 ">
-                            <!-- ${paginationFilters} -->
-                            <v-row>
-                                <v-col>
-                                    <v-select :items="skills" v-model="paginationFiltersCustom.skills"
-                                        label="Compétences" item-title="name" chips multiple item-text="name"
-                                        item-value="id" hide-details variant="underlined" prepend-inner-icon="mdi-tools"
-                                        dense></v-select>
-                                </v-col>
-                                <v-col>
-                                    <v-select :items="profileStates" v-model="paginationFiltersCustom.states"
-                                        label="Etat candidature" item-title="name" chips multiple item-text="name"
-                                        item-value="id" hide-details variant="underlined"
-                                        prepend-inner-icon="mdi-account-alert" dense></v-select>
-                                </v-col>
-                                <v-col>
-                                    <v-select :items="trainings" v-model="paginationFiltersCustom.trainings"
-                                        label="Formations" item-title="name" chips multiple item-text="name"
-                                        item-value="id" hide-details variant="underlined"
-                                        prepend-inner-icon="mdi-certificate" dense></v-select>
-                                </v-col>
-                            </v-row>
-                            <v-row cols="12" align="center" justify="space-between" class="">
-                                <v-col cols="3">
-                                    <v-text-field v-model="paginationFiltersCustom.search" label="Recherche"
-                                        prepend-inner-icon="mdi-magnify" variant="underlined" hide-details
-                                        single-line></v-text-field>
-                                </v-col>
-                                <v-col cols="2">
-                                    <v-btn class="text-none ms-4 text-white" color="blue-darken-4 " rounded="0"
-                                        variant="flat" @click="exportData">
-                                        <v-icon left>mdi-file-export</v-icon>
-                                        Exporter
-                                    </v-btn>
-                                </v-col>
-                            </v-row>
-                        </v-container>
+                        {% include 'components/pagination/toolbar.html' %}
                     </template>
 
-                    <!-- skills -->
-                    <template v-slot:item.skills="{ value }">
-                        <div class="ma-1" style="display: flex; flex-direction: column; gap: 4px" bg-red>
-                            <v-chip v-for="(skill, i) in value" :color="getSkillColor(i)"> ${skill.name}
-                            </v-chip>
-                        </div>
-                    </template>
-                    <!-- formations -->
-                    <template v-slot:item.trainings="{ value }">
-                        <div class="ma-1" style="display: flex; flex-direction: column; gap: 4px" bg-red>
-                            <v-chip v-for="(training, i) in value"> ${training.name}
-                            </v-chip>
-                        </div>
-                    </template>
+                    {% include 'components/datatable/skills_column.html' %}
+                    {% include 'components/datatable/trainings_column.html' %}
+
 
                     <template v-slot:expanded-row="{ columns, item }">
                         <td :colspan="columns.length">
                             <v-card v-if="true" id="expand-div" style="display: flex; ">
                                 <v-row no-gutters>
                                     <v-col cols="4">
-                                        <v-card flat style="flex-basis: 100%">
-                                            <v-card-title>Données personnelles</v-card-title>
-                                            <v-card-text v-if="true">
-                                                <v-row class="align-center ">
-                                                    <v-col cols="auto">
-                                                        <v-icon large>mdi-email</v-icon>
-                                                    </v-col>
-                                                    <v-col>
-                                                        <p class="text-body-1">${item.email}</p>
-                                                    </v-col>
-                                                </v-row>
-                                                <v-row class="align-center">
-                                                    <v-col cols="auto">
-                                                        <v-icon large>mdi-phone</v-icon>
-                                                    </v-col>
-                                                    <v-col>
-                                                        <p class="text-body-1">${item.number}</p>
-                                                    </v-col>
-                                                </v-row>
-                                                <v-row class="align-center">
-                                                    <v-col cols="auto">
-                                                        <v-icon large>mdi-account-school</v-icon>
-                                                    </v-col>
-                                                    <v-col>
-                                                        <p class="text-body-1">${item.diplomas}</p>
-                                                    </v-col>
-                                                </v-row>
-                                                <v-row class="align-center">
-                                                    <v-col cols="auto">
-                                                        <v-icon large>mdi-calendar-range</v-icon>
-                                                    </v-col>
-                                                    <v-col>
-                                                        <p class="text-body-1">${item.birthday}</p>
-                                                    </v-col>
-                                                </v-row>
-                                            </v-card-text>
-
-                                            <v-card-title>Fichier(s)</v-card-title>
-                                            <v-card-text v-if="true" class="files-grid-containerr">
-                                                <v-row no-gutters class="w-full"
-                                                    style="overflow: hiddenn; width: 100%;">
-                                                    <v-col class="pa-1" cols="6" v-for="file in item.files"
-                                                        :key="file.id">
-                                                        <v-hover v-slot="{ isHovering, props }">
-                                                            <v-card class="mx-auto" color="grey-lighten-4"
-                                                                max-width="600" v-bind="props">
-                                                                <v-card-title>
-                                                                    ${file.file_name}
-                                                                </v-card-title>
-                                                                <v-overlay id="overlay" :model-value="!!isHovering"
-                                                                    style="z-index: 9999; top: 0px"
-                                                                    class="d-flex justify-center align-center w-100 h-100"
-                                                                    scrim="#036358" contained>
-                                                                    <div class="d-flex justify-space-around align-center transition-fast-in-fast-out bg-blue-lighten-2
-                                                                                v-card--reveal "
-                                                                        style="height: 100%; width: 100%;">
-                                                                        <v-icon color="white"
-                                                                            @click="openFile(file)">mdi-eye</v-icon>
-                                                                        <v-icon color="white"
-                                                                            @click="printFile(file)">mdi-printer</v-icon>
-                                                                        {% if perms.profiles.delete_profilefile %}
-                                                                        <v-icon color="white"
-                                                                            @click="deleteFile(file)">mdi-delete</v-icon>
-                                                                        {% endif %}
-                                                                    </div>
-                                                                </v-overlay>
-                                                            </v-card>
-                                                        </v-hover>
-                                                    </v-col>
-                                                </v-row>
-                                            </v-card-text>
+                                        <v-card v-if="true" flat style="flex-basis: 100%">
+                                            {% include 'components/personal_info.html' %}
+                                            {% include 'components/file_list.html' %}
                                         </v-card>
                                     </v-col>
                                     <v-col cols="4">
-                                        <v-card flat style="flex-basis: 100%">
-                                            <v-card-title>Commentaires</v-card-title>
-                                            <v-card-text>
-                                                <v-timeline align="start" side="end">
-                                                    <v-timeline-item v-for="(com, i) in item.comments" :key="i">
-                                                        <template v-slot:icon>
-                                                            <span class="text-white">${i+1}</span>
-                                                        </template>
-                                                        <v-card>
-                                                            <v-card-title
-                                                                :class="['text-subtitle-1', `bg-${item.color}`]">
-                                                                ${com.user.username} - ${com.creation_date}
-                                                            </v-card-title>
-                                                            <v-card-text class="bg-white text--primary">
-                                                                <v-row>
-                                                                    <v-col cols="10">
-                                                                        <p>${com.text}</p>
-                                                                    </v-col>
-                                                                    <v-col cols="2"
-                                                                        class="d-flex justify-center align-center">
-                                                                        {% if perms.profiles.delete_comment %}
-                                                                        <v-icon size="36" color="grey-darken-3"
-                                                                            @click="deleteComment(com)"> mdi-delete
-                                                                        </v-icon>
-                                                                        {% endif %}
-                                                                    </v-col>
-                                                                </v-row>
-                                                            </v-card-text>
-                                                        </v-card>
-                                                    </v-timeline-item>
-                                                </v-timeline>
-                                            </v-card-text>
-                                        </v-card>
+                                        {% include 'components/comments_list.html' %}
                                     </v-col>
                                     <v-col cols="4">
-                                        <v-card flat style="flex-basis: 100%">
-                                            <v-card-title>Suivi interne</v-card-title>
-                                            <v-card-text>
-                                                <v-timeline align="start" side="end">
-                                                    <v-timeline-item v-for="(flw, i) in item.followups" :key="i"
-                                                        :dot-color="i%2==0? 'pink': 'teal-lighten-3'">
-                                                        <v-card>
-                                                            <v-card-title
-                                                                :class="['text-subtitle-1', `bg-${item.color}`]">
-                                                                ${flw.user.username} - ${flw.creation_date}
-                                                            </v-card-title>
-                                                            <v-card-text class="bg-white text--primary">
-                                                                <v-row>
-                                                                    <v-col cols="10">
-                                                                        <p>${flw.text}</p>
-                                                                    </v-col>
-                                                                    <v-col cols="2"
-                                                                        class="d-flex justify-center align-center">
-                                                                        {% if perms.profiles.delete_followup %}
-                                                                        <v-icon size="36" color="grey-darken-3"
-                                                                            @click="deleteFollowup(flw)"> mdi-delete
-                                                                        </v-icon>
-                                                                        {% endif %}
-                                                                    </v-col>
-                                                                </v-row>
-                                                            </v-card-text>
-                                                        </v-card>
-                                                    </v-timeline-item>
-                                                </v-timeline>
-                                            </v-card-text>
-                                        </v-card>
+                                        {% include 'components/followups_list.html' %}
                                     </v-col>
                                 </v-row>
-                                <v-divider vertical></v-divider>
 
-                                <v-divider v-if="true" vertical></v-divider>
 
                             </v-card>
                         </td>
                     </template>
 
-                    <template v-slot:item.actions=" { item }">
-                        {% if perms.profiles.change_profile %}
-                        <v-icon size="24" color="grey-darken-3" @click="editItem(item)">
-                            mdi-pencil
-                        </v-icon>
-                        {% endif %}
-                        {% if perms.profiles.delete_profile %}
-                        <v-icon size="24" color="grey-darken-3" @click="deleteItem(item.id)"> mdi-delete </v-icon>
-                        {% endif %}
-                        <v-icon size="24" color="grey-darken-3" @click="exportProfile(item)"> mdi-file-export
-                        </v-icon>
-                    </template>
+                    {% include 'components/datatable/actions_column.html' %}
                 </v-data-table-server>
-                <!-- ${pagination} -->
 
                 <v-dialog v-model="dialogDelete" style="width: 50%;">
                     <v-card>
@@ -853,7 +641,7 @@
                     skillsLoading.value = true
                     try {
                         let res = await axios.get('{% url 'trainings_data' %}')
-                        console.log("trainings: ", res.data)
+                        //console.log("trainings: ", res.data)
                         trainings.value = res.data
                     } catch (err) {
                         console.log("err: ", err)
@@ -889,7 +677,7 @@
 
 
                 watch(paginationFiltersCustom, (val) => {
-                    console.log("filters changed", paginationFiltersCustom.value)
+                    // console.log("filters changed", paginationFiltersCustom.value)
                     fetchProfiles()
                 }, { deep: true });
 
@@ -898,8 +686,9 @@
                 });
 
                 watch([editedItem], async (val) => {
-                    // don't check if closing the dialog
-                    if (editedItem.id == null) {
+                    /* don't check if closing the dialog */
+                    if (dialog.value == false) {
+                        console.log("not cheking")
                         return
                     }
                     await profileSimilarityCheck()

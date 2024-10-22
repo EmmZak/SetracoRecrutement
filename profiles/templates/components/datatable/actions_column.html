@@ -1,0 +1,12 @@
+<template v-slot:item.actions=" { item }">
+    {% if perms.profiles.change_profile %}
+    <v-icon size="24" color="grey-darken-3" @click="editItem(item)">
+        mdi-pencil
+    </v-icon>
+    {% endif %}
+    {% if perms.profiles.delete_profile %}
+    <v-icon size="24" color="grey-darken-3" @click="deleteItem(item.id)"> mdi-delete </v-icon>
+    {% endif %}
+    <v-icon size="24" color="grey-darken-3" @click="exportProfile(item)"> mdi-file-export
+    </v-icon>
+</template>

@@ -1,0 +1,26 @@
+<v-card-title v-if="true">Fichier(s)</v-card-title>
+<v-card-text v-if="true">
+    <v-row no-gutters class="w-full" style="overflow: hiddenn; width: 100%;">
+        <v-col class="pa-1" cols="6" v-for="file in item.files" :key="file.id">
+            <v-hover v-slot="{ isHovering, props }">
+                <v-card class="mx-auto" color="grey-lighten-4" max-width="600" v-bind="props">
+                    <v-card-title>
+                        ${file.file_name}
+                    </v-card-title>
+                    <v-overlay id="overlay" :model-value="!!isHovering" style="z-index: 9999; top: 0px"
+                        class="d-flex justify-center align-center w-100 h-100" scrim="#036358" contained>
+                        <div class="d-flex justify-space-around align-center transition-fast-in-fast-out bg-blue-lighten-2
+                                                                                v-card--reveal "
+                            style="height: 100%; width: 100%;">
+                            <v-icon color="white" @click="openFile(file)">mdi-eye</v-icon>
+                            <v-icon color="white" @click="printFile(file)">mdi-printer</v-icon>
+                            {% if perms.profiles.delete_profilefile %}
+                            <v-icon color="white" @click="deleteFile(file)">mdi-delete</v-icon>
+                            {% endif %}
+                        </div>
+                    </v-overlay>
+                </v-card>
+            </v-hover>
+        </v-col>
+    </v-row>
+</v-card-text>

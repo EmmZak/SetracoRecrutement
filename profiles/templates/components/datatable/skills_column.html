@@ -1,0 +1,6 @@
+<template v-slot:item.skills="{ value }">
+    <div class="ma-1" style="display: flex; flex-direction: column; gap: 4px" bg-red>
+        <v-chip v-for="(skill, i) in value" :color="getSkillColor(i)"> ${skill.name}
+        </v-chip>
+    </div>
+</template>

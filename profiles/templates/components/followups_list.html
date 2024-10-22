@@ -1,0 +1,27 @@
+<v-card v-if="true" flat style="flex-basis: 100%">
+    <v-card-title>Suivi interne</v-card-title>
+    <v-card-text>
+        <v-timeline align="start" side="end">
+            <v-timeline-item v-for="(flw, i) in item.followups" :key="i" :dot-color="i%2==0? 'pink': 'teal-lighten-3'">
+                <v-card>
+                    <v-card-title class="text-subtitle-1">
+                        ${flw.user.username} - ${flw.creation_date}
+                    </v-card-title>
+                    <v-card-text class="bg-white text--primary">
+                        <v-row>
+                            <v-col cols="10">
+                                <p>${flw.text}</p>
+                            </v-col>
+                            <v-col cols="2" class="d-flex justify-center align-center">
+                                {% if perms.profiles.delete_followup %}
+                                <v-icon size="36" color="grey-darken-3" @click="deleteFollowup(flw)"> mdi-delete
+                                </v-icon>
+                                {% endif %}
+                            </v-col>
+                        </v-row>
+                    </v-card-text>
+                </v-card>
+            </v-timeline-item>
+        </v-timeline>
+    </v-card-text>
+</v-card>
