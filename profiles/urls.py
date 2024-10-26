@@ -1,13 +1,13 @@
 from django.urls import path
 
-from .views import (config, home, profile_delete, profiles_create,
+from .views import (config, profile_delete, profiles_create,
                     profiles_view, error_page)
 from .views_ajax import (check_profile, delete_comment, delete_followup, delete_file,
                          export_profile_pdf, export_profiles_csv,
                          profiles_data)
 
 urlpatterns = [
-    path('', home, name='home'),
+    path('', profiles_view, name='profiles'),
     path('profiles/', profiles_view, name='profiles'),
     path('error/', error_page, name='error_page'),
     path('profile_delete', profile_delete, name='profile_delete'),

@@ -147,15 +147,11 @@
                 <span>CVthèque</span>
             </div>
             <nav class="menu">
-                <!-- <a href="{% url 'home' %}" class="{% if request.path == '/' %}active{% endif %}">
-                    <span class="mdi mdi-home"></span>
-                    Accueil
-                </a> -->
                 <a href="{% url 'account' %}" class="{% if request.path == '/account/' %}active{% endif %}">
                     <span class="mdi mdi-account"></span>
                     Mon Compte
                 </a>
-                <a href="{% url 'profiles' %}" class="{% if request.path == '/profiles/' %}active{% endif %}">
+                <a href="{% url 'profiles' %}" class="{% if request.path == '/profiles/' or request.path == '/' %}active{% endif %}">
                     <span class="mdi mdi-database"></span>
                     Profiles
                 </a>

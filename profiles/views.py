@@ -150,8 +150,3 @@ def profile_delete(request):
             f"Error deleting profile by id: {profile_id} {e}", request=request)
 
     return redirect('/profiles')
-
-
-@login_required
-def home(request):
-    return render(request, 'home.html')

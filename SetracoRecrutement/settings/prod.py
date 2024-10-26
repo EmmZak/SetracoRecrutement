@@ -13,21 +13,6 @@ import os
 from pathlib import Path
 from logging.handlers import TimedRotatingFileHandler
 
-"""
-exemple for Windows
-
-DEBUG=True
-BASE_DIR=c:\
-ENV_PATH=c:\
-DB_PATH=c:\
-STATIC_PATH=c:\
-MEDIA_PATH=c:\
-DJANGO_SECRET_KEY=secret_key_to_set
-
-"""
-
-# if debug => local, dev, qa
-# else => prod (windows)
 DEBUG = False
 
 BASE_DIR_PATH = "/home/ubuntu/SetracoRecrutement"
@@ -35,14 +20,13 @@ BASE_DIR = Path(BASE_DIR_PATH)
 
 SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY')
 
-DB_PATH="/home/ubuntu/db.sqlite3"
+DB_PATH = "/home/ubuntu/db.sqlite3"
 MEDIA_URL = '/media/'
 MEDIA_ROOT = "/home/ubuntu/media"
 
-LOGS_DIR="/home/ubuntu/logs"
+LOGS_DIR = "/home/ubuntu/logs"
 
 ALLOWED_HOSTS = ["*"]
-# Application definition
 CSRF_TRUSTED_ORIGINS = [
     'https://cvtheque.devexperimentation.fr',
     'https://www.cvtheque.devexperimentation.fr'
@@ -146,13 +130,10 @@ STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
 
 # STATIC_ROOT = BASE_DIR / 'static' if DEBUG else os.getenv('STATIC_PATH')
 
-# Default primary key field type
-# https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
-
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 LOGIN_URL = 'login'  # Redirect to login if not authenticated
-LOGIN_REDIRECT_URL = 'home'  # Redirect after login
+LOGIN_REDIRECT_URL = '/profiles'  # Redirect after login
 LOGOUT_REDIRECT_URL = 'login'
 
 LOGGING = {

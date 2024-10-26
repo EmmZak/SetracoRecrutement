@@ -13,20 +13,6 @@ import os
 from pathlib import Path
 from logging.handlers import TimedRotatingFileHandler
 
-"""
-exemple for Windows
-
-DEBUG=True
-BASE_DIR=c:\
-ENV_PATH=c:\
-DB_PATH=c:\
-STATIC_PATH=c:\
-MEDIA_PATH=c:\
-DJANGO_SECRET_KEY=secret_key_to_set
-"""
-
-# if debug => local, dev, qa
-# else => prod (windows)
 DEBUG = True
 
 BASE_DIR = Path(__file__).resolve().parent.parent.parent
@@ -159,7 +145,7 @@ STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 LOGIN_URL = 'login'  # Redirect to login if not authenticated
-LOGIN_REDIRECT_URL = 'home'  # Redirect after login
+LOGIN_REDIRECT_URL = '/profiles'  # Redirect after login
 LOGOUT_REDIRECT_URL = 'login'
 
 
