@@ -306,13 +306,17 @@ def profiles_data(request):
                 sort_key = f'-{sort_key}'
             profiles = profiles.order_by(sort_key)
 
-        paginator = Paginator(profiles, length)
-        profiles_page = paginator.get_page(start // length + 1)
-
-        serializer = ProfileSerializer(profiles_page, many=True)
+        # Handle 'All' case
+        if length == -1:
+            serializer = ProfileSerializer(profiles, many=True)
+            response['recordsFiltered'] = profiles.count()
+        else:
+            paginator = Paginator(profiles, length)
+            profiles_page = paginator.get_page(start // length + 1)
+            serializer = ProfileSerializer(profiles_page, many=True)
+            response['recordsFiltered'] = paginator.count
 
         response['recordsTotal'] = Profile.objects.count()
-        response['recordsFiltered'] = paginator.count
         response['profiles'] = serializer.data
     except Exception as e:
         logger.error(f"Error fetching profiles data {e}", request=request)
