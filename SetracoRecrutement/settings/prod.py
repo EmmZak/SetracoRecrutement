@@ -32,7 +32,15 @@ CSRF_TRUSTED_ORIGINS = [
     'https://www.cvtheque.devexperimentation.fr'
 ]
 SESSION_COOKIE_SECURE = True
-CSRF_COOKIE_SECURE = True 
+CSRF_COOKIE_SECURE = True
+
+SECURE_HSTS_SECONDS = 30  # Unit is seconds; *USE A SMALL VALUE FOR TESTING!*
+SECURE_HSTS_PRELOAD = True
+SECURE_HSTS_INCLUDE_SUBDOMAINS = True
+SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
+
+SECURE_REFERRER_POLICY = "strict-origin-when-cross-origin"
+
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
