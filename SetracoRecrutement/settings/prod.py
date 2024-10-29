@@ -26,7 +26,7 @@ MEDIA_ROOT = "/home/ubuntu/media"
 
 LOGS_DIR = "/home/ubuntu/logs"
 
-ALLOWED_HOSTS = ["*"]
+ALLOWED_HOSTS = [".devexperimentation.fr"]
 CSRF_TRUSTED_ORIGINS = [
     'https://cvtheque.devexperimentation.fr',
     'https://www.cvtheque.devexperimentation.fr'
@@ -34,10 +34,10 @@ CSRF_TRUSTED_ORIGINS = [
 SESSION_COOKIE_SECURE = True
 CSRF_COOKIE_SECURE = True
 
-SECURE_HSTS_SECONDS = 30  # Unit is seconds; *USE A SMALL VALUE FOR TESTING!*
-SECURE_HSTS_PRELOAD = True
-SECURE_HSTS_INCLUDE_SUBDOMAINS = True
-SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
+#SECURE_HSTS_SECONDS = 30  # Unit is seconds; *USE A SMALL VALUE FOR TESTING!*
+#SECURE_HSTS_PRELOAD = True
+#SECURE_HSTS_INCLUDE_SUBDOMAINS = True
+#SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
 
 SECURE_REFERRER_POLICY = "strict-origin-when-cross-origin"
 
