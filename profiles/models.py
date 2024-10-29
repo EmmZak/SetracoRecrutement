@@ -2,6 +2,7 @@ from django import forms
 from django.contrib.auth.models import User
 from django.db import models
 from django.dispatch import receiver
+from django.core.validators import FileExtensionValidator
 import os
 
 from config.models import Skill, State, Training
@@ -52,6 +53,8 @@ class ProfileFile(models.Model):
     profile = models.ForeignKey(
         Profile, on_delete=models.CASCADE, related_name='files')
     file = models.FileField(upload_to='profile_files/')
+    allowed_extensions = ['jpg', 'jpeg', 'png', 'pdf', 'docx']
+    validator = FileExtensionValidator(allowed_extensions=allowed_extensions)
 
     def __str__(self):
         return f"File for {self.profile.name} {self.profile.surname}"

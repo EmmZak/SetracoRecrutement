@@ -18,6 +18,10 @@
             width: 100%;
         }
 
+        #overlay .v-overlay__content {
+            width: 100%;
+        }
+
         .data-table-footer-select-width {
             width: 48px;
         }
@@ -183,7 +187,8 @@
                                                         </label>
 
                                                         <input name="files" id="files" type="file" multiple
-                                                            style="display: none;" @change="handleFileChange" />
+                                                            style="display: none;" @change="handleFileChange"
+                                                            accept=".jpg,.jpeg,.png,.pdf,.docx" />
                                                     </div>
                                                 </v-col>
                                                 <v-col cols="9" class="align-center">

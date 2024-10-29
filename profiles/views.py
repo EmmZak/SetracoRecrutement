@@ -5,7 +5,7 @@ from django.db import transaction
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 from django.views.decorators.http import require_http_methods
-
+from django.core.exceptions import ValidationError
 from SetracoRecrutement.logger import Logger
 from config.models import Skill, State, Training
 
@@ -128,7 +128,13 @@ def profiles_create(request):
             profile.trainings.clear()
 
         for file in files:
-            ProfileFile.objects.create(profile=profile, file=file)
+            try:
+                ProfileFile.validator(file)
+                ProfileFile.objects.create(profile=profile, file=file)
+            except ValidationError as e:
+                logger.error(
+                    f"Wrong extension file is uploaded {e}", request=request)
+                return render(request, 'error.html', {'error_message': "Erreur lors de la création/mise à jour du profile, mauvais type de fichier"})
     except Exception as e:
         logger.error(f"Error creating profile {e}", request=request)
         return render(request, 'error.html', {'error_message': "Erreur lors de la création/mise à jour du profile"})
