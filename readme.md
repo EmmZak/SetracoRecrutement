@@ -80,6 +80,11 @@ sudo service nginx restart
 logs 
     cat /var/log/nginx/error.log
 
+refs
+
+Follow on vps  https://github.com/TheProtonGuy/server-configs 
+	YouTube https://www.youtube.com/watch?v=RsrJzKPigc4 
+
 # Lib Versions
 
 ## v1 
