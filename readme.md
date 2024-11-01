@@ -1,20 +1,88 @@
-## settings
+# Developpement
 
-by default prod settings inside settings.py
+## Logs, Backups, Media files
 
-if need to overrite use those in /__settings/
+In dev mode, all those dirs are inside root dir
 
-## files
+## Database
 
-store all files woth profile, 
+on model change
+```bash
+python3 manage.py makemigrations --settings SetracoRecrutement.settings.local 
+```
+migrate
+```bash
+python3 manage.py migrate --settings SetracoRecrutement.settings.local
+```
+### Create super user
 
-update => 
+```bash
+python3 manage.py createsuperuser --username admin
+python3 manage.py changepassword admin  # azertyA1
+# password: admin
+```
 
-1 list for files view, and another section for the input for what i upload, 
 
-every upload => append
+## Run locally
+```bash
+python3 manage.py runserver --settings SetracoRecrutement.settings.local
+```
+# Production
 
-# Versions
+## Setup
+```bash
+python3 -m venv venv
+source venv/bin/activate
+pip install -r requirements.txt 
+```
+## Logs, Backups, Media files
+
+create dirs
+```bash
+mkdir logs
+mkdir media
+mkdir backups
+```
+change permissions
+
+## Database
+```bash
+python manage.py migrate  --settings SetracoRecrutement.settings.prod 
+```
+## Static content
+```bash
+python manage.py collectstatic --settings SetracoRecrutement.settings.prod 
+```
+
+## Django specific env vars
+```bash
+export DJANGO_SECRET_KEY=...
+export DJANGO_SETTINGS_MODULE=SetracoRecrutement.settings.prod
+```
+
+## Run with Gunicorn
+```bash
+gunicorn --workers 4 --timeout 60 --bind 0.0.0.0:8000 SetracoRecrutement.wsgi > gunicorn.log 2>&1 & 
+```
+
+helpers
+```bash
+sudo lsof -i -P -n | grep LISTEN
+ps ax|grep gunicorn 
+pkill gunicorn
+```
+
+## Nginx
+sudo nano /etc/nginx/sites-available/cvtheque 
+    cat /etc/nginx/sites-available/cvtheque
+sudo service nginx restart
+
+logs 
+    cat /var/log/nginx/error.log
+
+# Lib Versions
+
+## v1 
 
 ```bash
 python3 -v # 3.11
@@ -24,29 +92,9 @@ vue # 3.4
 vuetify # 3.7
 ```
 
-# Init
-
-```bash
-django-admin startproject SetracoRecrutement
-python3 manage.py migrate
-```
-
-# Create app
-
-```bash
-django-admin startapp skills
-django-admin startapp profiles
-django-admin startapp accounts
-django-admin startapp config
-```
 
 # Run
 
-```bash
-export DJANGO_SETTINGS_MODULE=SetracoRecrutement.settings.local
-export DJANGO_SECRET_KEY="local"
-python3 manage.py runserver
-```
 
 If new model added etc
 
@@ -60,30 +108,9 @@ python3 manage.py makemigrations accounts --empty
 python3 manage.py init_group_permissions_after_migration
 python3 manage.py create_test_users 
 
-find . -not -path "./.venv/*" -path "*/migrations/*.py" ! -name "__init__.py" -delete
-
-python3 manage.py dbshell
-```
-
-## Data integrity
-
-### backup
-```bash
-python3 manage.py backup 
-```
-
-### restore
-```bash
-python3 manage.py migrate 
-python3 manage.py restore /Users/emmanuelzakaryan/Projects/SetracoRecrutement/backups/backup_27_09_2024.zip
 ```
 
 
 
-# Create super user
 
-```bash
-python3 manage.py createsuperuser --username admin
-python3 manage.py changepassword admin  # azertyA1
-# password: admin
-```
+
