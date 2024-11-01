@@ -85,6 +85,20 @@ refs
 Follow on vps  https://github.com/TheProtonGuy/server-configs 
 	YouTube https://www.youtube.com/watch?v=RsrJzKPigc4 
 
+## Crontab
+
+### backup cmds
+```bash
+/home/ubuntu/SetracoRecrutement/venv/bin/python /home/ubuntu/SetracoRecrutement/manage.py dbbackup --settings SetracoRecrutement.settings.prod 
+/home/ubuntu/SetracoRecrutement/venv/bin/python /home/ubuntu/SetracoRecrutement/manage.py mediabackup --settings SetracoRecrutement.settings.prod 
+```
+
+### crontab cmds
+```bash
+0 0 * * * /home/ubuntu/SetracoRecrutement/venv/bin/python /home/ubuntu/SetracoRecrutement/manage.py dbbackup --settings SetracoRecrutement.settings.prod >> /home/ubuntu/logs/backup.log 2>&1
+0 0 * * * /home/ubuntu/SetracoRecrutement/venv/bin/python /home/ubuntu/SetracoRecrutement/manage.py mediabackup --settings SetracoRecrutement.settings.prod >> /home/ubuntu/logs/backup.log 2>&1
+```
+
 # Lib Versions
 
 ## v1 
