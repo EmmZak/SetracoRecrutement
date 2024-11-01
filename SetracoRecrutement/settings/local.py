@@ -20,6 +20,10 @@ BASE_DIR = Path(__file__).resolve().parent.parent.parent
 SECRET_KEY = os.environ.get(
     'DJANGO_SECRET_KEY', 'django-insecure-&psk#na5l=p3q8_a+-$4w1f^lt3lx1c@d*p4x$ymm_rn7pwb87')
 
+DBBACKUP_STORAGE = 'django.core.files.storage.FileSystemStorage'
+DBBACKUP_DIR = BASE_DIR / "backups"
+DBBACKUP_STORAGE_OPTIONS = {'location': DBBACKUP_DIR}
+
 DB_PATH = BASE_DIR / 'db.sqlite3'
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
@@ -39,6 +43,7 @@ ALLOWED_HOSTS = ["*"]
 # Application definition
 
 INSTALLED_APPS = [
+    'dbbackup',  # django-dbbackup
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',

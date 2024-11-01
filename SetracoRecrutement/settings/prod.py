@@ -20,6 +20,10 @@ BASE_DIR = Path(BASE_DIR_PATH)
 
 SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY')
 
+DBBACKUP_STORAGE = 'django.core.files.storage.FileSystemStorage'
+DBBACKUP_DIR = "/home/ubuntu/backups"
+DBBACKUP_STORAGE_OPTIONS = {'location': DBBACKUP_DIR}
+
 DB_PATH = "/home/ubuntu/db.sqlite3"
 MEDIA_URL = '/media/'
 MEDIA_ROOT = "/home/ubuntu/media"
@@ -42,6 +46,7 @@ SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
 SECURE_REFERRER_POLICY = "strict-origin-when-cross-origin"
 
 INSTALLED_APPS = [
+    'dbbackup',  # django-dbbackup
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
