@@ -89,8 +89,13 @@ Follow on vps  https://github.com/TheProtonGuy/server-configs
 
 ### backup cmds
 ```bash
-/home/ubuntu/SetracoRecrutement/venv/bin/python /home/ubuntu/SetracoRecrutement/manage.py dbbackup --settings SetracoRecrutement.settings.prod 
-/home/ubuntu/SetracoRecrutement/venv/bin/python /home/ubuntu/SetracoRecrutement/manage.py mediabackup --settings SetracoRecrutement.settings.prod 
+# backup
+python manage.py dbbackup --settings SetracoRecrutement.settings.prod 
+python manage.py mediabackup --settings SetracoRecrutement.settings.prod 
+
+# restore
+python manage.py dbrestore --settings SetracoRecrutement.settings.prod 
+python manage.py mediarestore --settings SetracoRecrutement.settings.prod 
 ```
 
 ### crontab cmds
@@ -126,6 +131,11 @@ python3 manage.py makemigrations accounts --empty
 
 python3 manage.py init_group_permissions_after_migration
 python3 manage.py create_test_users 
+
+```
+
+Restore backup
+```bash
 
 ```
 
