@@ -35,8 +35,8 @@ ALLOWED_HOSTS = [".devexperimentation.fr", "localhost"]
 #    'https://cvtheque.devexperimentation.fr',
 #    'https://www.cvtheque.devexperimentation.fr'
 #]
-SESSION_COOKIE_SECURE = True
-CSRF_COOKIE_SECURE = True
+#SESSION_COOKIE_SECURE = True
+#CSRF_COOKIE_SECURE = True
 
 SECURE_HSTS_SECONDS = 2_592_000  # Unit is seconds; *USE A SMALL VALUE FOR TESTING!*
 SECURE_HSTS_PRELOAD = True
