@@ -30,19 +30,20 @@ MEDIA_ROOT = "/home/ubuntu/media"
 
 LOGS_DIR = "/home/ubuntu/logs"
 
-ALLOWED_HOSTS = [".devexperimentation.fr", "localhost"]
-#CSRF_TRUSTED_ORIGINS = [
-#    'https://cvtheque.devexperimentation.fr',
-#    'https://www.cvtheque.devexperimentation.fr'
-#]
-#SESSION_COOKIE_SECURE = True
-#CSRF_COOKIE_SECURE = True
+ALLOWED_HOSTS = [".devexperimentation.fr", "localhost", "127.0.0.1'"]
+CSRF_TRUSTED_ORIGINS = [
+    'https://cvtheque.devexperimentation.fr',
+    'https://www.cvtheque.devexperimentation.fr'
+]
+SESSION_COOKIE_SECURE = True
+CSRF_COOKIE_SECURE = True
 
-#SECURE_HSTS_SECONDS = 2_592_000  # Unit is seconds; *USE A SMALL VALUE FOR TESTING!*
-#SECURE_HSTS_PRELOAD = True
-#SECURE_HSTS_INCLUDE_SUBDOMAINS = True
-#SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
-#SECURE_REFERRER_POLICY = "strict-origin-when-cross-origin"
+SECURE_HSTS_SECONDS = 2_592_000  # Unit is seconds; *USE A SMALL VALUE FOR TESTING!*
+SECURE_HSTS_PRELOAD = True
+SECURE_HSTS_INCLUDE_SUBDOMAINS = True
+SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
+
+SECURE_REFERRER_POLICY = "strict-origin-when-cross-origin"
 
 INSTALLED_APPS = [
     'dbbackup',  # django-dbbackup
