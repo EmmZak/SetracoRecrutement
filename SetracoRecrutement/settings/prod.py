@@ -30,7 +30,7 @@ MEDIA_ROOT = "/home/ubuntu/media"
 
 LOGS_DIR = "/home/ubuntu/logs"
 
-ALLOWED_HOSTS = [".devexperimentation.fr", "localhost"]
+ALLOWED_HOSTS = ["cvtheque.devexperimentation.fr", "www.cvtheque.devexperimentation.fr", "localhost"]
 CSRF_TRUSTED_ORIGINS = [
     'https://*.devexperimentation.fr'
 ]
