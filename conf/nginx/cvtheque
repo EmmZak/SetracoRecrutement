@@ -1,0 +1,21 @@
+server {
+    server_name cvtheque.devexperimentation.fr www.cvtheque.devexperimentation.fr;
+
+    access_log /var/log/nginx/cvtheque.log;
+
+    location /media/ {
+        root /home/ubuntu;
+    }
+
+    location /static/ {
+        alias /home/ubuntu/SetracoRecrutement/staticfiles/;
+    }
+
+    location / {
+        proxy_pass http://localhost:8000;
+        proxy_set_header X-Forwarded-Host $server_name;
+        proxy_set_header X-Real-IP $remote_addr;
+	    proxy_set_header X-Forwarded-Proto $scheme;
+        add_header P3P 'CP="ALL DSP COR PSAa PSDa OUR NOR ONL UNI COM NAV"';
+    }
+}

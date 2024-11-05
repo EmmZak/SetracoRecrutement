@@ -19,7 +19,7 @@ def has_skill_state_view_permissions(user):
     return True
 
 
-@user_passes_test(has_skill_state_view_permissions)
+#@user_passes_test(has_skill_state_view_permissions)
 @login_required
 def config_view(request):
     if request.method == 'GET':
@@ -44,7 +44,7 @@ def config_view(request):
 
 
 @login_required
-@permission_required('config.add_skill', raise_exception=True)
+# @permission_required('config.add_skill', raise_exception=True)
 @require_http_methods(["POST"])
 def create_skill(request):
     try:

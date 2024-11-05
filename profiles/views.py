@@ -27,7 +27,7 @@ def config(request):
         return render(request, 'config.html', {'skills': skills})
 
 
-@permission_required('profiles.view_profile', raise_exception=True)
+#@permission_required('profiles.view_profile', raise_exception=True)
 @login_required
 def profiles_view(request):
     is_superuser = request.user.is_superuser
