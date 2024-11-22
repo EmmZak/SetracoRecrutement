@@ -370,18 +370,21 @@
                         });
                         console.log("profile similarity: ", res.data)
                         const existingAttrs = res.data;
-                        let errorMessage = "Un profil avec le(s) même(s) "
                         if (Object.keys(existingAttrs).length === 0) {
                             similarityMessage.value = "";
                         } else {
-                            if (existingAttrs.email && existingAttrs.number) {
-                                errorMessage = "Un profil avec le même email/numéro existe déjà";
-                            } else if (existingAttrs.number) {
-                                errorMessage = "Un profil avec le même numéro existe déjà";
-                            } else if (existingAttrs.email) {
-                                errorMessage = "Un profil avec le même email existe déjà";
-                            }
-                            similarityMessage.value = errorMessage;
+                            const errorMessages = {
+                                email: "email",
+                                number: "numéro",
+                                surname: "nom",
+                            };
+
+                            let conflicts = Object.keys(existingAttrs)
+                                .filter((key) => existingAttrs[key])
+                                .map((key) => errorMessages[key])
+                                .join("/");
+
+                            similarityMessage.value = `Un profil avec le(s) même(s) ${conflicts} existe déjà`;
                         }
 
                         // skills.value = res.data

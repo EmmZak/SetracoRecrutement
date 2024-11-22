@@ -233,22 +233,17 @@ def check_profile(request):
     result = {}
     try:
         data = request.GET
-        name = data.get('name')
-        surname = data.get('surname')
-        email = data.get('email')
-        number = data.get('number')
+        fields = {
+            "surname": data.get("surname", "").strip().lower(),
+            "email": data.get("email", "").strip().lower(),
+            "number": data.get("number", "").strip(),
+        }
 
-        if Profile.objects.filter(name=name).exists():
-            # result['name'] = True
-            pass
-        if Profile.objects.filter(surname=surname).exists():
-            # result['surname'] = True
-            pass
-        if email:
-            if Profile.objects.filter(email=email).exists():
-                result['email'] = True
-        if Profile.objects.filter(number=number).exists():
-            result['number'] = True
+        logger.info(f"Checking fields: {fields}")
+
+        for field, value in fields.items():
+            if value and Profile.objects.filter(**{f"{field}__iexact": value}).exists():
+                result[field] = True
     except Exception as e:
         logger.error(f"Error cheking similarity {e}", request=request)
 
