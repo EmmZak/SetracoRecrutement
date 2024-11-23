@@ -11,6 +11,7 @@ from reportlab.lib import colors
 from reportlab.lib.pagesizes import A4
 from reportlab.lib.utils import ImageReader
 from reportlab.pdfgen import canvas
+from reportlab.platypus import Paragraph
 
 from SetracoRecrutement.logger import Logger
 from profiles.serializers import ProfileSerializer
@@ -88,65 +89,78 @@ def export_profile_pdf(request):
         response['Content-Disposition'] = f'attachment; filename="{profile.name}_{profile.surname}.pdf"'
 
         pdf = canvas.Canvas(response, pagesize=A4)
-        width, height = A4
+        page_width, page_height = A4
+        margins = {"top": 50, "bottom": 75, "left": 75, "right": 75}
+        usable_width = page_width - margins["left"] - margins["right"]
+        usable_height = page_height - margins["top"] - margins["bottom"]
 
-        def add_footer(page_num):
-            pdf.setFont("Helvetica", 10)
-            pdf.setFillColor(colors.grey)
-            pdf.drawString(100, 20, f"Page {page_num}")
+        def add_section(title, content, y_position, title_font_size=16, content_font_size=12, bold=False):
+            pdf.setFont("Helvetica-Bold" if bold else "Helvetica", title_font_size)
+            pdf.drawString(margins["left"], y_position, title)
 
-        page_num = 1
+            pdf.setFont("Helvetica", content_font_size)
+            y_position -= 20
+            for item in content:
+                pdf.drawString(margins["left"] + 20, y_position, str(item))
+                y_position -= 20
+            return y_position
 
+        def add_paragraphs(paragraphs, y_position, x_position, width, height):
+            for text in paragraphs:
+                paragraph = Paragraph(text)
+                w, h = paragraph.wrap(width, height)
+                if y_position - h < margins["bottom"]:
+                    pdf.showPage()
+                    y_position = page_height - margins["top"]
+                paragraph.drawOn(pdf, x_position, y_position - h)
+                y_position -= h + 5
+            y_position -= 20
+            return y_position
+
+        # Header
         pdf.setFont("Helvetica-Bold", 22)
-        pdf.drawString(100, height - 60,
+        pdf.drawString(margins["left"], page_height - 60,
                        f"Profil de {profile.name} {profile.surname}")
+        pdf.line(margins["left"], page_height - 80,
+                 page_width - margins["right"], page_height - 80)
 
-        pdf.setLineWidth(1)
-        pdf.setStrokeColor(colors.black)
-        pdf.line(100, height - 80, width - 100, height - 80)  # Horizontal line
-
-        pdf.setFont("Helvetica-Bold", 18)
-        pdf.drawString(100, height - 120, "Informations Personnelles")
-        pdf.setFont("Helvetica", 12)
-        y_position = height - 140
-
-        profile_details = [
+        # Sections
+        y_position = page_height - 120
+        personal_info = [
             ("Email", profile.email),
             ("Numéro", profile.number),
             ("Ville", profile.town),
-            # ("Compétences", ', '.join([skill.name for skill in profile.skills.all()])),
             ("Date de naissance", profile.birthday),
             ("Diplômes", profile.diplomas),
             ("Date de création", profile.creation_date.strftime('%d/%m/%Y %H:%M:%S')),
             ("Date de mise à jour", profile.update_date.strftime('%d/%m/%Y %H:%M:%S')),
-            ("Etat candidature", getattr(profile.state, 'name', "Inconnu"))
+            ("État candidature", getattr(profile.state, 'name', "Inconnu"))
         ]
+        y_position = add_section("Informations Personnelles", [
+                                 f"{label}: {value}" for label, value in personal_info], y_position, bold=True)
 
-        for label, value in profile_details:
-            pdf.drawString(120, y_position, f"{label}: {value}")
-            y_position -= 20
+        y_position = add_section("Compétences", [
+                                 skill.name for skill in profile.skills.all()], y_position, bold=True)
+        y_position = add_section("Formations", [
+                                 training.name for training in profile.trainings.all()], y_position, bold=True)
 
-        pdf.setFont("Helvetica-Bold", 12)
-        pdf.drawString(100, y_position, "Compétences:")
-        y_position -= 20
-        pdf.setFont("Helvetica", 12)
+        y_position = add_section("Commentaires", [], y_position, bold=True)
+        
+        comments = [
+            f"{comment.user.username}: {comment.text}" for comment in profile.comments.all()]
+        y_position = add_paragraphs(
+            comments, y_position, margins["left"] + 20, usable_width, usable_height)
 
-        for skill in profile.skills.all():
-            pdf.drawString(120, y_position, skill.name)
-            y_position -= 20
+        y_position = add_section("Suivi", [], y_position, bold=True)
 
-        pdf.setFont("Helvetica-Bold", 12)
-        pdf.drawString(100, y_position, "Formations:")
-        y_position -= 20
-        pdf.setFont("Helvetica", 12)
+        followups = [
+            f"{flw.user.username}: {flw.text}" for flw in profile.followups.all()]
+        y_position = add_paragraphs(
+            followups, y_position, margins["left"] + 20, usable_width, usable_height)
 
-        for training in profile.trainings.all():
-            pdf.drawString(120, y_position, training.name)
-            y_position -= 20
-
-        add_footer(page_num)
         pdf.save()
         return response
+
     except Exception as e:
         logger.error(
             f"Error exporting profile by id: {profile_id} {e}", request=request)
