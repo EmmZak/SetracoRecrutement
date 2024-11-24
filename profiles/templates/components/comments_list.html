@@ -9,8 +9,8 @@
                         ${com.user.username} - ${com.creation_date}</v-card-title>
                     <v-card-text class="bg-white text--primary">
                         <v-row>
-                            <v-col cols="10">
-                                <p>${com.text}</p>
+                            <v-col cols="10" style="word-break: break-word;">
+                                <p>${ com.text }</p>
                             </v-col>
                             <v-col cols="2" class="d-flex justify-center align-center">
                                 {% if perms.profiles.delete_comment %}
