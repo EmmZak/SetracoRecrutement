@@ -12,6 +12,7 @@ from reportlab.lib.pagesizes import A4
 from reportlab.lib.utils import ImageReader
 from reportlab.pdfgen import canvas
 from reportlab.platypus import Paragraph
+from reportlab.lib.styles import ParagraphStyle
 
 from SetracoRecrutement.logger import Logger
 from profiles.serializers import ProfileSerializer
@@ -105,9 +106,10 @@ def export_profile_pdf(request):
                 y_position -= 20
             return y_position
 
-        def add_paragraphs(paragraphs, y_position, x_position, width, height):
+        def add_paragraphs(paragraphs, y_position, x_position, width, height, font_size = 12):
+            style = ParagraphStyle(name='paragraphImplicitDefaultStyle', fontSize=font_size)
             for text in paragraphs:
-                paragraph = Paragraph(text)
+                paragraph = Paragraph(text, style=style)
                 w, h = paragraph.wrap(width, height)
                 if y_position - h < margins["bottom"]:
                     pdf.showPage()
