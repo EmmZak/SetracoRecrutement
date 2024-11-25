@@ -20,7 +20,7 @@ def create_groups_from_apps():
     """
     creates groups with associated permissions
     """
-    Group.objects.all().delete()
+    #Group.objects.all().delete()
 
     admin_perm_names = [
         *get_permissions_for_model('user',
@@ -35,7 +35,7 @@ def create_groups_from_apps():
         *get_permissions_for_model('state', ['view', 'add', 'delete']),
     ]
     perms = Permission.objects.filter(codename__in=admin_perm_names).all()
-    group = Group.objects.create(name=UserGroup.ADMIN)
+    group, created = Group.objects.get_or_create(name=UserGroup.ADMIN)
     group.permissions.set(perms)
     group.save()
 
@@ -47,12 +47,12 @@ def create_groups_from_apps():
         *get_permissions_for_model('profilefile', ['delete']),
         *get_permissions_for_model('comment', ['delete']),
         *get_permissions_for_model('followup', ['delete']),
-        *get_permissions_for_model('skill', ['view', 'add']),
-        *get_permissions_for_model('training', ['view', 'add']),
+        *get_permissions_for_model('skill', ['view', 'add', 'delete']),
+        *get_permissions_for_model('training', ['view', 'add', 'delete']),
         *get_permissions_for_model('state', ['view', 'add']),
     ]
     perms = Permission.objects.filter(codename__in=editor_perm_names).all()
-    group = Group.objects.create(name=UserGroup.EDITOR)
+    group, created = Group.objects.get_or_create(name=UserGroup.EDITOR)
     group.permissions.set(perms)
     group.save()
 
@@ -63,7 +63,7 @@ def create_groups_from_apps():
         *get_permissions_for_model('state', ['view']),
     ]
     perms = Permission.objects.filter(codename__in=consultant_perm_names).all()
-    group = Group.objects.create(name=UserGroup.CONSULTANT)
+    group, created = Group.objects.get_or_create(name=UserGroup.CONSULTANT)
     group.permissions.set(perms)
     group.save()
 
