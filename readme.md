@@ -14,6 +14,10 @@ migrate
 ```bash
 python3 manage.py migrate --settings SetracoRecrutement.settings.local
 ```
+sql
+```bash
+python3 manage.py dbshell --settings SetracoRecrutement.settings.local
+```
 ### Create super user
 
 ```bash
@@ -25,6 +29,8 @@ python3 manage.py changepassword admin  # azertyA1
 
 ## Run locally
 ```bash
+export DJANGO_SETTINGS_MODULE=SetracoRecrutement.settings.local
+or
 python3 manage.py runserver --settings SetracoRecrutement.settings.local
 ```
 # Production
