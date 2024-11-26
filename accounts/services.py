@@ -49,7 +49,7 @@ def create_groups_from_apps():
         *get_permissions_for_model('followup', ['delete']),
         *get_permissions_for_model('skill', ['view', 'add', 'delete']),
         *get_permissions_for_model('training', ['view', 'add', 'delete']),
-        *get_permissions_for_model('state', ['view', 'add']),
+        *get_permissions_for_model('state', ['view', 'add', 'delete']),
     ]
     perms = Permission.objects.filter(codename__in=editor_perm_names).all()
     group, created = Group.objects.get_or_create(name=UserGroup.EDITOR)
