@@ -91,14 +91,14 @@
                                             <v-row cols="12">
                                                 <v-col cols="4">
                                                     <v-text-field v-model="editedItem.email" label="E-mail" name="email"
-                                                        prepend-inner-icon="mdi-at"
+                                                        :rules="[rules.email]" prepend-inner-icon="mdi-at"
                                                         :readonly="!{% if is_editor_or_admin == True %} true {% else %} false {% endif %}"
                                                         variant="underlined"></v-text-field>
                                                 </v-col>
                                                 <v-col cols="4">
                                                     <v-text-field v-model="editedItem.number" label="Numéro"
                                                         name="number" prepend-inner-icon="mdi-phone"
-                                                        variant="underlined"
+                                                        :rules="[rules.number]" variant="underlined"
                                                         :readonly="!{% if is_editor_or_admin == True %} true {% else %} false {% endif %}"></v-text-field>
                                                 </v-col>
                                                 <v-col cols="4">
@@ -269,6 +269,12 @@
 
         const app = createApp({
             setup() {
+                const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/; // Simplified email regex
+                const phonePattern = /^\d{10}$/; // Matches exactly 10 digits
+                var rules = {
+                    email: value => emailPattern.test(value) || value === "" || "L'email n'est pas valide",
+                    number: value => phonePattern.test(value) || value === "" || "Le numéro de téléphone doit contenir 10 chiffres"
+                };
                 const headers = [
                     // { title: 'Date de création', key: 'creation_date', sortable: true },
                     { title: 'Modifié', key: 'update_date', sortable: true },
@@ -473,7 +479,6 @@
                     dialogDelete.value = true
                 }
 
-
                 const deleteItemConfirm = async () => {
                     if (deleteId.value != null) {
                         console.log("delete id ", deleteId.value)
@@ -518,10 +523,15 @@
                             params: params,
                             responseType: 'blob'  // This ensures you get a file response
                         });
+
+                        let namePart = [profile.name, profile.surname].filter(Boolean).join('_'); // Combine name and surname if they exist
+                        let filename = `export_profile${namePart ? `_${namePart}` : ''}`; // Append namePart only if it's not empty
+
+
                         const url = window.URL.createObjectURL(new Blob([response.data]));
                         const link = document.createElement('a');
                         link.href = url;
-                        link.setAttribute('download', 'export_profil.pdf');  // Filename
+                        link.setAttribute('download', `${filename}.pdf`); // Use the dynamically generated filename
                         document.body.appendChild(link);
                         link.click();
                     } catch (error) {
@@ -703,7 +713,7 @@
                 })
 
                 return {
-                    deleteFollowup, trainings, fetchTrainings, handleFileChange, selectedFiles, exportProfile, similarityMessage, form, exportData, expandedRowKey, expandedRows, onRowClick, deleteComment, pagination, paginationFiltersCustom, profileStates, editedIndex, saveProfile, editedItem, editItem, deleteItem, dialogDelete, closeDelete, deleteItemConfirm, skills, fetchSkills, skillsLoading, defaultItem, formTitle, profiles, totalProfiles, headers, loading, fetchProfiles, expanded, dialog, openFile, printFile, deleteFile, getSkillColor
+                    rules, deleteFollowup, trainings, fetchTrainings, handleFileChange, selectedFiles, exportProfile, similarityMessage, form, exportData, expandedRowKey, expandedRows, onRowClick, deleteComment, pagination, paginationFiltersCustom, profileStates, editedIndex, saveProfile, editedItem, editItem, deleteItem, dialogDelete, closeDelete, deleteItemConfirm, skills, fetchSkills, skillsLoading, defaultItem, formTitle, profiles, totalProfiles, headers, loading, fetchProfiles, expanded, dialog, openFile, printFile, deleteFile, getSkillColor
                 }
             }
         })
