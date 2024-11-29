@@ -17,6 +17,7 @@ from reportlab.lib.styles import ParagraphStyle
 from PyPDF2 import PdfMerger
 from SetracoRecrutement.logger import Logger
 from profiles.serializers import ProfileSerializer
+from PIL import Image  # For image handling
 
 from .models import Comment, Profile, ProfileFile, FollowUp
 
@@ -78,6 +79,27 @@ def delete_file(request):
 
     return HttpResponse(status=400)
 
+def convert_image_to_pdf(image_path):
+    """Convert an image file to PDF and return a BytesIO buffer."""
+    buffer = io.BytesIO()
+    pdf = canvas.Canvas(buffer, pagesize=A4)
+    page_width, page_height = A4
+    img = Image.open(image_path)
+
+    # Resize the image to fit within the page, preserving aspect ratio
+    img_width, img_height = img.size
+    aspect_ratio = min(page_width / img_width, page_height / img_height)
+    new_width = img_width * aspect_ratio
+    new_height = img_height * aspect_ratio
+
+    x_position = (page_width - new_width) / 2
+    y_position = (page_height - new_height) / 2
+
+    pdf.drawImage(ImageReader(img), x_position, y_position, new_width, new_height)
+    pdf.showPage()
+    pdf.save()
+    buffer.seek(0)
+    return buffer
 
 @login_required
 def export_profile_pdf(request):
@@ -168,8 +190,11 @@ def export_profile_pdf(request):
 
         for profile_file in profile.files.all():
             path = profile_file.file.path
-            if path.endswith('.pdf'):  # Ensure it's a PDF file
+            if path.endswith('.pdf'):
                 merger.append(path)
+            elif path.lower().endswith(('.png', '.jpg', '.jpeg')):
+                image_pdf = convert_image_to_pdf(path)
+                merger.append(image_pdf)
 
         # Serve the merged PDF
         response = HttpResponse(content_type='application/pdf')
