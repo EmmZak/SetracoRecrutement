@@ -1,5 +1,6 @@
 import csv
 import os
+import io
 
 from django.contrib.auth.decorators import login_required, permission_required
 from django.core.paginator import Paginator
@@ -13,7 +14,7 @@ from reportlab.lib.utils import ImageReader
 from reportlab.pdfgen import canvas
 from reportlab.platypus import Paragraph
 from reportlab.lib.styles import ParagraphStyle
-
+from PyPDF2 import PdfMerger
 from SetracoRecrutement.logger import Logger
 from profiles.serializers import ProfileSerializer
 
@@ -86,10 +87,9 @@ def export_profile_pdf(request):
     try:
         profile = Profile.objects.get(id=profile_id)
 
-        response = HttpResponse(content_type='application/pdf')
-        response['Content-Disposition'] = f'attachment; filename="{profile.name}_{profile.surname}.pdf"'
-
-        pdf = canvas.Canvas(response, pagesize=A4)
+        pdf_buffer = io.BytesIO()
+        pdf = canvas.Canvas(pdf_buffer, pagesize=A4)
+        
         page_width, page_height = A4
         margins = {"top": 50, "bottom": 75, "left": 75, "right": 75}
         usable_width = page_width - margins["left"] - margins["right"]
@@ -161,6 +161,25 @@ def export_profile_pdf(request):
             followups, y_position, margins["left"] + 20, usable_width, usable_height)
 
         pdf.save()
+        pdf_buffer.seek(0)
+
+        merger = PdfMerger()
+        merger.append(pdf_buffer)
+
+        for profile_file in profile.files.all():
+            path = profile_file.file.path
+            if path.endswith('.pdf'):  # Ensure it's a PDF file
+                merger.append(path)
+
+        # Serve the merged PDF
+        response = HttpResponse(content_type='application/pdf')
+        response['Content-Disposition'] = f'attachment; filename="{profile.name}_{profile.surname}.pdf"'
+        merged_pdf = io.BytesIO()
+        merger.write(merged_pdf)
+        merger.close()
+
+        merged_pdf.seek(0)
+        response.write(merged_pdf.read())
         return response
 
     except Exception as e:
