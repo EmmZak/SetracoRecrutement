@@ -299,7 +299,7 @@ def check_profile(request):
             "number": data.get("number", "").strip(),
         }
 
-        logger.info(f"Checking fields: {fields}")
+        logger.debug(f"Checking fields: {fields}")
 
         for field, value in fields.items():
             if value and Profile.objects.filter(**{f"{field}__iexact": value}).exists():

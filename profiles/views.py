@@ -54,7 +54,9 @@ def profiles_create(request):
     profile_id = request.POST.get('id')
     try:
         logger.info(
-            f"{'Updating' if profile_id else 'Creating'} profile", request=request)
+            f"{'Updating' if profile_id else 'Creating'} profile {request.POST}", request=request)
+        logger.debug(
+            f"request data {request.POST}", request=request)
         surname = request.POST.get('surname')
         name = request.POST.get('name')
         town = request.POST.get('town')
@@ -68,21 +70,7 @@ def profiles_create(request):
         training_ids = request.POST.get('trainings', '')
         state_id = request.POST.get('state', None)
         files = request.FILES.getlist('files')
-        logger.debug(
-            f"Profile form data: "
-            f"surname={surname}, "
-            f"name={name}, "
-            f"town={town}, "
-            f"email={email}, "
-            f"number={number}, "
-            f"diplomas={diplomas}, "
-            f"comment={comment}, "
-            f"followup={followup}, "
-            f"skill_ids={skill_ids}, "
-            f"training_ids={training_ids}, "
-            f"state_id={state_id}, "
-            f"files={len(files)} files uploaded."
-        )
+
         profile = get_object_or_404(
             Profile, id=profile_id) if profile_id else Profile()
 
