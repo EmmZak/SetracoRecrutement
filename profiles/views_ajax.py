@@ -1,6 +1,7 @@
 import csv
 import os
 import io
+from openpyxl import Workbook
 
 from django.contrib.auth.decorators import login_required, permission_required
 from django.core.paginator import Paginator
@@ -212,10 +213,9 @@ def export_profile_pdf(request):
             f"Error exporting profile by id: {profile_id} {e}", request=request)
         return HttpResponse(status=500)
 
-
 @login_required
 def export_profiles_csv(request):
-    logger.info("Exporting profiles in csv", request=request)
+    logger.info("Exporting profiles in Excel", request=request)
 
     try:
         search_value = request.GET.get('search', '')
@@ -239,51 +239,51 @@ def export_profiles_csv(request):
 
         if training_filter:
             training_ids = training_filter.split(',')
-            profiles = profiles.filter(
-                trainings__id__in=training_ids).distinct()
+            profiles = profiles.filter(trainings__id__in=training_ids).distinct()
 
         if state_filter:
             states = state_filter.split(',')
             profiles = profiles.filter(state__in=states)
 
-        response = HttpResponse(content_type='text/csv')
-        response['Content-Disposition'] = 'attachment; filename="profiles.csv"'
+        # Create Excel workbook and worksheet
+        wb = Workbook()
+        ws = wb.active
+        ws.title = "Profiles"
 
-        writer = csv.writer(response)
-
-        writer.writerow([
+        # Add header row
+        ws.append([
             'Date de creation', 'Date de mise a jour', 'Nom', 'Prenom', 'Date de naissance',
             'Email', 'Numero', 'Ville', 'Competences', 'Diplomes',
             'Etat', 'Commentaires', 'Suivi interne', 'Formations'
         ])
 
+        # Add data rows
         for profile in profiles:
             skills = ', '.join([skill.name for skill in profile.skills.all()])
-
-            comments = '; '.join(
-                [f"{comment.user.username}: {comment.text}" for comment in profile.comments.all()])
-
-            followups = '; '.join(
-                [f"{flw.user.username}: {flw.text}" for flw in profile.followups.all()])
-
-            trainings = '; '.join(
-                [f"{training.name}" for training in profile.trainings.all()])
-
+            comments = '; '.join([f"{comment.user.username}: {comment.text}" for comment in profile.comments.all()])
+            followups = '; '.join([f"{flw.user.username}: {flw.text}" for flw in profile.followups.all()])
+            trainings = '; '.join([f"{training.name}" for training in profile.trainings.all()])
             state = getattr(profile.state, 'name', "Inconnu")
             creation_date = profile.creation_date.strftime('%d/%m/%Y %H:%M:%S')
             update_date = profile.update_date.strftime('%d/%m/%Y %H:%M:%S')
 
-            writer.writerow([
+            ws.append([
                 creation_date, update_date, profile.name, profile.surname, profile.birthday,
                 profile.email, profile.number, profile.town, skills, profile.diplomas,
                 state, comments, followups, trainings
             ])
 
+        # Prepare HTTP response with Excel content
+        response = HttpResponse(content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+        response['Content-Disposition'] = 'attachment; filename="profiles.xlsx"'
+
+        # Save the workbook to the response
+        wb.save(response)
+
         return response
     except Exception as e:
-        logger.error(f"Exporting profiles in csv {e}", request=request)
+        logger.error(f"Exporting profiles in Excel {e}", request=request)
         return HttpResponse(status=500)
-
 
 @login_required
 @permission_required('profiles.add_profile')

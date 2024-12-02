@@ -272,8 +272,14 @@
                 const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/; // Simplified email regex
                 const phonePattern = /^\d{10}$/; // Matches exactly 10 digits
                 var rules = {
-                    email: value => emailPattern.test(value) || value === "" || "L'email n'est pas valide",
-                    number: value => phonePattern.test(value) || value === "" || "Le numéro de téléphone doit contenir 10 chiffres"
+                    email: value => {
+                        if (!value) return true; // No error if the field is empty
+                        return emailPattern.test(value) || "L'email n'est pas valide"; // Validate email format
+                    },
+                    number: value => {
+                        if (!value) return true; // No error if the field is empty
+                        return phonePattern.test(value) || "Le numéro de téléphone doit contenir 10 chiffres"; // Validate phone number
+                    }
                 };
                 const headers = [
                     // { title: 'Date de création', key: 'creation_date', sortable: true },
@@ -525,7 +531,7 @@
                         });
 
                         let namePart = [profile.name, profile.surname].filter(Boolean).join('_'); // Combine name and surname if they exist
-                        let filename = `export_profile${namePart ? `_${namePart}` : ''}`; // Append namePart only if it's not empty
+                        let filename = `export_profil${namePart ? `_${namePart}` : ''}`; // Append namePart only if it's not empty
 
 
                         const url = window.URL.createObjectURL(new Blob([response.data]));
@@ -558,7 +564,7 @@
                         const url = window.URL.createObjectURL(new Blob([response.data]));
                         const link = document.createElement('a');
                         link.href = url;
-                        link.setAttribute('download', 'export_profils.csv');  // Filename
+                        link.setAttribute('download', 'export_profils.xlsx');  // Filename
                         document.body.appendChild(link);
                         link.click();
                     } catch (error) {
