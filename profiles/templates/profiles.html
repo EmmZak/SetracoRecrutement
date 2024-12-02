@@ -67,7 +67,9 @@
                                             <span class="text-h4">${formTitle}</span>
                                         </v-card-title>
                                         <v-card-text class="p-2">
-                                            <span class="text-red">${similarityMessage}</span>
+                                            <!-- <span class="text-red">${similarityMessage}</span> -->
+                                            <v-alert v-if="similarityMessage" :text="similarityMessage"
+                                                type="warning"></v-alert>
                                             <v-row cols="12">
                                                 <v-col cols="4">
                                                     <!-- {{is_editor_or_admin}} -->
@@ -199,6 +201,10 @@
                                                         </v-chip>
                                                     </div>
                                                 </v-col>
+                                                <v-alert v-if="isDocxFileWarning"
+                                                    text="Seules les pièces jointes PDF, JPG et PNG seront incluses dans l'export PDF du profil"
+                                                    type="warning"></v-alert>
+
                                             </v-row>
 
                                         </v-card-text>
@@ -314,6 +320,7 @@
                 const deleteId = ref(null)
                 var form = ref(false)
                 var similarityMessage = ref("")
+                var isDocxFileWarning = ref(false)
                 var defaultItem = ref({
                     id: null,
                     name: "",
@@ -366,6 +373,13 @@
 
                 const handleFileChange = (event) => {
                     selectedFiles.value = Array.from(event.target.files);
+                    for (const file of selectedFiles.value) {
+                        const fileName = file.name.toLowerCase();
+                        if (fileName.endsWith('.doc') || fileName.endsWith('.docx')) {
+                            isDocxFileWarning.value = true;
+                            break;
+                        }
+                    }
                 }
 
                 const profileSimilarityCheck = async () => {
@@ -719,7 +733,7 @@
                 })
 
                 return {
-                    rules, deleteFollowup, trainings, fetchTrainings, handleFileChange, selectedFiles, exportProfile, similarityMessage, form, exportData, expandedRowKey, expandedRows, onRowClick, deleteComment, pagination, paginationFiltersCustom, profileStates, editedIndex, saveProfile, editedItem, editItem, deleteItem, dialogDelete, closeDelete, deleteItemConfirm, skills, fetchSkills, skillsLoading, defaultItem, formTitle, profiles, totalProfiles, headers, loading, fetchProfiles, expanded, dialog, openFile, printFile, deleteFile, getSkillColor
+                    isDocxFileWarning, rules, deleteFollowup, trainings, fetchTrainings, handleFileChange, selectedFiles, exportProfile, similarityMessage, form, exportData, expandedRowKey, expandedRows, onRowClick, deleteComment, pagination, paginationFiltersCustom, profileStates, editedIndex, saveProfile, editedItem, editItem, deleteItem, dialogDelete, closeDelete, deleteItemConfirm, skills, fetchSkills, skillsLoading, defaultItem, formTitle, profiles, totalProfiles, headers, loading, fetchProfiles, expanded, dialog, openFile, printFile, deleteFile, getSkillColor
                 }
             }
         })
