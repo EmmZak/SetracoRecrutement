@@ -30,9 +30,9 @@ MEDIA_ROOT = "/home/cvthequeuser/media"
 
 LOGS_DIR = "/home/cvthequeuser/logs"
 
-ALLOWED_HOSTS = ["cvtheque.devexperimentation.fr", "www.cvtheque.devexperimentation.fr", "localhost"]
+ALLOWED_HOSTS = ["cvtheque.setraco.fr", "www.cvtheque.setraco.fr", "localhost"]
 CSRF_TRUSTED_ORIGINS = [
-    'https://*.devexperimentation.fr'
+    'https://*.setraco.fr'
 ]
 SESSION_COOKIE_SECURE = True
 CSRF_COOKIE_SECURE = True
