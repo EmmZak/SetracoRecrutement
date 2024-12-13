@@ -30,7 +30,7 @@ MEDIA_ROOT = "/home/cvthequeuser/media"
 
 LOGS_DIR = "/home/cvthequeuser/logs"
 
-ALLOWED_HOSTS = ["cvtheque.setraco.fr", "www.cvtheque.setraco.fr", "localhost"]
+ALLOWED_HOSTS = ["cvtheque.setraco.fr", "www.cvtheque.setraco.fr", "localhost", "141.94.244.110"]
 CSRF_TRUSTED_ORIGINS = [
     'https://*.setraco.fr'
 ]
